@@ -4,48 +4,59 @@ import { Observable, of } from 'rxjs';
 import { BudgetAdd } from '../../interfaces/budgets/budget-add.interface';
 import { BudgetEdit } from '../../interfaces/budgets/budget-edit.interface';
 import { getRansomStringFromObject } from 'src/app/core/utilities/string-utilities';
-import { sessionStorageService } from 'src/app/core/utilities/local-storage-utilities';
+import { localStorageService } from 'src/app/core/utilities/local-storage-utilities';
+import * as moment from 'moment';
 
 @Injectable()
 export class LocalStorageBudgetService {
   getAll(): Observable<Object> {
-    const budgets: Object = sessionStorageService.getObject('budgets');
+    const budgets: Object = localStorageService.getObject('budgets');
     return of(Object.values(budgets));
   }
 
   add(value: BudgetAdd) {
-    const budgets: any = sessionStorageService.getObject('budgets');
-    const id = getRansomStringFromObject(budgets);
-    const response: any = {
+    const budgets: any = localStorageService.getObject('budgets');
+    const budgetId = getRansomStringFromObject(budgets);
+    const budgetResponse: any = {
       ...value,
-      id,
+      id: budgetId,
       isActive: true,
     };
-    budgets[response.id] = response;
-    localStorage.setItem('budgets', JSON.stringify(budgets));
+    budgets[budgetResponse.id] = budgetResponse;
+    localStorageService.setObject('budgets', budgets);
 
-    // TODO: also need to add a snapshot
+    const snapshots: any = localStorageService.getObject('snapshots');
+    const snapshotId = getRansomStringFromObject(snapshots);
+    const snapshotResponse: any = {
+      id: snapshotId,
+      date: moment(),
+      actualBalance: 0,
+      estimatedBalance: 0,
+      budgetId,
+    };
+    snapshots[snapshotResponse.id] = snapshotResponse;
+    localStorageService.setObject('snapshots', snapshots);
 
-    return of(response);
+    return of({ budgetId, snapshotId });
   }
 
   update(value: BudgetEdit) {
-    const budgets: any = sessionStorageService.getObject('budgets');
+    const budgets: any = localStorageService.getObject('budgets');
     if (budgets[value.id]) {
       const budget = budgets[value.id];
       budget.name = value.name;
       budget.isActive = value.isActive;
-      localStorage.setItem('budgets', JSON.stringify(budgets));
+      localStorageService.setObject('budgets', budgets);
       return of(budget);
     }
     return of(false);
   }
 
   delete(id: number | string) {
-    const budgets: any = sessionStorageService.getObject('budgets');
+    const budgets: any = localStorageService.getObject('budgets');
     if (budgets[id]) {
       delete budgets[id];
-      localStorage.setItem('budgets', JSON.stringify(budgets));
+      localStorageService.setObject('budgets', budgets);
       return of(true);
     }
     return of(false);

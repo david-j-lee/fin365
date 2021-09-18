@@ -4,12 +4,12 @@ import { Observable, of } from 'rxjs';
 import { RevenueAdd } from '../../interfaces/revenues/revenue-add.interface';
 import { RevenueEdit } from '../../interfaces/revenues/revenue-edit.interface';
 import { getRansomStringFromObject } from 'src/app/core/utilities/string-utilities';
-import { sessionStorageService } from 'src/app/core/utilities/local-storage-utilities';
+import { localStorageService } from 'src/app/core/utilities/local-storage-utilities';
 
 @Injectable()
 export class LocalStorageRevenueService {
   getAll(budgetId: number | string): Observable<Object> {
-    const revenues = sessionStorageService.getObject('revenues');
+    const revenues = localStorageService.getObject('revenues');
     return of(
       Object.values(revenues).filter(
         (revenue: any) => revenue.budgetId === budgetId
@@ -18,11 +18,11 @@ export class LocalStorageRevenueService {
   }
 
   add(value: RevenueAdd) {
-    const revenues = sessionStorageService.getObject('revenues');
+    const revenues = localStorageService.getObject('revenues');
 
     const id = getRansomStringFromObject(revenues);
     revenues[id] = { ...value, id };
-    sessionStorageService.setObject('revenues', revenues);
+    localStorageService.setObject('revenues', revenues);
 
     const response = id;
 
@@ -30,7 +30,7 @@ export class LocalStorageRevenueService {
   }
 
   update(value: RevenueEdit) {
-    const revenues = sessionStorageService.getObject('revenues');
+    const revenues = localStorageService.getObject('revenues');
     const revenue = revenues[value.id];
     if (revenue) {
       revenue.description = value.description;
@@ -46,14 +46,14 @@ export class LocalStorageRevenueService {
       revenue.repeatFri = value.repeatFri;
       revenue.repeatSat = value.repeatSat;
       revenue.repeatSun = value.repeatSun;
-      sessionStorageService.setObject('revenues', revenues);
+      localStorageService.setObject('revenues', revenues);
       return of(true);
     }
     return of(false);
   }
 
   delete(id: number | string) {
-    const revenues = sessionStorageService.getObject('revenues');
+    const revenues = localStorageService.getObject('revenues');
     if (revenues[id]) {
       delete revenues[id];
       return of(true);

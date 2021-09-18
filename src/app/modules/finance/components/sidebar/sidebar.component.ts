@@ -10,15 +10,11 @@ import { SideBarService } from '../../services/side-bar.service';
   styleUrls: ['sidebar.component.scss'],
 })
 export class SidebarComponent implements OnInit {
-  startDate: string;
-
   constructor(
     public financeService: FinanceService,
     public dailyService: DailyService,
     public sideBarService: SideBarService
-  ) {
-    this.startDate = financeService.selectedBudget?.startDate.toString() ?? '';
-  }
+  ) {}
 
   ngOnInit() {}
 }

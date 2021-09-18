@@ -26,6 +26,18 @@ export class DailyService {
 
   constructor(private financeService: FinanceService) {}
 
+  getBalanceForGivenDay(date: string) {
+    if (!this.financeService.selectedBudget || !this.financeService.selectedBudget.days) {
+      return 0;
+    }
+
+    const day = this.financeService.selectedBudget.days.find(
+      (day) => day.date.format('MM/DD/YYYY') === date
+    );
+
+    return day?.balance ?? 0;
+  }
+
   getTotalRevenue(revenue: Revenue): number {
     if (revenue.dailyRevenues) {
       return revenue.dailyRevenues.reduce((sum, item) => sum + item.amount, 0);

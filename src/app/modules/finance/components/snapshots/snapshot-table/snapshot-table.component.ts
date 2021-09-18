@@ -1,13 +1,12 @@
-import { DailyService } from '../../../services/daily.service';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableDataSource } from '@angular/material/table';
-import * as moment from 'moment';
 
 import { FinanceService } from '../../../services/finance.service';
 import { DalSnapshotService } from '../../../services/dal/dal.snapshot.service';
+import { DailyService } from '../../../services/daily.service';
 
 import { SnapshotAdd } from '../../../interfaces/snapshots/snapshot-add.interface';
 import { SnapshotBalanceAdd } from '../../../interfaces/snapshots/snapshot-balance-add.interface';
@@ -42,10 +41,14 @@ export class SnapshotTableComponent implements OnInit {
   styleUrls: ['snapshot-table.component.scss'],
 })
 export class SnapshotTableDialogComponent implements OnInit {
+  mostRecentSnapshotDate = this.financeService.getMostRecentSnapshotDate();
+  estimatedTotalBalance = this.dailyService.getBalanceForGivenDay(
+    this.mostRecentSnapshotDate?.format('MM/DD/YYYY') ?? ''
+  );
   displayColumns = ['description', 'amount', 'delete'];
   dataSource = new MatTableDataSource<any>();
   addSnapshot: SnapshotAdd = {
-    date: moment(),
+    date: this.mostRecentSnapshotDate,
     estimatedBalance: 0,
     actualBalance: 0,
   };
@@ -54,6 +57,7 @@ export class SnapshotTableDialogComponent implements OnInit {
 
   constructor(
     private financeService: FinanceService,
+    private dailyService: DailyService,
     private dalSnapshotService: DalSnapshotService,
     private matSnackBar: MatSnackBar,
     public matDialogRef: MatDialogRef<SnapshotTableDialogComponent>
@@ -75,6 +79,12 @@ export class SnapshotTableDialogComponent implements OnInit {
     this.balances.push({} as SnapshotBalanceAdd);
 
     this.dataSource = new MatTableDataSource(this.balances);
+  }
+
+  onDatePickerChange() {
+    this.estimatedTotalBalance = this.dailyService.getBalanceForGivenDay(
+      this.addSnapshot.date.format('MM/DD/YYYY')
+    );
   }
 
   update() {

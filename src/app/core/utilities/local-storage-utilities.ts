@@ -1,4 +1,4 @@
-export const sessionStorageService = {
+export const localStorageService = {
   getObject: (key: string) => {
     return JSON.parse(localStorage.getItem(key) ?? '{}');
   },

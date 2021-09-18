@@ -142,12 +142,18 @@ export class BudgetDashboardComponent implements OnInit {
     this.dalSnapshotService.getAll(budget.id).subscribe(
       (result) => {
         if (result) {
-          const rawItems = result;
-          for (const item of rawItems) {
-            item.date = item.date !== null ? moment(item.date) : '';
-            item.balanceDifference = item.estimatedBalance - item.actualBalance;
-          }
-          budget.snapshots = result;
+          budget.snapshots = result
+            .map((snapshot: any) => ({
+              ...snapshot,
+              date: snapshot.date !== null ? moment(snapshot.date) : '',
+              balanceDifference:
+                snapshot.estimatedBalance - snapshot.actualBalance,
+            }))
+            .sort((a: any, b: any) => {
+              const valueA = a.date ? a.date.toISOString() : '';
+              const valueB = b.date ? b.date.toISOString() : '';
+              return valueB.localeCompare(valueA);
+            });
           if (budget.snapshots && budget.snapshots[0]) {
             budget.startDate = budget.snapshots[0].date;
           }

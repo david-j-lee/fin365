@@ -48,7 +48,7 @@ export class DalBudgetService {
       map((result: any) => {
         // add new class locally
         const newBudget: Budget = {
-          id: result.id,
+          id: result.budgetId,
           isBalancesLoaded: true,
           isRevenuesLoaded: true,
           isExpensesLoaded: true,

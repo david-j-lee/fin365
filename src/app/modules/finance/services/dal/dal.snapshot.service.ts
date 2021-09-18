@@ -9,6 +9,7 @@ import { map } from 'rxjs/operators';
 import { WebApiSnapshotService } from '../web-api/web-api.snapshot.service';
 import { FinanceService } from '../finance.service';
 import { DailyService } from '../daily.service';
+import { CalendarService } from '../calendar.service';
 import { ChartService } from '../chart.service';
 
 import { Snapshot } from '../../interfaces/snapshots/snapshot.interface';
@@ -16,6 +17,7 @@ import { SnapshotAdd } from '../../interfaces/snapshots/snapshot-add.interface';
 import { SnapshotAddAll } from '../../interfaces/snapshots/snapshot-add-all.interface';
 import { Balance } from '../../interfaces/balances/balance.interface';
 import { LocalStorageSnapshotService } from '../local-storage/local-storage.snapshot.service';
+import * as moment from 'moment';
 
 const SERVICE = 'localStorageSnapshotService';
 
@@ -26,7 +28,8 @@ export class DalSnapshotService {
     private webApiSnapshotService: WebApiSnapshotService,
     private financeService: FinanceService,
     private dailyService: DailyService,
-    private chartService: ChartService
+    private chartService: ChartService,
+    private calendarService: CalendarService
   ) {}
 
   getAll(budgetId: number | string) {
@@ -41,7 +44,9 @@ export class DalSnapshotService {
     // calculate balances
     const newAddSnapshot = {
       date: addSnapshot.date.format('L'),
-      estimatedBalance: this.dailyService.todaysEstimatedBalance,
+      estimatedBalance: this.dailyService.getBalanceForGivenDay(
+        addSnapshot.date.format('L')
+      ),
       actualBalance: balances
         .filter((x) => x.id !== undefined)
         .reduce((sum, item) => sum + item.amount, 0),
@@ -59,15 +64,12 @@ export class DalSnapshotService {
         // add snapshot to local data
         const snapshot: Snapshot = {
           id: result.snapshotId,
-          date: addSnapshot.date,
+          date: moment(addSnapshot.date),
           estimatedBalance: newAddSnapshot.estimatedBalance,
           actualBalance: newAddSnapshot.actualBalance,
           balanceDifference:
             newAddSnapshot.estimatedBalance - newAddSnapshot.actualBalance,
         };
-        if (this.financeService.selectedBudget) {
-          this.financeService.selectedBudget.snapshots?.unshift(snapshot);
-        }
 
         // update balances in local data
         let newBalanceIndex = 0;
@@ -87,7 +89,10 @@ export class DalSnapshotService {
             };
             newBalances.push(newBalance);
           });
+
         if (this.financeService.selectedBudget) {
+          this.financeService.selectedBudget.startDate = snapshot.date;
+          this.financeService.selectedBudget.snapshots?.unshift(snapshot);
           this.financeService.selectedBudget.balances = newBalances;
         }
 
@@ -96,6 +101,7 @@ export class DalSnapshotService {
         this.chartService.setChartExpense();
         this.chartService.setChartRevenue();
         this.chartService.setChartBudget();
+        this.calendarService.setFirstMonth();
 
         return of(true);
       })
