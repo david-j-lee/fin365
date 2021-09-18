@@ -1,14 +1,15 @@
 {
   "name": "fin365",
   "version": "0.0.0",
+  "license": "MIT",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "publish": "npm run build && aws s3 rm s3://letsblastoff.com --recursive && aws s3 sync dist/fin365 s3://letsblastoff.com"
   },
-  "private": true,
   "dependencies": {
     "@angular/animations": "~12.2.0",
     "@angular/cdk": "^12.2.6",
