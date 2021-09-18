@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { FinanceService } from '../../../services/finance.service';
 
 @Component({
@@ -6,8 +6,6 @@ import { FinanceService } from '../../../services/finance.service';
   templateUrl: 'expense-table.component.html',
   styleUrls: ['expense-table.component.scss'],
 })
-export class ExpenseTableComponent implements OnInit {
+export class ExpenseTableComponent {
   constructor(public financeService: FinanceService) {}
-
-  ngOnInit() {}
 }

@@ -27,7 +27,10 @@ export class DailyService {
   constructor(private financeService: FinanceService) {}
 
   getBalanceForGivenDay(date: string) {
-    if (!this.financeService.selectedBudget || !this.financeService.selectedBudget.days) {
+    if (
+      !this.financeService.selectedBudget ||
+      !this.financeService.selectedBudget.days
+    ) {
       return 0;
     }
 

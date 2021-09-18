@@ -1,10 +1,9 @@
 interface String {
-    ToUrlSafeString(): string;
+  ToUrlSafeString(): string;
 }
 
-String.prototype.ToUrlSafeString = function(): string {
-    return this
-        .replace(/[^a-zA-Z0-9_.]/g, '')
-        .replace(' ', '-')
-        .toLowerCase();
+String.prototype.ToUrlSafeString = function (): string {
+  return this.replace(/[^a-zA-Z0-9_.]/g, '')
+    .replace(' ', '-')
+    .toLowerCase();
 };

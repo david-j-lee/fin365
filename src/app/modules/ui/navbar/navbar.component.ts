@@ -1,32 +1,27 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 import { NavbarService } from '../../ui/navbar/navbar.service';
 import { FinanceService } from '../../finance/services/finance.service';
 
 @Component({
-    selector: 'app-navbar',
-    templateUrl: './navbar.component.html',
-    styleUrls: ['./navbar.component.scss']
+  selector: 'app-navbar',
+  templateUrl: './navbar.component.html',
+  styleUrls: ['./navbar.component.scss'],
 })
-export class NavbarComponent implements OnInit {
+export class NavbarComponent {
+  showArchivedBudgets = false;
+  showArchivedClasses = false;
 
-    showArchivedBudgets = false;
-    showArchivedClasses = false;
+  constructor(
+    public navbarService: NavbarService,
+    public financeService: FinanceService
+  ) {}
 
-    constructor(
-        public navbarService: NavbarService,
-        public financeService: FinanceService,
-    ) {
-    }
+  toggleArchivedBudgets() {
+    this.showArchivedBudgets = !this.showArchivedBudgets;
+  }
 
-    ngOnInit() {
-    }
-
-    toggleArchivedBudgets() {
-        this.showArchivedBudgets = !this.showArchivedBudgets;
-    }
-
-    toggleArchivedClasses() {
-        this.showArchivedClasses = !this.showArchivedClasses;
-    }
+  toggleArchivedClasses() {
+    this.showArchivedClasses = !this.showArchivedClasses;
+  }
 }

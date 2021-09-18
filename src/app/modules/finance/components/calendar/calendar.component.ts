@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 import { CalendarService } from '../../services/calendar.service';
 
@@ -10,10 +10,8 @@ import * as moment from 'moment';
   templateUrl: 'calendar.component.html',
   styleUrls: ['calendar.component.scss'],
 })
-export class CalendarComponent implements OnInit {
+export class CalendarComponent {
   today: Moment = moment();
 
   constructor(public calendarService: CalendarService) {}
-
-  ngOnInit() {}
 }

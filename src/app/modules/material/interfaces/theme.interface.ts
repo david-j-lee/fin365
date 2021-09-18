@@ -1,4 +1,4 @@
 export class Theme {
-  name: string = "";
-  class: string = "";
+  name: string = '';
+  class: string = '';
 }

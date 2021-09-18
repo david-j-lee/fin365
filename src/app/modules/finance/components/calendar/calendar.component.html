@@ -25,12 +25,12 @@
     <div *ngIf="calendarService.days"
          class="calendar flex-grow-1">
       <div *ngFor="let day of calendarService.days; let first = first;"
-           [ngClass]="day.date.format('L') == today.format('L') ? 'today' : day.date.month() + 1 !== calendarService.currentMonth ? 'out-of-period' : ''"
+           [ngClass]="day.date.format('L') === today.format('L') ? 'today' : day.date.month() + 1 !== calendarService.currentMonth ? 'out-of-period' : ''"
            class="day">
         <div *ngIf="day.date.month() + 1 !== calendarService.currentMonth"
              class="overlay"></div>
         <div class="date mt-1 ms-1">
-          <span *ngIf="day.date.date() == 1 || first">{{day.date.toDate() | date:'MMM'}} </span>
+          <span *ngIf="day.date.date() === 1 || first">{{day.date.toDate() | date:'MMM'}} </span>
           <span>{{day.date.toDate() | date: 'd' }}</span>
         </div>
         <div class="items">

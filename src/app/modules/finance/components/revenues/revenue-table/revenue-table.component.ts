@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 import { FinanceService } from '../../../services/finance.service';
 
@@ -7,8 +7,6 @@ import { FinanceService } from '../../../services/finance.service';
   templateUrl: 'revenue-table.component.html',
   styleUrls: ['revenue-table.component.scss'],
 })
-export class RevenueTableComponent implements OnInit {
+export class RevenueTableComponent {
   constructor(public financeService: FinanceService) {}
-
-  ngOnInit() {}
 }

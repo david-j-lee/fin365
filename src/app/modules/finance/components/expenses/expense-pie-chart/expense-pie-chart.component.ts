@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 import { ChartService } from '../../../services/chart.service';
 
@@ -7,8 +7,6 @@ import { ChartService } from '../../../services/chart.service';
   templateUrl: 'expense-pie-chart.component.html',
   styleUrls: ['expense-pie-chart.component.scss'],
 })
-export class ExpensePieChartComponent implements OnInit {
+export class ExpensePieChartComponent {
   constructor(public chartService: ChartService) {}
-
-  ngOnInit() {}
 }

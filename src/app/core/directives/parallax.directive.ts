@@ -4,7 +4,7 @@
 import { Directive, ElementRef, Input, OnInit } from '@angular/core';
 
 @Directive({
-  // tslint:disable-next-line
+  // eslint-disable-next-line @angular-eslint/directive-selector
   selector: '[parallax]'
 })
 export class ParallaxDirective implements OnInit {

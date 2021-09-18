@@ -5,7 +5,7 @@ import { Validator, AbstractControl, NG_VALIDATORS } from '@angular/forms';
   selector:
     // this is used to target non angular elements like input fields
     // as a result, app- cannot be prefixed to the selector name.
-    // tslint:disable-next-line
+    // eslint-disable-next-line @angular-eslint/directive-selector
     '[validateEqual][formControlName],[validateEqual][formControl],[validateEqual][ngModel]',
   providers: [
     {
