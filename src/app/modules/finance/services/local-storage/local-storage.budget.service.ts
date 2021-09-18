@@ -57,6 +57,39 @@ export class LocalStorageBudgetService {
     if (budgets[id]) {
       delete budgets[id];
       localStorageService.setObject('budgets', budgets);
+
+      const balances = localStorageService.getObject('balances');
+      const filteredBalances = Object.fromEntries(
+        Object.entries(balances).filter(
+          ([_key, value]: [string, any]) => value.budgetId !== id
+        )
+      );
+      localStorageService.setObject('balances', filteredBalances);
+
+      const revenues = localStorageService.getObject('revenues');
+      const filteredRevenues = Object.fromEntries(
+        Object.entries(revenues).filter(
+          ([_key, value]: [string, any]) => value.budgetId !== id
+        )
+      );
+      localStorageService.setObject('revenues', filteredRevenues);
+
+      const expenses = localStorageService.getObject('expenses');
+      const filteredExpenses = Object.fromEntries(
+        Object.entries(expenses).filter(
+          ([_key, value]: [string, any]) => value.budgetId !== id
+        )
+      );
+      localStorageService.setObject('expenses', filteredExpenses);
+
+      const snapshots = localStorageService.getObject('snapshots');
+      const filteredSnapshots = Object.fromEntries(
+        Object.entries(snapshots).filter(
+          ([_key, value]: [string, any]) => value.budgetId !== id
+        )
+      );
+      localStorageService.setObject('snapshots', filteredSnapshots);
+
       return of(true);
     }
     return of(false);
