@@ -23,7 +23,6 @@ export class LocalStorageSnapshotService {
   }
 
   save(value: SnapshotAddAll) {
-    console.log(value);
     const snapshots = sessionStorageService.getObject('snapshots');
 
     const id = getRansomStringFromObject(snapshots);

@@ -72,16 +72,12 @@ export class BudgetDashboardComponent implements OnInit {
         this.getSnapshots(selectedBudget);
       }
 
-      console.log(selectedBudget);
-
       this.dailyService.generateDailyBudget();
       this.chartService.setChartBalance();
       this.chartService.setChartRevenue();
       this.chartService.setChartExpense();
       this.chartService.setChartBudget();
       this.calendarService.setFirstMonth();
-
-      console.log(selectedBudget);
     }
   }
 
