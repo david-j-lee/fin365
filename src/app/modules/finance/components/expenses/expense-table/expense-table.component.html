@@ -1,0 +1,16 @@
+<mat-list>
+  <mat-list-item *ngFor="let expense of financeService.selectedBudget?.expenses | sortBy: 'description'">
+    <button mat-icon-button
+            class="me-2"
+            [routerLink]="['./expense', expense.id, 'edit']">
+      <mat-icon>edit</mat-icon>
+    </button>
+    <div class="frequency-flag">{{expense.frequency.substring(0,1)}}</div>
+    <div class="fill-space">
+      <a class="pointer"
+         [routerLink]="['./expense', expense.id, 'edit']"
+         class="me-2">{{expense.description}}</a>
+    </div>
+    <div class="fill-space text-end">$ {{expense.amount}}</div>
+  </mat-list-item>
+</mat-list>

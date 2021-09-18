@@ -1,0 +1,12 @@
+<h2 class="h5 text-center">Balances</h2>
+<div class="budgets-pie-chart">
+  <div *ngIf="chartService.chartBalance">
+    <canvas baseChart
+            [type]="chartService.chartBalance.chartType"
+            [options]="chartService.chartBalance.options"
+            [data]="chartService.chartBalance.data"></canvas>
+    <h5 class="text-center mt-3">
+      {{ chartService.chartBalance?.total | currency:'':'symbol':'1.0-0' }}
+    </h5>
+  </div>
+</div>
