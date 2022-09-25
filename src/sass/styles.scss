@@ -62,6 +62,10 @@ a:hover {
   text-align: right;
 }
 
+.mat-list-base.mat-nav-list {
+  padding-top: 0;
+}
+
 .nav-item {
   display: flex;
   align-items: center;
