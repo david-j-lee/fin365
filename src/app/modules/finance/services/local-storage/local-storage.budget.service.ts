@@ -29,7 +29,7 @@ export class LocalStorageBudgetService {
     const snapshotId = getRansomStringFromObject(snapshots);
     const snapshotResponse: any = {
       id: snapshotId,
-      date: moment(),
+      date: value.startDate,
       actualBalance: 0,
       estimatedBalance: 0,
       budgetId,
