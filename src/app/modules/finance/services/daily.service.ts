@@ -57,6 +57,15 @@ export class DailyService {
     }
   }
 
+  resetDailyBudget() {
+    this.budget.expenses?.forEach(expense => {
+      expense.dailyExpenses = [];
+    });
+    this.budget.revenues?.forEach(revenue => {
+      revenue.dailyRevenues = [];
+    })
+  }
+
   generateDailyBudget() {
     if (
       this.financeService.selectedBudget &&
@@ -65,6 +74,8 @@ export class DailyService {
       this.budget = this.financeService.selectedBudget;
       this.startDate = this.financeService.selectedBudget.startDate.clone();
       this.endDate = this.startDate.clone().add(this.numberOfDays, 'days');
+
+      this.resetDailyBudget();
 
       this.generateDays();
       this.generateBalances();
