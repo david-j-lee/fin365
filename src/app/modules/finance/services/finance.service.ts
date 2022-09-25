@@ -15,6 +15,12 @@ export class FinanceService {
     this.selectedBudget = budget;
   }
 
+  getFirstDate() {
+    return this.selectedBudget?.days
+      ? this.selectedBudget?.days[0]?.date
+      : undefined;
+  }
+
   getMostRecentSnapshotDate() {
     if (
       !this.selectedBudget?.snapshots ||

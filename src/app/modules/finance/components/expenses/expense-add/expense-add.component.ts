@@ -59,7 +59,7 @@ export class ExpenseAddDialogComponent implements OnInit {
       amount: 0,
       isForever: true,
       frequency: '',
-      startDate: undefined,
+      startDate: this.financeService.getFirstDate(),
       endDate: undefined,
       repeatMon: false,
       repeatTue: false,
