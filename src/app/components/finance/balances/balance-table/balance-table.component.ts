@@ -2,7 +2,7 @@ import { NgFor } from '@angular/common'
 import { Component } from '@angular/core'
 import { MatIconButton } from '@angular/material/button'
 import { MatIcon } from '@angular/material/icon'
-import { MatListItem, MatList } from '@angular/material/list'
+import { MatList, MatListItem } from '@angular/material/list'
 import { RouterLink } from '@angular/router'
 import { FinanceService } from '@services/finance.service'
 
