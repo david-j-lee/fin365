@@ -1,0 +1,20 @@
+@use 'sass:map';
+@use '@angular/material' as mat;
+
+@include mat.core();
+
+$theme: mat.define-theme(
+  (
+    color: (
+      theme-type: dark,
+      primary: mat.$azure-palette,
+      tertiary: mat.$violet-palette,
+    ),
+  )
+);
+
+html {
+  @include mat.all-component-themes($theme);
+}
+
+@include mat.color-variants-backwards-compatibility($theme);

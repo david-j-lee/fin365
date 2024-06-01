@@ -1,0 +1,21 @@
+.mat-column-description {
+  margin-right: 15px;
+}
+
+.mat-column-amount {
+  flex: 0 0 150px;
+  margin-right: 15px;
+}
+
+.mat-column-delete {
+  flex: 0 0 75px;
+}
+
+.snapshot-date {
+  max-width: 200px;
+}
+
+.snapshot-delete {
+  align-self: flex-start;
+  margin-top: 8px;
+}
