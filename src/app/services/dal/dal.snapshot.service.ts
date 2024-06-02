@@ -1,6 +1,3 @@
-/*
-This service handles all the calls to the WebAPI for snapshots
-*/
 import { Injectable } from '@angular/core'
 import { Balance } from '@interfaces/balances/balance.interface'
 import { SnapshotAddAll } from '@interfaces/snapshots/snapshot-add-all.interface'
@@ -26,9 +23,11 @@ export class DalSnapshotService {
     private dailyService: DailyService,
     private chartService: ChartService,
     private calendarService: CalendarService,
-  ) {}
+  ) {
+    // Injecting services
+  }
 
-  getAll(budgetId: number | string) {
+  getAll(budgetId: string) {
     return this[SERVICE].getAll(budgetId).pipe(map((result) => result))
   }
 
@@ -36,62 +35,58 @@ export class DalSnapshotService {
     addSnapshot: SnapshotAdd,
     balances: Array<SnapshotBalanceAdd>,
   ): Observable<Snapshot> {
-    if (!this.financeService.selectedBudget?.id) {
-      throw new Error('Budget required to add snapshot')
-    }
+    const { budgetId } = addSnapshot
+    const filteredBalances = balances.filter((balance) => balance.id)
 
-    const budgetId = this.financeService.selectedBudget.id
-
-    // calculate balances
+    // Calculate balances
     const newAddSnapshot: SnapshotAdd = {
-      date: addSnapshot.date,
+      ...addSnapshot,
       estimatedBalance: this.dailyService.getBalanceForGivenDay(
         addSnapshot.date.format('L'),
       ),
-      actualBalance: balances
-        .filter((x) => x.id !== undefined)
-        .reduce((sum, item) => sum + item.amount, 0),
+      actualBalance: filteredBalances.reduce(
+        (sum, item) => sum + item.amount,
+        0,
+      ),
     }
 
-    // wrap it all up
+    // Wrap it all up
     const snapshotAddAll: SnapshotAddAll = {
       budgetId,
       snapshot: newAddSnapshot,
-      snapshotBalances: balances.filter((x) => x.id !== undefined),
+      snapshotBalances: filteredBalances,
     }
 
     return this[SERVICE].save(snapshotAddAll).pipe(
       map((result) => {
-        // add snapshot to local data
+        // Add snapshot to local data
         const snapshot: Snapshot = {
           id: result.snapshotId,
           date: moment(addSnapshot.date),
           estimatedBalance: newAddSnapshot.estimatedBalance,
           actualBalance: newAddSnapshot.actualBalance,
           balanceDifference:
-            newAddSnapshot.estimatedBalance - newAddSnapshot.actualBalance,
+            newAddSnapshot.actualBalance - newAddSnapshot.estimatedBalance,
           budgetId,
         }
 
-        // update balances in local data
+        // Update balances in local data
         let newBalanceIndex = 0
         const newBalances: Balance[] = []
-        balances
-          .filter((x) => x.id !== undefined)
-          .forEach((balance) => {
-            let balanceId = '0'
-            if (balance.id === '0') {
-              balanceId = result.balanceIds[newBalanceIndex]
-              newBalanceIndex++
-            }
-            const newBalance: Balance = {
-              id: balanceId,
-              description: balance.description,
-              amount: balance.amount,
-              budgetId,
-            }
-            newBalances.push(newBalance)
-          })
+        filteredBalances.forEach((balance) => {
+          let balanceId = ''
+          if (!balance.id) {
+            balanceId = result.balanceIds[newBalanceIndex]
+            newBalanceIndex += 1
+          }
+          const newBalance: Balance = {
+            id: balanceId,
+            description: balance.description,
+            amount: balance.amount,
+            budgetId,
+          }
+          newBalances.push(newBalance)
+        })
 
         if (this.financeService.selectedBudget) {
           this.financeService.selectedBudget.startDate = snapshot.date

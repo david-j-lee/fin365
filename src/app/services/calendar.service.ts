@@ -23,14 +23,16 @@ export class CalendarService {
   constructor(
     private financeService: FinanceService,
     private dailyService: DailyService,
-  ) {}
+  ) {
+    // Inject services
+  }
 
   setFirstMonth() {
     if (
       this.financeService.selectedBudget?.days &&
       this.financeService.selectedBudget.days.length > 0
     ) {
-      const firstDay = this.financeService.selectedBudget.days[0]
+      const [firstDay] = this.financeService.selectedBudget.days
       const lastDay =
         this.financeService.selectedBudget.days[
           this.financeService.selectedBudget.days.length - 1
@@ -53,7 +55,7 @@ export class CalendarService {
       this.currentMonthText = moment(this.currentMonth, 'M').format('MMMM')
       this.days = []
       const days = this.financeService.selectedBudget.days.filter(
-        (day) => day.year == year && day.month + 1 == month,
+        (day) => day.year === year && day.month + 1 === month,
       )
 
       if (days) {
@@ -71,12 +73,12 @@ export class CalendarService {
 
         for (let i = 0; i <= numLoops; i++) {
           const day = this.financeService.selectedBudget.days.find(
-            (day) =>
-              day.date.format('L') ==
+            (budgetDay) =>
+              budgetDay.date.format('L') ===
               firstDate.clone().add(i, 'days').format('L'),
           )
 
-          if (day !== undefined) {
+          if (day) {
             this.days.push(day)
             lastBalance = day.balance
           } else {
@@ -129,26 +131,30 @@ export class CalendarService {
     month: number,
     year: number,
   ): { month: number; year: number } {
+    let newMonth = month
+    let newYear = year
     if (month === 12) {
-      month = 1
-      year++
+      newMonth = 1
+      newYear += 1
     } else {
-      month++
+      newMonth += 1
     }
-    return { month: month, year: year }
+    return { month: newMonth, year: newYear }
   }
 
   private removeMonth(
     month: number,
     year: number,
   ): { month: number; year: number } {
+    let newMonth = month
+    let newYear = year
     if (month === 1) {
-      month = 12
-      year--
+      newMonth = 12
+      newYear -= 1
     } else {
-      month--
+      newMonth -= 1
     }
-    return { month: month, year: year }
+    return { month: newMonth, year: newYear }
   }
 
   private checkNext() {
@@ -164,7 +170,7 @@ export class CalendarService {
     const prevPeriod = this.removeMonth(this.currentMonth, this.currentYear)
     if (
       prevPeriod.year < this.minYear ||
-      (prevPeriod.month < this.minMonth && prevPeriod.year == this.minYear)
+      (prevPeriod.month < this.minMonth && prevPeriod.year === this.minYear)
     ) {
       this.hasPrev = false
     } else {

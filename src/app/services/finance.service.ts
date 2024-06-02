@@ -3,22 +3,18 @@ import { Budget } from '@interfaces/budgets/budget.interface'
 
 @Injectable()
 export class FinanceService {
-  budgets: Budget[] | undefined
-  selectedBudget: Budget | undefined
+  budgets: Budget[] | null = null
+  selectedBudget: Budget | null = null
   isLoaded = false
 
   frequencies = ['Once', 'Daily', 'Weekly', 'Bi-Weekly', 'Monthly', 'Yearly']
-
-  constructor() {}
 
   selectBudget(budget: Budget) {
     this.selectedBudget = budget
   }
 
   getFirstDate() {
-    return this.selectedBudget?.days
-      ? this.selectedBudget?.days[0]?.date
-      : undefined
+    return this.selectedBudget?.days ? this.selectedBudget?.days[0]?.date : null
   }
 
   getMostRecentSnapshotDate() {

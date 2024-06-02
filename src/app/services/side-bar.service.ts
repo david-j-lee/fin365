@@ -6,9 +6,11 @@ export class SideBarService {
   isRevenuesExpanded = false
   isExpensesExpanded = false
 
-  constructor() {}
-
   setExpanded(type: string) {
+    if (!type) {
+      return
+    }
+
     switch (type) {
       case 'balance':
         this.isBalancesExpanded = true
@@ -24,6 +26,9 @@ export class SideBarService {
         this.isBalancesExpanded = false
         this.isExpensesExpanded = false
         this.isRevenuesExpanded = true
+        break
+      default:
+        console.error(`Encountered an supported ${type}`)
         break
     }
   }

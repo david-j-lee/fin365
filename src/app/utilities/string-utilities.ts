@@ -1,10 +1,11 @@
-export const getRansomString = (length = 12): string => {
-  return Math.random().toString(16).substring(2, length)
-}
+const defaultRandomStringLength = 12
+
+export const getRansomString = (length = defaultRandomStringLength): string =>
+  Math.random().toString(16).substring(2, length)
 
 export const getRansomStringFromObject = (
   object: { [id: string]: object },
-  length = 12,
+  length = defaultRandomStringLength,
 ) => {
   let id = getRansomString(length)
   while (object[id]) {

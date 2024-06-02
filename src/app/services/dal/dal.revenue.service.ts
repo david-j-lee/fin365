@@ -1,6 +1,3 @@
-/*
-  This data access layer handles all the business logic after an webAPI call
-*/
 import { Injectable } from '@angular/core'
 import { RevenueAdd } from '@interfaces/revenues/revenue-add.interface'
 import { RevenueEdit } from '@interfaces/revenues/revenue-edit.interface'
@@ -21,7 +18,9 @@ export class DalRevenueService {
     private financeService: FinanceService,
     private dailyService: DailyService,
     private chartService: ChartService,
-  ) {}
+  ) {
+    // Inject services
+  }
 
   getAll(budgetId: string): Observable<Revenue[]> {
     return this[SERVICE].getAll(budgetId).pipe(map((result) => result))
@@ -30,7 +29,6 @@ export class DalRevenueService {
   add(value: RevenueAdd): Observable<Revenue> {
     return this[SERVICE].add(value).pipe(
       map((result) => {
-        // add new class locally
         const newRevenue: Revenue = {
           id: result,
           budgetId: value.budgetId,
@@ -55,7 +53,7 @@ export class DalRevenueService {
           this.financeService.selectedBudget.revenues.push(newRevenue)
         }
 
-        // update daily data and charts
+        // Update daily data and charts
         this.dailyService.generateRevenue(newRevenue)
         newRevenue.yearlyAmount = this.dailyService.getTotalRevenue(newRevenue)
         this.dailyService.setRunningTotals()
@@ -85,7 +83,6 @@ export class DalRevenueService {
         oldRevenue.repeatSat = newRevenue.repeatSat
         oldRevenue.repeatSun = newRevenue.repeatSun
 
-        // update daily data and charts
         this.dailyService.deleteRevenue(oldRevenue)
         this.dailyService.generateRevenue(oldRevenue)
         oldRevenue.yearlyAmount = this.dailyService.getTotalRevenue(oldRevenue)
@@ -117,7 +114,6 @@ export class DalRevenueService {
               1,
             )
 
-            // update daily data and chart
             this.dailyService.deleteRevenue(deletedRevenue)
             this.dailyService.setRunningTotals()
             this.chartService.setChartRevenue()

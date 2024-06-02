@@ -1,6 +1,3 @@
-/*
-This service handles all the calls to the WebAPI for balances
-*/
 import { Injectable } from '@angular/core'
 import { BalanceAdd } from '@interfaces/balances/balance-add.interface'
 import { BalanceEdit } from '@interfaces/balances/balance-edit.interface'
@@ -21,32 +18,28 @@ export class DalBalanceService {
     private financeService: FinanceService,
     private dailyService: DailyService,
     private chartService: ChartService,
-  ) {}
+  ) {
+    // Inject services
+  }
 
   getAll(budgetId: string): Observable<Balance[]> {
     return this[SERVICE].getAll(budgetId).pipe(map((result) => result))
   }
 
   add(value: BalanceAdd): Observable<Balance> {
-    const budgetId = this.financeService.selectedBudget?.id
-    if (!budgetId) {
-      throw new Error('Budget must be selected to add a Balance')
-    }
     return this[SERVICE].add(value).pipe(
       map((result) => {
-        // add new class locally
         const newBalance: Balance = {
           id: result,
           description: value.description,
           amount: value.amount,
-          budgetId,
+          budgetId: value.budgetId,
         }
 
         if (this.financeService.selectedBudget?.balances) {
           this.financeService.selectedBudget.balances.push(newBalance)
         }
 
-        // generate daily data and update charts
         this.dailyService.generateBalance(newBalance)
         this.chartService.setChartBalance()
         this.chartService.setChartBudget()
@@ -63,7 +56,6 @@ export class DalBalanceService {
         oldBalance.description = newBalance.description
         oldBalance.amount = newBalance.amount
 
-        // update all
         this.dailyService.deleteBalance(oldBalance)
         this.dailyService.generateBalance(oldBalance)
         this.dailyService.setRunningTotals()
@@ -75,7 +67,7 @@ export class DalBalanceService {
     )
   }
 
-  delete(id: number | string): Observable<boolean> {
+  delete(id: string): Observable<boolean> {
     return this[SERVICE].delete(id).pipe(
       map(() => {
         if (
@@ -94,7 +86,6 @@ export class DalBalanceService {
               1,
             )
 
-            // remove daily data and update charts
             this.dailyService.deleteBalance(deletedBalance)
             this.dailyService.setRunningTotals()
             this.chartService.setChartBalance()

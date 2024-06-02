@@ -153,7 +153,9 @@ export class ChartService {
   constructor(
     private financeService: FinanceService,
     private dailyService: DailyService,
-  ) {}
+  ) {
+    // Inject services
+  }
 
   setChartBalance() {
     if (this.financeService.selectedBudget?.balances) {

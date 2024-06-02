@@ -10,7 +10,7 @@ import { Observable, of } from 'rxjs'
 
 @Injectable()
 export class LocalStorageSnapshotService {
-  getAll(budgetId: number | string): Observable<Snapshot[]> {
+  getAll(budgetId: string): Observable<Snapshot[]> {
     const snapshots = localStorageService.getObject<Snapshot>('snapshots')
     return of(
       Object.values(snapshots).filter(
@@ -23,55 +23,54 @@ export class LocalStorageSnapshotService {
     snapshotId: string
     balanceIds: string[]
   }> {
-    if (!value.budgetId) {
-      throw new Error('Budget ID is required')
-    }
-
-    // add a snapshot
+    // Add a snapshot
     const snapshots = localStorageService.getObject<Snapshot>('snapshots')
     const id = getRansomStringFromObject(snapshots)
+
     snapshots[id] = {
       ...value.snapshot,
-      id,
+      balanceDifference:
+        value.snapshot.actualBalance - value.snapshot.estimatedBalance,
+      budgetId: value.budgetId,
       date: moment(value.snapshot.date, 'MM/DD/YYYY').utcOffset(
         moment().utcOffset(),
       ),
-      budgetId: value.budgetId,
-      balanceDifference:
-        value.snapshot.actualBalance - value.snapshot.estimatedBalance,
+      id,
     }
+
     localStorageService.setObject('snapshots', snapshots)
 
-    // remove and add new balances
+    // Remove and add new balances
     const balances = localStorageService.getObject<Balance>('balances')
     const filteredBalances = Object.fromEntries(
       Object.entries(balances).filter(
         ([, balance]) => balance.budgetId !== value.budgetId,
       ),
     )
+
     value.snapshotBalances.forEach((balance) => {
-      if (value.budgetId) {
-        filteredBalances[balance.id] = { ...balance, budgetId: value.budgetId }
-      }
+      filteredBalances[balance.id] = { ...balance, budgetId: value.budgetId }
     })
+
     localStorageService.setObject('balances', filteredBalances)
 
-    // update budget start date
+    // Update budget start date
     const budgets = localStorageService.getObject<Budget>('budgets')
     const budget = budgets[value.budgetId ?? '']
+
     if (budget) {
       budget.startDate = snapshots[id].date
       localStorageService.setObject('budgets', budgets)
     }
 
     return of({
-      snapshotId: id,
       balanceIds: value.snapshotBalances.map((balance) => balance.id),
+      snapshotId: id,
     })
   }
 
-  delete(id: number | string) {
-    const snapshots = localStorageService.getObject('snapshots')
+  delete(id: string) {
+    const snapshots = localStorageService.getObject<Snapshot>('snapshots')
     if (snapshots[id]) {
       delete snapshots[id]
       return of(true)

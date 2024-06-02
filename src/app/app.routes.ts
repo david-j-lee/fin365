@@ -1,37 +1,22 @@
 import { Routes } from '@angular/router'
-import { BalanceAddComponent } from '@components/finance/balances/balance-add/balance-add.component'
-import { BalanceDeleteComponent } from '@components/finance/balances/balance-delete/balance-delete.component'
-import { BalanceEditComponent } from '@components/finance/balances/balance-edit/balance-edit.component'
-import { BudgetAddComponent } from '@components/finance/budgets/budget-add/budget-add.component'
-import { BudgetDashboardComponent } from '@components/finance/budgets/budget-dashboard/budget-dashboard.component'
-import { BudgetDeleteComponent } from '@components/finance/budgets/budget-delete/budget-delete.component'
-import { BudgetEditComponent } from '@components/finance/budgets/budget-edit/budget-edit.component'
-import { BudgetListingComponent } from '@components/finance/budgets/budget-listing/budget-listing.component'
-import { ExpenseAddComponent } from '@components/finance/expenses/expense-add/expense-add.component'
-import { ExpenseDeleteComponent } from '@components/finance/expenses/expense-delete/expense-delete.component'
-import { ExpenseEditComponent } from '@components/finance/expenses/expense-edit/expense-edit.component'
-import { LoaderComponent } from '@components/finance/loader/loader.component'
-import { RevenueAddComponent } from '@components/finance/revenues/revenue-add/revenue-add.component'
-import { RevenueDeleteComponent } from '@components/finance/revenues/revenue-delete/revenue-delete.component'
-import { RevenueEditComponent } from '@components/finance/revenues/revenue-edit/revenue-edit.component'
-import { SnapshotHistoryComponent } from '@components/finance/snapshots/snapshot-history/snapshot-history.component'
-import { SnapshotTableComponent } from '@components/finance/snapshots/snapshot-table/snapshot-table.component'
-import { LayoutComponent } from '@components/ui/layout/layout.component'
-
-// /budgets/add
-
-// /budgets/Test/1
-// /budgets/Test/1/add
-// /budgets/Test/1/edit
-// /budgets/Test/1/delete
-
-// /budgets/Test/1/balances/add
-// /budgets/Test/1/balances/edit/5
-// /budgets/Test/1/balances/delete/5
-
-// /budgets/Test/1/expenses/add
-// /budgets/Test/1/expenses/edit/5
-// /budgets/Test/1/expenses/delete/5
+import { BalanceAddComponent } from '@components/balances/balance-add/balance-add.component'
+import { BalanceDeleteComponent } from '@components/balances/balance-delete/balance-delete.component'
+import { BalanceEditComponent } from '@components/balances/balance-edit/balance-edit.component'
+import { BudgetAddComponent } from '@components/budgets/budget-add/budget-add.component'
+import { BudgetDashboardComponent } from '@components/budgets/budget-dashboard/budget-dashboard.component'
+import { BudgetDeleteComponent } from '@components/budgets/budget-delete/budget-delete.component'
+import { BudgetEditComponent } from '@components/budgets/budget-edit/budget-edit.component'
+import { BudgetListingComponent } from '@components/budgets/budget-listing/budget-listing.component'
+import { ExpenseAddComponent } from '@components/expenses/expense-add/expense-add.component'
+import { ExpenseDeleteComponent } from '@components/expenses/expense-delete/expense-delete.component'
+import { ExpenseEditComponent } from '@components/expenses/expense-edit/expense-edit.component'
+import { LayoutComponent } from '@components/layout/layout.component'
+import { LoaderComponent } from '@components/loader/loader.component'
+import { RevenueAddComponent } from '@components/revenues/revenue-add/revenue-add.component'
+import { RevenueDeleteComponent } from '@components/revenues/revenue-delete/revenue-delete.component'
+import { RevenueEditComponent } from '@components/revenues/revenue-edit/revenue-edit.component'
+import { SnapshotHistoryComponent } from '@components/snapshots/snapshot-history/snapshot-history.component'
+import { SnapshotTableComponent } from '@components/snapshots/snapshot-table/snapshot-table.component'
 
 export const routes: Routes = [
   {

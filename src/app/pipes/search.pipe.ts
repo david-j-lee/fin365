@@ -7,14 +7,12 @@ import { Pipe, PipeTransform } from '@angular/core'
 })
 export class SearchPipe implements PipeTransform {
   public transform(value: any, keys: string, term: any) {
-    // if (!term) { return value; }
     return (value || []).filter((item: any) =>
       keys
         .split(',')
         .some(
           (key: any) =>
-            Object.prototype.hasOwnProperty.call(item, key) &&
-            new RegExp(term, 'gi').test(item[key]),
+            Object.hasOwn(item, key) && new RegExp(term, 'giu').test(item[key]),
         ),
     )
   }

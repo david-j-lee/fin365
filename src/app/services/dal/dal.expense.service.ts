@@ -1,6 +1,3 @@
-/*
-This data access layer handles all the business logic after an webAPI call
-*/
 import { Injectable } from '@angular/core'
 import { ExpenseAdd } from '@interfaces/expenses/expense-add.interface'
 import { ExpenseEdit } from '@interfaces/expenses/expense-edit.interface'
@@ -21,16 +18,17 @@ export class DalExpenseService {
     private financeService: FinanceService,
     private dailyService: DailyService,
     private chartService: ChartService,
-  ) {}
+  ) {
+    // Inject services
+  }
 
-  getAll(budgetId: number | string): Observable<Expense[]> {
+  getAll(budgetId: string): Observable<Expense[]> {
     return this[SERVICE].getAll(budgetId).pipe(map((result) => result))
   }
 
   add(value: ExpenseAdd): Observable<Expense> {
     return this[SERVICE].add(value).pipe(
       map((result) => {
-        // add new class locally
         const newExpense: Expense = {
           id: result,
           budgetId: value.budgetId,
@@ -55,7 +53,6 @@ export class DalExpenseService {
           this.financeService.selectedBudget.expenses.push(newExpense)
         }
 
-        // generate daily data and update charts
         this.dailyService.generateExpense(newExpense)
         newExpense.yearlyAmount = this.dailyService.getTotalExpense(newExpense)
 
@@ -86,7 +83,6 @@ export class DalExpenseService {
         oldExpense.repeatSat = newExpense.repeatSat
         oldExpense.repeatSun = newExpense.repeatSun
 
-        // update all
         this.dailyService.deleteExpense(oldExpense)
         this.dailyService.generateExpense(oldExpense)
         oldExpense.yearlyAmount = this.dailyService.getTotalExpense(oldExpense)
@@ -99,7 +95,7 @@ export class DalExpenseService {
     )
   }
 
-  delete(id: number | string): Observable<boolean> {
+  delete(id: string): Observable<boolean> {
     return this[SERVICE].delete(id).pipe(
       map(() => {
         if (
@@ -118,7 +114,6 @@ export class DalExpenseService {
               1,
             )
 
-            // delete daily data and update charts
             this.dailyService.deleteExpense(deletedExpense)
             this.dailyService.setRunningTotals()
             this.chartService.setChartExpense()

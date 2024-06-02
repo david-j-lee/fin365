@@ -5,7 +5,7 @@
     {
       "files": ["*.ts"],
       "extends": [
-        "eslint:recommended",
+        "eslint:all",
         "plugin:@typescript-eslint/recommended",
         "plugin:@angular-eslint/recommended",
         "plugin:@angular-eslint/template/process-inline-templates"
@@ -26,7 +26,31 @@
             "prefix": "app",
             "style": "kebab-case"
           }
-        ]
+        ],
+        "class-methods-use-this": "off",
+        "dot-notation": "off",
+        "id-length": [
+          "error",
+          { "exceptions": ["i", "a", "b"], "properties": "never" }
+        ],
+        "max-classes-per-file": ["error", 2],
+        "max-lines-per-function": ["error", 100],
+        "max-lines": "off",
+        "max-params": ["error", 15],
+        "max-statements": ["error", 20],
+        "new-cap": "off",
+        "no-console": ["error", { "allow": ["error"] }],
+        "no-continue": "off",
+        "no-magic-numbers": "off",
+        "no-plusplus": ["error", { "allowForLoopAfterthoughts": true }],
+        "no-ternary": "off",
+        "no-unused-vars": "off",
+        "no-useless-constructor": "off",
+        "no-var": "error",
+        "one-var": "off",
+        "prefer-destructuring": "off",
+        "sort-imports": "off",
+        "sort-keys": "off"
       }
     },
     {

@@ -1,6 +1,3 @@
-/*
-  This data access layer handles all the business logic after an webAPI call
-*/
 import { Injectable } from '@angular/core'
 import { BudgetAdd } from '@interfaces/budgets/budget-add.interface'
 import { BudgetEdit } from '@interfaces/budgets/budget-edit.interface'
@@ -25,23 +22,24 @@ export class DalBudgetService {
     private dailyService: DailyService,
     private calendarService: CalendarService,
     private localStorageBudgetService: LocalStorageBudgetService,
-  ) {}
+  ) {
+    // Inject services
+  }
 
   getAll(): Observable<Budget[]> {
     return this[SERVICE].getAll().pipe(
-      map((result) => {
-        return result.map((budget) => ({
+      map((result) =>
+        result.map((budget) => ({
           ...budget,
           startDate: moment(budget.startDate),
-        }))
-      }),
+        })),
+      ),
     )
   }
 
   add(value: BudgetAdd): Observable<Budget> {
     return this[SERVICE].add(value).pipe(
       map((result) => {
-        // add new class locally
         const newBudget: Budget = {
           id: result.budgetId,
           isBalancesLoaded: true,
@@ -66,7 +64,6 @@ export class DalBudgetService {
         this.chartService.setChartBudget()
         this.calendarService.setFirstMonth()
 
-        // add new snapshot
         const newSnapshot: Snapshot = {
           id: result.snapshotId,
           date: value.startDate,
@@ -91,12 +88,12 @@ export class DalBudgetService {
       map(() => {
         oldBudget.name = newBudget.name
 
-        // update isActive and put into correct bucket
+        // Update isActive and put into correct bucket
         if (oldBudget.isActive !== newBudget.isActive) {
           oldBudget.isActive = newBudget.isActive
           this.financeService.budgets = this.financeService.budgets
             ? [...this.financeService.budgets]
-            : undefined
+            : null
         }
 
         return oldBudget
@@ -104,7 +101,7 @@ export class DalBudgetService {
     )
   }
 
-  delete(id: number | string): Observable<boolean> {
+  delete(id: string): Observable<boolean> {
     return this[SERVICE].delete(id).pipe(
       map(() => {
         if (this.financeService.budgets) {

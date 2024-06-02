@@ -13,13 +13,7 @@ export class LogoComponent implements OnInit {
   @Input() svgWidth: string = ''
   @Input() svgHeight: string = ''
 
-  constructor() {}
-
   ngOnInit() {
-    if (!this.hexColor) {
-      this.hexColor = '#000000'
-    } else {
-      this.hexColor = '#' + this.hexColor
-    }
+    this.hexColor = this.hexColor ? `#${this.hexColor}` : '#000000'
   }
 }

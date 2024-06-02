@@ -141,10 +141,6 @@ button.mdc-icon-button {
   line-height: 24px;
 }
 
-// .mat-form-field-infix {
-//   width: inherit !important;
-// }
-
 .mat-mdc-dialog-content {
   min-width: 400px;
 
@@ -153,14 +149,23 @@ button.mdc-icon-button {
   }
 }
 
-// .invalid-feedback {
-//   margin-top: inherit;
-//   font-size: inherit;
-// }
+.mdc-tab__text-label span {
+  text-transform: uppercase;
+  font-size: 1rem;
+}
 
 .mat-mdc-tab-body-wrapper {
   flex-grow: 1;
 }
+
+// .mat-form-field-infix {
+//   width: inherit !important;
+// }
+
+// .invalid-feedback {
+//   margin-top: inherit;
+//   font-size: inherit;
+// }
 
 // .mat-tab-body-content {
 //   display: flex;

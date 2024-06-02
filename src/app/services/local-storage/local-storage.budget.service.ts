@@ -60,19 +60,16 @@ export class LocalStorageBudgetService {
     return of({ budgetId, snapshotId })
   }
 
-  update(value: BudgetEdit) {
+  update(value: BudgetEdit): Observable<Budget> {
     const budgets = localStorageService.getObject<Budget>('budgets')
-    if (budgets[value.id]) {
-      const budget = budgets[value.id]
-      budget.name = value.name
-      budget.isActive = value.isActive
-      localStorageService.setObject('budgets', budgets)
-      return of(budget)
-    }
-    return of(false)
+    const budget = budgets[value.id]
+    budget.name = value.name
+    budget.isActive = value.isActive
+    localStorageService.setObject('budgets', budgets)
+    return of(budget)
   }
 
-  delete(id: number | string) {
+  delete(id: string): Observable<boolean> {
     const budgets = localStorageService.getObject<Budget>('budgets')
     if (budgets[id]) {
       delete budgets[id]

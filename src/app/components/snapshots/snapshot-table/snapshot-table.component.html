@@ -1,0 +1,95 @@
+<h4 mat-dialog-title>Add Snapshot</h4>
+<div mat-dialog-content>
+  <p>Adding a snapshot will move the budget to the specified date below.</p>
+  <mat-form-field class="snapshot-date">
+    <input
+      matInput
+      #date="ngModel"
+      name="date"
+      placeholder="Date"
+      [(ngModel)]="addSnapshot.date"
+      [matDatepicker]="datePicker"
+      (dateInput)="onDatePickerChange()"
+      (dateChange)="onDatePickerChange()"
+    />
+    <mat-datepicker-toggle matSuffix [for]="datePicker"></mat-datepicker-toggle>
+    <mat-datepicker #datePicker></mat-datepicker>
+    <mat-error *ngIf="date.invalid">Date is not valid</mat-error>
+  </mat-form-field>
+
+  <p>
+    Estimated to have a total of
+    {{ estimatedTotalBalance | currency: '' : 'symbol' : '1.0-0' }} for this
+    day. Input your new balances below for the new budget date.
+  </p>
+
+  <mat-table #table [dataSource]="dataSource">
+    <!-- Description -->
+    <ng-container matColumnDef="description">
+      <mat-header-cell *matHeaderCellDef>Description</mat-header-cell>
+      <mat-cell *matCellDef="let item">
+        <mat-form-field>
+          <input
+            matInput
+            maxlength="15"
+            [(ngModel)]="item.description"
+            (change)="save(item)"
+          />
+        </mat-form-field>
+      </mat-cell>
+    </ng-container>
+
+    <!-- Amount -->
+    <ng-container matColumnDef="amount">
+      <mat-header-cell *matHeaderCellDef>Amount</mat-header-cell>
+      <mat-cell *matCellDef="let item">
+        <mat-form-field>
+          <input
+            matInput
+            type="number"
+            class="text-end"
+            [(ngModel)]="item.amount"
+            (change)="save(item)"
+          />
+        </mat-form-field>
+      </mat-cell>
+    </ng-container>
+
+    <!-- Delete Column -->
+    <ng-container matColumnDef="delete">
+      <mat-header-cell *matHeaderCellDef class="justify-content-center">
+        <i class="material-icons sm-icon">delete_forever</i>
+      </mat-header-cell>
+      <mat-cell *matCellDef="let item">
+        <button
+          (click)="delete(item.id)"
+          [disabled]="!item.id"
+          mat-icon-button
+          class="snapshot-delete"
+        >
+          <mat-icon class="md-12" aria-label="Delete Item"
+            >delete_forever</mat-icon
+          >
+        </button>
+      </mat-cell>
+    </ng-container>
+
+    <mat-header-row *matHeaderRowDef="displayColumns"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: displayColumns"></mat-row>
+  </mat-table>
+</div>
+<div mat-dialog-actions>
+  <button mat-stroked-button [mat-dialog-close]>
+    <mat-icon>close</mat-icon> Close
+  </button>
+  <button
+    type="submit"
+    mat-flat-button
+    color="primary"
+    [disabled]="isSubmitting"
+    (click)="update()"
+  >
+    <mat-icon>save</mat-icon> Save
+  </button>
+</div>
+<app-spinner [isRunning]="isSubmitting"></app-spinner>

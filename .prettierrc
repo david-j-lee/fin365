@@ -4,8 +4,8 @@
   "trailingComma": "all",
   "singleQuote": true,
   "semi": false,
-  "importOrderParserPlugins": ["typescript", "decorators-legacy"],
   "importOrderSeparation": true,
   "importOrderSortSpecifiers": true,
+  "importOrderParserPlugins": ["typescript", "decorators-legacy"],
   "plugins": ["@trivago/prettier-plugin-sort-imports"]
 }

@@ -16,9 +16,8 @@ export class SortByPipe implements PipeTransform {
         return -1
       } else if (a[prop] > b[prop]) {
         return 1
-      } else {
-        return 0
       }
+      return 0
     })
   }
 }

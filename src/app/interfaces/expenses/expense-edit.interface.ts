@@ -9,8 +9,8 @@ export interface ExpenseEdit {
   isForever: boolean
   frequency: string
 
-  startDate: Moment | undefined
-  endDate: Moment | undefined
+  startDate: Moment | null
+  endDate: Moment | null
 
   repeatMon: boolean
   repeatTue: boolean

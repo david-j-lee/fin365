@@ -8,7 +8,7 @@ import { Observable, of } from 'rxjs'
 
 @Injectable()
 export class LocalStorageExpenseService {
-  getAll(budgetId: number | string): Observable<Expense[]> {
+  getAll(budgetId: string): Observable<Expense[]> {
     const expenses = localStorageService.getObject<Expense>('expenses')
     return of(
       Object.values(expenses).filter(
@@ -52,8 +52,8 @@ export class LocalStorageExpenseService {
     return of(false)
   }
 
-  delete(id: number | string) {
-    const expenses = localStorageService.getObject('expenses')
+  delete(id: string) {
+    const expenses = localStorageService.getObject<Expense>('expenses')
     if (expenses[id]) {
       delete expenses[id]
       return of(true)
