@@ -1,5 +1,5 @@
 export interface BudgetEdit {
-  id: number | string
+  id: string
   name: string
   isActive: boolean
 }

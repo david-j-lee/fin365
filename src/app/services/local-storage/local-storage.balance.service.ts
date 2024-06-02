@@ -1,25 +1,24 @@
 import { Injectable } from '@angular/core'
 import { BalanceAdd } from '@interfaces/balances/balance-add.interface'
 import { BalanceEdit } from '@interfaces/balances/balance-edit.interface'
+import { Balance } from '@interfaces/balances/balance.interface'
 import { localStorageService } from '@utilities/local-storage-utilities'
 import { getRansomStringFromObject } from '@utilities/string-utilities'
 import { Observable, of } from 'rxjs'
 
 @Injectable()
 export class LocalStorageBalanceService {
-  getAll(budgetId: number | string): Observable<object> {
-    const balances = localStorageService.getObject('balances')
+  getAll(budgetId: number | string): Observable<Balance[]> {
+    const balances = localStorageService.getObject<Balance>('balances')
     return of(
       Object.values(balances).filter(
-        // TODO:
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (balance: any) => balance.budgetId === budgetId,
+        (balance) => balance.budgetId === budgetId,
       ),
     )
   }
 
   add(value: BalanceAdd) {
-    const balances = localStorageService.getObject('balances')
+    const balances = localStorageService.getObject<Balance>('balances')
 
     const id = getRansomStringFromObject(balances)
     balances[id] = { ...value, id }
@@ -31,7 +30,7 @@ export class LocalStorageBalanceService {
   }
 
   update(value: BalanceEdit) {
-    const balances = localStorageService.getObject('balances')
+    const balances = localStorageService.getObject<Balance>('balances')
     const balance = balances[value.id]
     if (balance) {
       balance.description = value.description

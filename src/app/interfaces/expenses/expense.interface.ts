@@ -2,7 +2,8 @@ import { DailyExpense } from '@interfaces/daily/daily-expense.interface'
 import { Moment } from 'moment'
 
 export interface Expense {
-  id: number | string
+  id: string
+  budgetId: string
 
   description: string
   amount: number
@@ -10,8 +11,8 @@ export interface Expense {
   isForever: boolean
   frequency: string
 
-  startDate: Moment
-  endDate: Moment
+  startDate: Moment | undefined
+  endDate: Moment | undefined
 
   repeatMon: boolean
   repeatTue: boolean
@@ -21,7 +22,6 @@ export interface Expense {
   repeatSat: boolean
   repeatSun: boolean
 
-  yearlyAmount: number
-
-  dailyExpenses: DailyExpense[]
+  yearlyAmount?: number
+  dailyExpenses?: DailyExpense[]
 }

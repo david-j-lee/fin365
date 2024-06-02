@@ -9,6 +9,7 @@ import { ChartService } from '@services/chart.service'
 import { DailyService } from '@services/daily.service'
 import { FinanceService } from '@services/finance.service'
 import { LocalStorageRevenueService } from '@services/local-storage/local-storage.revenue.service'
+import { Observable } from 'rxjs'
 import { map } from 'rxjs/operators'
 
 const SERVICE = 'localStorageRevenueService'
@@ -22,21 +23,17 @@ export class DalRevenueService {
     private chartService: ChartService,
   ) {}
 
-  getAll(budgetId: number | string) {
-    return this[SERVICE].getAll(budgetId).pipe(
-      map((result: any) => {
-        return result
-      }),
-    )
+  getAll(budgetId: string): Observable<Revenue[]> {
+    return this[SERVICE].getAll(budgetId).pipe(map((result) => result))
   }
 
-  add(value: RevenueAdd) {
-    value.budgetId = this.financeService.selectedBudget?.id
+  add(value: RevenueAdd): Observable<Revenue> {
     return this[SERVICE].add(value).pipe(
-      map((result: any) => {
+      map((result) => {
         // add new class locally
         const newRevenue: Revenue = {
           id: result,
+          budgetId: value.budgetId,
           description: value.description,
           amount: value.amount as number,
           isForever: value.isForever,
@@ -64,11 +61,13 @@ export class DalRevenueService {
         this.dailyService.setRunningTotals()
         this.chartService.setChartRevenue()
         this.chartService.setChartBudget()
+
+        return newRevenue
       }),
     )
   }
 
-  update(oldRevenue: Revenue, newRevenue: RevenueEdit) {
+  update(oldRevenue: Revenue, newRevenue: RevenueEdit): Observable<Revenue> {
     newRevenue.id = oldRevenue.id
     return this[SERVICE].update(newRevenue).pipe(
       map(() => {
@@ -93,11 +92,13 @@ export class DalRevenueService {
         this.dailyService.setRunningTotals()
         this.chartService.setChartRevenue()
         this.chartService.setChartBudget()
+
+        return oldRevenue
       }),
     )
   }
 
-  delete(id: number | string) {
+  delete(id: string): Observable<boolean> {
     return this[SERVICE].delete(id).pipe(
       map(() => {
         if (
@@ -106,7 +107,7 @@ export class DalRevenueService {
         ) {
           const deletedRevenue =
             this.financeService.selectedBudget.revenues.find(
-              (data: any) => data.id === id,
+              (data) => data.id === id,
             )
           if (deletedRevenue) {
             this.financeService.selectedBudget.revenues.splice(
@@ -121,8 +122,11 @@ export class DalRevenueService {
             this.dailyService.setRunningTotals()
             this.chartService.setChartRevenue()
             this.chartService.setChartBudget()
+
+            return true
           }
         }
+        return false
       }),
     )
   }

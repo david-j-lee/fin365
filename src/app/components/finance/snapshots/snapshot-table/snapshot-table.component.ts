@@ -40,6 +40,7 @@ import { SnapshotBalanceAdd } from '@interfaces/snapshots/snapshot-balance-add.i
 import { DailyService } from '@services/daily.service'
 import { DalSnapshotService } from '@services/dal/dal.snapshot.service'
 import { FinanceService } from '@services/finance.service'
+import moment from 'moment'
 
 @Component({
   selector: 'app-snapshot-table',
@@ -109,9 +110,9 @@ export class SnapshotTableDialogComponent implements OnInit {
     this.mostRecentSnapshotDate?.format('MM/DD/YYYY') ?? '',
   )
   displayColumns = ['description', 'amount', 'delete']
-  dataSource = new MatTableDataSource<any>()
+  dataSource = new MatTableDataSource<SnapshotBalanceAdd>()
   addSnapshot: SnapshotAdd = {
-    date: this.mostRecentSnapshotDate,
+    date: this.mostRecentSnapshotDate ?? moment(),
     estimatedBalance: 0,
     actualBalance: 0,
   }
@@ -129,7 +130,7 @@ export class SnapshotTableDialogComponent implements OnInit {
   ngOnInit() {
     // create models to add balances to db
     if (this.financeService.selectedBudget?.balances) {
-      this.financeService.selectedBudget.balances.forEach((balance: any) => {
+      this.financeService.selectedBudget.balances.forEach((balance) => {
         const balanceAdd: SnapshotBalanceAdd = {
           id: balance.id,
           description: balance.description,
@@ -155,31 +156,31 @@ export class SnapshotTableDialogComponent implements OnInit {
 
     // send to db
     if (this.addSnapshot) {
-      this.dalSnapshotService.save(this.addSnapshot, this.balances).subscribe(
-        () => {
+      this.dalSnapshotService.save(this.addSnapshot, this.balances).subscribe({
+        next: () => {
           this.matDialogRef.close()
           this.matSnackBar.open('Saved', 'Dismiss', { duration: 2000 })
         },
-        () => {},
-        () => {
+        error: () => {},
+        complete: () => {
           this.isRequesting = false
         },
-      )
+      })
     }
   }
 
   save(balance: SnapshotBalanceAdd) {
     if (balance.id === undefined) {
-      balance.id = 0
+      balance.id = '0'
       this.balances.push({} as SnapshotBalanceAdd)
       this.dataSource = new MatTableDataSource(this.balances)
     }
   }
 
-  delete(id: number) {
+  delete(id: string) {
     if (id !== undefined) {
       // delete from items
-      const balance = this.balances.find((x) => x.id == id)
+      const balance = this.balances.find((x) => x.id === id)
       this.balances = this.balances.filter((x) => x !== balance)
       this.dataSource = new MatTableDataSource(this.balances)
     }

@@ -105,7 +105,7 @@ export class ExpenseAddDialogComponent implements OnInit {
 
   ngOnInit() {
     this.myExpense = {
-      budgetId: 0,
+      budgetId: '0',
       description: '',
       amount: 0,
       isForever: true,
@@ -129,19 +129,19 @@ export class ExpenseAddDialogComponent implements OnInit {
     this.isRequesting = true
     this.errors = ''
     if (valid) {
-      // TODO:
-      this.dalExpenseService.add(value).subscribe(
-        () => {
+      value.budgetId = this.financeService.selectedBudget?.id
+      this.dalExpenseService.add(value).subscribe({
+        next: () => {
           this.matDialogRef.close()
           this.matSnackBar.open('Saved', 'Dismiss', { duration: 2000 })
         },
-        (errors: any) => {
+        error: (errors) => {
           this.errors = errors
         },
-        () => {
+        complete: () => {
           this.isRequesting = false
         },
-      )
+      })
     }
   }
 }

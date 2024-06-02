@@ -25,6 +25,7 @@ import {
   MatTableDataSource,
 } from '@angular/material/table'
 import { Router } from '@angular/router'
+import { Snapshot } from '@interfaces/snapshots/snapshot.interface'
 import { FinanceService } from '@services/finance.service'
 
 @Component({
@@ -86,7 +87,7 @@ export class SnapshotHistoryDialogComponent implements OnInit {
     'actualBalance',
     'balanceDifference',
   ]
-  dataSource = new MatTableDataSource<any>()
+  dataSource = new MatTableDataSource<Snapshot>()
 
   constructor(
     public financeService: FinanceService,

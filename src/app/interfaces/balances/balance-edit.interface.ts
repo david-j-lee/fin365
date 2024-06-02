@@ -1,5 +1,5 @@
 export interface BalanceEdit {
-  id: number | string
+  id: string
   description: string
   amount: number
 }

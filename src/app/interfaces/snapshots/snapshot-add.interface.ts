@@ -1,5 +1,7 @@
+import { Moment } from 'moment'
+
 export interface SnapshotAdd {
-  date: any
+  date: Moment
   estimatedBalance: number
   actualBalance: number
 }

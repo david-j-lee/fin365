@@ -122,7 +122,7 @@ export class ChartService {
       elements: { point: { radius: 0 } },
       interaction: {
         intersect: false,
-        mode: 'index' as any,
+        mode: 'index',
       },
       plugins: {
         legend: { display: true, position: 'top' },
@@ -161,7 +161,7 @@ export class ChartService {
 
       const data: number[] = []
       const labels: string[] = []
-      this.financeService.selectedBudget.balances.forEach((balance: any) => {
+      this.financeService.selectedBudget.balances.forEach((balance) => {
         data.push(balance.amount)
         labels.push(balance.description)
         total += balance.amount
@@ -187,7 +187,7 @@ export class ChartService {
 
       const data: number[] = []
       const labels: string[] = []
-      this.financeService.selectedBudget.revenues.forEach((revenue: any) => {
+      this.financeService.selectedBudget.revenues.forEach((revenue) => {
         revenue.yearlyAmount = this.dailyService.getTotalRevenue(revenue)
         data.push(revenue.yearlyAmount)
         labels.push(revenue.description)
@@ -214,7 +214,7 @@ export class ChartService {
 
       const data: number[] = []
       const labels: string[] = []
-      this.financeService.selectedBudget.expenses.forEach((expense: any) => {
+      this.financeService.selectedBudget.expenses.forEach((expense) => {
         expense.yearlyAmount = this.dailyService.getTotalExpense(expense)
         data.push(expense.yearlyAmount)
         labels.push(expense.description)
@@ -237,14 +237,14 @@ export class ChartService {
 
   setChartBudget() {
     if (this.financeService.selectedBudget?.days) {
-      const labels: any[] = []
-      const datasets: any[] = [...this.chartBudget.data.datasets]
+      const labels: string[] = []
+      const datasets = [...this.chartBudget.data.datasets]
 
       datasets[0].data = []
       datasets[1].data = []
       datasets[2].data = []
 
-      this.financeService.selectedBudget.days.forEach((day: any) => {
+      this.financeService.selectedBudget.days.forEach((day) => {
         labels.push(day.date.format('M/D'))
         datasets[0].data.push(day.balance)
         datasets[1].data.push(day.totalRevenue)

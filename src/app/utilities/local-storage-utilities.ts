@@ -1,5 +1,5 @@
 export const localStorageService = {
-  getObject: (key: string) => {
+  getObject: <Type>(key: string): { [id: string]: Type } => {
     return JSON.parse(localStorage.getItem(key) ?? '{}')
   },
   setObject: (key: string, object: object) => {

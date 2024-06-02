@@ -1,5 +1,5 @@
 export interface SnapshotBalanceAdd {
-  id: number | string
+  id: string
   description: string
   amount: number
 }

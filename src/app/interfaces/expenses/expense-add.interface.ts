@@ -1,12 +1,16 @@
+import { Moment } from 'moment'
+
 export interface ExpenseAdd {
+  budgetId: string
+
   description: string
   amount: number
 
   isForever: boolean
   frequency: string
 
-  startDate: any
-  endDate: any
+  startDate: Moment | undefined
+  endDate: Moment | undefined
 
   repeatMon: boolean
   repeatTue: boolean
@@ -15,6 +19,4 @@ export interface ExpenseAdd {
   repeatFri: boolean
   repeatSat: boolean
   repeatSun: boolean
-
-  budgetId: number | string | undefined
 }

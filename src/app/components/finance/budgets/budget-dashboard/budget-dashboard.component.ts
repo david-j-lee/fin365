@@ -39,7 +39,7 @@ import moment from 'moment'
   ],
 })
 export class BudgetDashboardComponent implements OnInit {
-  budgetId: number | string | undefined
+  budgetId: string | undefined
   type: string = ''
 
   constructor(
@@ -58,7 +58,7 @@ export class BudgetDashboardComponent implements OnInit {
 
   ngOnInit() {
     this.activatedRoute.params.subscribe((params: Params) => {
-      this.budgetId = params['budgetId'] as number
+      this.budgetId = params['budgetId']
       if (this.router.url.split('/').length - 1 > 3) {
         this.type = this.router.url.split('/')[2]
       }
@@ -99,74 +99,76 @@ export class BudgetDashboardComponent implements OnInit {
   }
 
   private getBalances(budget: Budget) {
-    this.dalBalanceService.getAll(budget.id).subscribe(
-      (result) => {
+    this.dalBalanceService.getAll(budget.id).subscribe({
+      next: (result) => {
         if (result) {
           budget.balances = result
           budget.isBalancesLoaded = true
           this.checkData(budget)
         }
       },
-      () => {
+      error: () => {
         budget.balances = []
       },
-    )
+    })
   }
 
   private getExpenses(budget: Budget) {
-    this.dalExpenseService.getAll(budget.id).subscribe(
-      (result) => {
+    this.dalExpenseService.getAll(budget.id).subscribe({
+      next: (result) => {
         if (result) {
           const rawItems = result
           for (const item of rawItems) {
             item.startDate =
-              item.startDate !== null ? moment(item.startDate) : ''
-            item.endDate = item.endDate !== null ? moment(item.endDate) : ''
+              item.startDate !== null ? moment(item.startDate) : undefined
+            item.endDate =
+              item.endDate !== null ? moment(item.endDate) : undefined
           }
           budget.expenses = result
           budget.isExpensesLoaded = true
           this.checkData(budget)
         }
       },
-      () => {
+      error: () => {
         budget.expenses = []
       },
-    )
+    })
   }
 
   private getRevenues(budget: Budget) {
-    this.dalRevenueService.getAll(budget.id).subscribe(
-      (result) => {
+    this.dalRevenueService.getAll(budget.id).subscribe({
+      next: (result) => {
         if (result) {
           const rawItems = result
           for (const item of rawItems) {
             item.startDate =
-              item.startDate !== null ? moment(item.startDate) : ''
-            item.endDate = item.endDate !== null ? moment(item.endDate) : ''
+              item.startDate !== null ? moment(item.startDate) : undefined
+            item.endDate =
+              item.endDate !== null ? moment(item.endDate) : undefined
           }
           budget.revenues = result
           budget.isRevenuesLoaded = true
           this.checkData(budget)
         }
       },
-      () => {
+      error: () => {
         budget.revenues = []
       },
-    )
+    })
   }
 
   private getSnapshots(budget: Budget) {
-    this.dalSnapshotService.getAll(budget.id).subscribe(
-      (result) => {
+    this.dalSnapshotService.getAll(budget.id).subscribe({
+      next: (result) => {
         if (result) {
           budget.snapshots = result
-            .map((snapshot: any) => ({
+            .map((snapshot) => ({
               ...snapshot,
-              date: snapshot.date !== null ? moment(snapshot.date) : '',
+              date: moment(snapshot.date),
               balanceDifference:
                 snapshot.estimatedBalance - snapshot.actualBalance,
             }))
-            .sort((a: any, b: any) => {
+            .sort((a, b) => {
               const valueA = a.date ? a.date.toISOString() : ''
               const valueB = b.date ? b.date.toISOString() : ''
               return valueB.localeCompare(valueA)
@@ -178,10 +180,10 @@ export class BudgetDashboardComponent implements OnInit {
           this.checkData(budget)
         }
       },
-      () => {
+      error: () => {
         budget.revenues = []
       },
-    )
+    })
   }
 
   private checkData(budget: Budget) {

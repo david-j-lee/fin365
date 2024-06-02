@@ -40,9 +40,7 @@ export class LoaderComponent implements OnInit {
         if (result) {
           this.financeService.budgets = result
           this.financeService.isLoaded = true
-          return this.financeService.budgets
         }
-        return
       })
     }
   }

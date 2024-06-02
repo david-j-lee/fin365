@@ -1,5 +1,7 @@
+import { Moment } from 'moment'
+
 export interface RevenueEdit {
-  id: number | string
+  id: string
 
   description: string
   amount: number
@@ -7,8 +9,8 @@ export interface RevenueEdit {
   isForever: boolean
   frequency: string
 
-  startDate: any
-  endDate: any
+  startDate: Moment | undefined
+  endDate: Moment | undefined
 
   repeatMon: boolean
   repeatTue: boolean

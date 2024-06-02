@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable, Pipe, PipeTransform } from '@angular/core'
 
 @Pipe({

@@ -9,7 +9,7 @@ import { ChartService } from '@services/chart.service'
 import { DailyService } from '@services/daily.service'
 import { FinanceService } from '@services/finance.service'
 import { LocalStorageBalanceService } from '@services/local-storage/local-storage.balance.service'
-import { Observable, of, throwError } from 'rxjs'
+import { Observable } from 'rxjs'
 import { map } from 'rxjs/operators'
 
 const SERVICE = 'localStorageBalanceService'
@@ -23,22 +23,23 @@ export class DalBalanceService {
     private chartService: ChartService,
   ) {}
 
-  getAll(budgetId: number | string): Observable<any> {
-    return this[SERVICE].getAll(budgetId).pipe(
-      map((result: any) => {
-        return result
-      }),
-    )
+  getAll(budgetId: string): Observable<Balance[]> {
+    return this[SERVICE].getAll(budgetId).pipe(map((result) => result))
   }
 
-  add(value: BalanceAdd): Observable<any> {
+  add(value: BalanceAdd): Observable<Balance> {
+    const budgetId = this.financeService.selectedBudget?.id
+    if (!budgetId) {
+      throw new Error('Budget must be selected to add a Balance')
+    }
     return this[SERVICE].add(value).pipe(
-      map((result: any) => {
+      map((result) => {
         // add new class locally
         const newBalance: Balance = {
           id: result,
           description: value.description,
           amount: value.amount,
+          budgetId,
         }
 
         if (this.financeService.selectedBudget?.balances) {
@@ -50,12 +51,12 @@ export class DalBalanceService {
         this.chartService.setChartBalance()
         this.chartService.setChartBudget()
 
-        return of(true)
+        return newBalance
       }),
     )
   }
 
-  update(oldBalance: Balance, newBalance: BalanceEdit): Observable<any> {
+  update(oldBalance: Balance, newBalance: BalanceEdit): Observable<Balance> {
     newBalance.id = oldBalance.id
     return this[SERVICE].update(newBalance).pipe(
       map(() => {
@@ -69,12 +70,12 @@ export class DalBalanceService {
         this.chartService.setChartBalance()
         this.chartService.setChartBudget()
 
-        return of(true)
+        return oldBalance
       }),
     )
   }
 
-  delete(id: number | string): Observable<any> {
+  delete(id: number | string): Observable<boolean> {
     return this[SERVICE].delete(id).pipe(
       map(() => {
         if (
@@ -83,7 +84,7 @@ export class DalBalanceService {
         ) {
           const deletedBalance =
             this.financeService.selectedBudget.balances.find(
-              (data: any) => data.id === id,
+              (data) => data.id === id,
             )
           if (deletedBalance) {
             this.financeService.selectedBudget.balances.splice(
@@ -99,11 +100,10 @@ export class DalBalanceService {
             this.chartService.setChartBalance()
             this.chartService.setChartBudget()
 
-            return of(true)
+            return true
           }
-          return throwError(false)
         }
-        return throwError(false)
+        return false
       }),
     )
   }

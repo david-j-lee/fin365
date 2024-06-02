@@ -115,7 +115,7 @@ export class RevenueEditDialogComponent implements OnInit {
     private dalRevenueService: DalRevenueService,
     private matSnackBar: MatSnackBar,
     public matDialogRef: MatDialogRef<RevenueEditDialogComponent> | null,
-    @Inject(MAT_DIALOG_DATA) public data: any,
+    @Inject(MAT_DIALOG_DATA) public data: { id: string },
   ) {}
 
   ngOnInit() {
@@ -168,6 +168,7 @@ export class RevenueEditDialogComponent implements OnInit {
     }
     this.oldRevenue = revenue
     this.newRevenue = {
+      budgetId: this.oldRevenue.budgetId,
       description: this.oldRevenue.description,
       amount: this.oldRevenue.amount,
       isForever: this.oldRevenue.isForever,
@@ -181,7 +182,6 @@ export class RevenueEditDialogComponent implements OnInit {
       repeatFri: this.oldRevenue.repeatFri,
       repeatSat: this.oldRevenue.repeatSat,
       repeatSun: this.oldRevenue.repeatSun,
-      budgetId: undefined,
     }
   }
 
@@ -198,18 +198,18 @@ export class RevenueEditDialogComponent implements OnInit {
     this.errors = ''
 
     if (valid && this.oldRevenue) {
-      this.dalRevenueService.update(this.oldRevenue, value).subscribe(
-        () => {
+      this.dalRevenueService.update(this.oldRevenue, value).subscribe({
+        next: () => {
           this.matDialogRef?.close()
           this.matSnackBar.open('Saved', 'Dismiss', { duration: 2000 })
         },
-        (errors: any) => {
+        error: (errors) => {
           this.errors = errors
         },
-        () => {
+        complete: () => {
           this.isRequesting = false
         },
-      )
+      })
     }
   }
 }

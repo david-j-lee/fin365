@@ -5,6 +5,7 @@ import { Injectable } from '@angular/core'
 import { Balance } from '@interfaces/balances/balance.interface'
 import { SnapshotAddAll } from '@interfaces/snapshots/snapshot-add-all.interface'
 import { SnapshotAdd } from '@interfaces/snapshots/snapshot-add.interface'
+import { SnapshotBalanceAdd } from '@interfaces/snapshots/snapshot-balance-add.interface'
 import { Snapshot } from '@interfaces/snapshots/snapshot.interface'
 import { CalendarService } from '@services/calendar.service'
 import { ChartService } from '@services/chart.service'
@@ -12,7 +13,7 @@ import { DailyService } from '@services/daily.service'
 import { FinanceService } from '@services/finance.service'
 import { LocalStorageSnapshotService } from '@services/local-storage/local-storage.snapshot.service'
 import moment from 'moment'
-import { of } from 'rxjs'
+import { Observable } from 'rxjs'
 import { map } from 'rxjs/operators'
 
 const SERVICE = 'localStorageSnapshotService'
@@ -28,17 +29,22 @@ export class DalSnapshotService {
   ) {}
 
   getAll(budgetId: number | string) {
-    return this[SERVICE].getAll(budgetId).pipe(
-      map((result: any) => {
-        return result
-      }),
-    )
+    return this[SERVICE].getAll(budgetId).pipe(map((result) => result))
   }
 
-  save(addSnapshot: SnapshotAdd, balances: Array<Balance>) {
+  save(
+    addSnapshot: SnapshotAdd,
+    balances: Array<SnapshotBalanceAdd>,
+  ): Observable<Snapshot> {
+    if (!this.financeService.selectedBudget?.id) {
+      throw new Error('Budget required to add snapshot')
+    }
+
+    const budgetId = this.financeService.selectedBudget.id
+
     // calculate balances
-    const newAddSnapshot = {
-      date: addSnapshot.date.format('L'),
+    const newAddSnapshot: SnapshotAdd = {
+      date: addSnapshot.date,
       estimatedBalance: this.dailyService.getBalanceForGivenDay(
         addSnapshot.date.format('L'),
       ),
@@ -49,13 +55,13 @@ export class DalSnapshotService {
 
     // wrap it all up
     const snapshotAddAll: SnapshotAddAll = {
-      budgetId: this.financeService.selectedBudget?.id,
+      budgetId,
       snapshot: newAddSnapshot,
       snapshotBalances: balances.filter((x) => x.id !== undefined),
     }
 
     return this[SERVICE].save(snapshotAddAll).pipe(
-      map((result: any) => {
+      map((result) => {
         // add snapshot to local data
         const snapshot: Snapshot = {
           id: result.snapshotId,
@@ -64,6 +70,7 @@ export class DalSnapshotService {
           actualBalance: newAddSnapshot.actualBalance,
           balanceDifference:
             newAddSnapshot.estimatedBalance - newAddSnapshot.actualBalance,
+          budgetId,
         }
 
         // update balances in local data
@@ -72,8 +79,8 @@ export class DalSnapshotService {
         balances
           .filter((x) => x.id !== undefined)
           .forEach((balance) => {
-            let balanceId = 0
-            if (balance.id === 0) {
+            let balanceId = '0'
+            if (balance.id === '0') {
               balanceId = result.balanceIds[newBalanceIndex]
               newBalanceIndex++
             }
@@ -81,6 +88,7 @@ export class DalSnapshotService {
               id: balanceId,
               description: balance.description,
               amount: balance.amount,
+              budgetId,
             }
             newBalances.push(newBalance)
           })
@@ -98,7 +106,7 @@ export class DalSnapshotService {
         this.chartService.setChartBudget()
         this.calendarService.setFirstMonth()
 
-        return of(true)
+        return snapshot
       }),
     )
   }

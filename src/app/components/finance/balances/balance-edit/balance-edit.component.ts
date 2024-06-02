@@ -89,7 +89,7 @@ export class BalanceEditDialogComponent implements OnInit {
     private dalBalanceService: DalBalanceService,
     private matSnackBar: MatSnackBar,
     public matDialogRef: MatDialogRef<BalanceEditDialogComponent> | null,
-    @Inject(MAT_DIALOG_DATA) public data: any,
+    @Inject(MAT_DIALOG_DATA) public data: { id: string },
   ) {}
 
   ngOnInit() {
@@ -100,7 +100,7 @@ export class BalanceEditDialogComponent implements OnInit {
     } else if (this.financeService.selectedBudget) {
       this.dalBalanceService
         .getAll(this.financeService.selectedBudget.id)
-        .subscribe((result: any) => {
+        .subscribe((result) => {
           if (result) {
             this.getData()
           }
@@ -131,15 +131,15 @@ export class BalanceEditDialogComponent implements OnInit {
   }
 
   getData() {
-    const balance = this.financeService.selectedBudget?.balances?.find(
-      (x: any) => x.id == this.data.id,
+    const oldBalance = this.financeService.selectedBudget?.balances?.find(
+      (balance) => balance.id == this.data.id,
     )
-    this.oldBalance = balance
+    this.oldBalance = oldBalance
     if (this.oldBalance) {
       this.newBalance = {
         description: this.oldBalance.description,
         amount: this.oldBalance.amount,
-        budgetId: undefined,
+        budgetId: this.oldBalance.budgetId,
       }
     }
   }
@@ -156,18 +156,18 @@ export class BalanceEditDialogComponent implements OnInit {
     this.errors = ''
 
     if (valid && this.oldBalance) {
-      this.dalBalanceService.update(this.oldBalance, value).subscribe(
-        () => {
+      this.dalBalanceService.update(this.oldBalance, value).subscribe({
+        next: () => {
           this.matDialogRef?.close()
           this.matSnackBar.open('Saved', 'Dismiss', { duration: 2000 })
         },
-        (errors: any) => {
+        error: (errors) => {
           this.errors = errors
         },
-        () => {
+        complete: () => {
           this.isRequesting = false
         },
-      )
+      })
     }
   }
 }

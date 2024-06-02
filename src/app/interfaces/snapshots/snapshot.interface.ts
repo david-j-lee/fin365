@@ -1,7 +1,8 @@
 import { Moment } from 'moment'
 
 export interface Snapshot {
-  id: number | string
+  id: string
+  budgetId: string
   date: Moment
   estimatedBalance: number
   actualBalance: number

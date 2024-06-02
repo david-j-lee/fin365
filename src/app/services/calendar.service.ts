@@ -53,7 +53,7 @@ export class CalendarService {
       this.currentMonthText = moment(this.currentMonth, 'M').format('MMMM')
       this.days = []
       const days = this.financeService.selectedBudget.days.filter(
-        (x: any) => x.year == year && x.month + 1 == month,
+        (day) => day.year == year && day.month + 1 == month,
       )
 
       if (days) {
@@ -71,8 +71,8 @@ export class CalendarService {
 
         for (let i = 0; i <= numLoops; i++) {
           const day = this.financeService.selectedBudget.days.find(
-            (x: any) =>
-              x.date.format('L') ==
+            (day) =>
+              day.date.format('L') ==
               firstDate.clone().add(i, 'days').format('L'),
           )
 
@@ -125,7 +125,10 @@ export class CalendarService {
     }
   }
 
-  private addMonth(month: number, year: number): any {
+  private addMonth(
+    month: number,
+    year: number,
+  ): { month: number; year: number } {
     if (month === 12) {
       month = 1
       year++
@@ -135,7 +138,10 @@ export class CalendarService {
     return { month: month, year: year }
   }
 
-  private removeMonth(month: number, year: number): any {
+  private removeMonth(
+    month: number,
+    year: number,
+  ): { month: number; year: number } {
     if (month === 1) {
       month = 12
       year--

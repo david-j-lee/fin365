@@ -87,7 +87,7 @@ export class BudgetDeleteDialogComponent implements OnInit {
           this.financeService.budgets &&
           this.financeService.budgets.length > 0
         ) {
-          this.router.navigate(['/budget', this.financeService.budgets[0].id])
+          this.router.navigate(['/', this.financeService.budgets[0].id])
         } else if (action !== 'edit') {
           this.router.navigate(['/', this.financeService.selectedBudget?.id])
         }
@@ -97,15 +97,14 @@ export class BudgetDeleteDialogComponent implements OnInit {
 
   delete() {
     if (this.deleteBudget) {
-      // TODO:
-      this.dalBudgetService.delete(this.deleteBudget.id).subscribe(
-        () => {
+      this.dalBudgetService.delete(this.deleteBudget.id).subscribe({
+        next: () => {
           this.matDialogRef?.close()
         },
-        (errors: any) => {
+        error: (errors) => {
           this.errors = errors
         },
-      )
+      })
     }
   }
 }

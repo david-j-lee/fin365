@@ -83,8 +83,14 @@ export class BalanceAddDialogComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    const budgetId = this.financeService.selectedBudget?.id
+
+    if (!budgetId) {
+      return
+    }
+
     this.myBalance = {
-      budgetId: undefined,
+      budgetId,
       description: '',
       amount: 0,
     }
@@ -98,18 +104,18 @@ export class BalanceAddDialogComponent implements OnInit {
     this.errors = ''
     if (valid && this.financeService.selectedBudget) {
       value.budgetId = this.financeService.selectedBudget.id
-      this.dalBalanceService.add(value).subscribe(
-        () => {
+      this.dalBalanceService.add(value).subscribe({
+        next: () => {
           this.matDialogRef.close()
           this.matSnackBar.open('Saved', 'Dismiss', { duration: 2000 })
         },
-        (errors: any) => {
+        error: (errors) => {
           this.errors = errors
         },
-        () => {
+        complete: () => {
           this.isRequesting = false
         },
-      )
+      })
     }
   }
 }

@@ -128,19 +128,18 @@ export class BudgetEditDialogComponent implements OnInit {
 
     if (valid && this.oldBudget) {
       value.id = this.oldBudget.id
-      // TODO:
-      this.dalBudgetService.update(this.oldBudget, value).subscribe(
-        () => {
+      this.dalBudgetService.update(this.oldBudget, value).subscribe({
+        next: () => {
           this.matDialogRef?.close()
           this.matSnackBar.open('Saved', 'Dismiss', { duration: 2000 })
         },
-        (errors: any) => {
+        error: (errors) => {
           this.errors = errors
         },
-        () => {
+        complete: () => {
           this.isRequesting = false
         },
-      )
+      })
     }
   }
 }

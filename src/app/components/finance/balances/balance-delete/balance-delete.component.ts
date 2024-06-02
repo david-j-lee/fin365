@@ -1,6 +1,3 @@
-// TODO:
-
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { CdkScrollable } from '@angular/cdk/scrolling'
 import { NgIf } from '@angular/common'
 import { Component, Inject, OnInit } from '@angular/core'
@@ -89,7 +86,7 @@ export class BalanceDeleteDialogComponent implements OnInit {
     public matDialog: MatDialog,
     private matSnackBar: MatSnackBar,
     public matDialogRef: MatDialogRef<BalanceDeleteDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any,
+    @Inject(MAT_DIALOG_DATA) public data: { id: string },
   ) {}
 
   ngOnInit() {
@@ -115,15 +112,15 @@ export class BalanceDeleteDialogComponent implements OnInit {
 
   delete() {
     if (this.deleteBalance) {
-      this.dalBalanceService.delete(this.deleteBalance.id).subscribe(
-        () => {
+      this.dalBalanceService.delete(this.deleteBalance.id).subscribe({
+        next: () => {
           this.matDialogRef.close()
           this.matSnackBar.open('Deleted', 'Dismiss', { duration: 2000 })
         },
-        (errors: any) => {
+        error: (errors) => {
           this.errors = errors
         },
-      )
+      })
     }
   }
 }

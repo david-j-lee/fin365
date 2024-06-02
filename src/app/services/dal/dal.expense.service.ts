@@ -9,7 +9,7 @@ import { ChartService } from '@services/chart.service'
 import { DailyService } from '@services/daily.service'
 import { FinanceService } from '@services/finance.service'
 import { LocalStorageExpenseService } from '@services/local-storage/local-storage.expense.service'
-import { Observable, of } from 'rxjs'
+import { Observable } from 'rxjs'
 import { map } from 'rxjs/operators'
 
 const SERVICE = 'localStorageExpenseService'
@@ -23,21 +23,17 @@ export class DalExpenseService {
     private chartService: ChartService,
   ) {}
 
-  getAll(budgetId: number | string): Observable<any> {
-    return this[SERVICE].getAll(budgetId).pipe(
-      map((result: any) => {
-        return result
-      }),
-    )
+  getAll(budgetId: number | string): Observable<Expense[]> {
+    return this[SERVICE].getAll(budgetId).pipe(map((result) => result))
   }
 
-  add(value: ExpenseAdd) {
-    value.budgetId = this.financeService.selectedBudget?.id
+  add(value: ExpenseAdd): Observable<Expense> {
     return this[SERVICE].add(value).pipe(
-      map((result: any) => {
+      map((result) => {
         // add new class locally
         const newExpense: Expense = {
           id: result,
+          budgetId: value.budgetId,
           description: value.description,
           amount: value.amount,
           isForever: value.isForever,
@@ -67,12 +63,12 @@ export class DalExpenseService {
         this.chartService.setChartExpense()
         this.chartService.setChartBudget()
 
-        return of(true)
+        return newExpense
       }),
     )
   }
 
-  update(oldExpense: Expense, newExpense: ExpenseEdit) {
+  update(oldExpense: Expense, newExpense: ExpenseEdit): Observable<Expense> {
     newExpense.id = oldExpense.id
     return this[SERVICE].update(newExpense).pipe(
       map(() => {
@@ -97,12 +93,13 @@ export class DalExpenseService {
         this.dailyService.setRunningTotals()
         this.chartService.setChartExpense()
         this.chartService.setChartBudget()
-        return of(true)
+
+        return oldExpense
       }),
     )
   }
 
-  delete(id: number | string) {
+  delete(id: number | string): Observable<boolean> {
     return this[SERVICE].delete(id).pipe(
       map(() => {
         if (
@@ -111,7 +108,7 @@ export class DalExpenseService {
         ) {
           const deletedExpense =
             this.financeService.selectedBudget.expenses.find(
-              (data: any) => data.id === id,
+              (data) => data.id === id,
             )
           if (deletedExpense) {
             this.financeService.selectedBudget.expenses.splice(
@@ -126,8 +123,11 @@ export class DalExpenseService {
             this.dailyService.setRunningTotals()
             this.chartService.setChartExpense()
             this.chartService.setChartBudget()
+
+            return true
           }
         }
+        return false
       }),
     )
   }

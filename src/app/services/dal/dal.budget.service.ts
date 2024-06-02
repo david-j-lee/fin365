@@ -12,7 +12,7 @@ import { DailyService } from '@services/daily.service'
 import { FinanceService } from '@services/finance.service'
 import { LocalStorageBudgetService } from '@services/local-storage/local-storage.budget.service'
 import moment from 'moment'
-import { Observable, of, throwError } from 'rxjs'
+import { Observable } from 'rxjs'
 import { map } from 'rxjs/operators'
 
 const SERVICE = 'localStorageBudgetService'
@@ -27,10 +27,10 @@ export class DalBudgetService {
     private localStorageBudgetService: LocalStorageBudgetService,
   ) {}
 
-  getAll(): Observable<any> {
+  getAll(): Observable<Budget[]> {
     return this[SERVICE].getAll().pipe(
-      map((result: any) => {
-        return result.map((budget: any) => ({
+      map((result) => {
+        return result.map((budget) => ({
           ...budget,
           startDate: moment(budget.startDate),
         }))
@@ -38,9 +38,9 @@ export class DalBudgetService {
     )
   }
 
-  add(value: BudgetAdd): Observable<any> {
+  add(value: BudgetAdd): Observable<Budget> {
     return this[SERVICE].add(value).pipe(
-      map((result: any) => {
+      map((result) => {
         // add new class locally
         const newBudget: Budget = {
           id: result.budgetId,
@@ -49,7 +49,7 @@ export class DalBudgetService {
           isExpensesLoaded: true,
           isSnapshotsLoaded: true,
           name: value.name,
-          startDate: value.startDate,
+          startDate: moment(value.startDate),
           isActive: true,
           balances: [],
           revenues: [],
@@ -73,15 +73,19 @@ export class DalBudgetService {
           actualBalance: 0,
           estimatedBalance: 0,
           balanceDifference: 0,
+          budgetId: newBudget.id,
         }
+
         if (this.financeService.selectedBudget?.snapshots) {
           this.financeService.selectedBudget.snapshots.push(newSnapshot)
         }
+
+        return newBudget
       }),
     )
   }
 
-  update(oldBudget: Budget, newBudget: BudgetEdit): Observable<any> {
+  update(oldBudget: Budget, newBudget: BudgetEdit): Observable<Budget> {
     newBudget.id = oldBudget.id
     return this[SERVICE].update(newBudget).pipe(
       map(() => {
@@ -95,28 +99,27 @@ export class DalBudgetService {
             : undefined
         }
 
-        return of(true)
+        return oldBudget
       }),
     )
   }
 
-  delete(id: number | string): Observable<any> {
+  delete(id: number | string): Observable<boolean> {
     return this[SERVICE].delete(id).pipe(
       map(() => {
         if (this.financeService.budgets) {
           const deletedBudget = this.financeService.budgets.find(
-            (data: any) => data.id === id,
+            (data) => data.id === id,
           )
           if (deletedBudget) {
             this.financeService.budgets.splice(
               this.financeService.budgets.indexOf(deletedBudget),
               1,
             )
-            return of(true)
+            return true
           }
-          return throwError(false)
         }
-        return throwError(false)
+        return false
       }),
     )
   }

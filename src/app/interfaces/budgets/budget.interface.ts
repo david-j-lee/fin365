@@ -6,21 +6,21 @@ import { Snapshot } from '@interfaces/snapshots/snapshot.interface'
 import { Moment } from 'moment'
 
 export interface Budget {
-  id: number | string
+  id: string
+  name: string
+  startDate: Moment
+  isActive: boolean
+
   isBalancesLoaded: boolean
   isRevenuesLoaded: boolean
   isExpensesLoaded: boolean
   isSnapshotsLoaded: boolean
 
-  name: string
-  startDate: Moment
-  isActive: boolean
+  balances: Balance[]
+  revenues: Revenue[]
+  expenses: Expense[]
 
-  balances: Balance[] | undefined
-  revenues: Revenue[] | undefined
-  expenses: Expense[] | undefined
+  snapshots: Snapshot[]
 
-  snapshots: Snapshot[] | undefined
-
-  days: Day[] | undefined
+  days: Day[]
 }

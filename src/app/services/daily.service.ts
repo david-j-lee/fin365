@@ -226,7 +226,7 @@ export class DailyService {
   private generateOnceRevenue(revenue: Revenue) {
     if (this.financeService.selectedBudget) {
       const day = this.financeService.selectedBudget.days?.find(
-        (x: any) => x.date.format('L') === revenue.startDate.format('L'),
+        (day) => day.date.format('L') === revenue.startDate?.format('L'),
       )
       if (day) {
         const dailyRevenue: DailyRevenue = {
@@ -247,7 +247,7 @@ export class DailyService {
   private generateOnceExpense(expense: Expense) {
     if (this.financeService.selectedBudget) {
       const day = this.financeService.selectedBudget.days?.find(
-        (x: any) => x.date.format('L') === expense.startDate.format('L'),
+        (day) => day.date.format('L') === expense.startDate?.format('L'),
       )
       if (day) {
         const dailyExpense: DailyExpense = {
@@ -277,7 +277,7 @@ export class DailyService {
       revenue.isForever,
     )
     const minDay = this.budget.days.find(
-      (x) => x.date.format('L') === minDate.format('L'),
+      (day) => day.date.format('L') === minDate.format('L'),
     )
     if (!minDay) {
       return
@@ -531,7 +531,7 @@ export class DailyService {
     }
   }
 
-  private dailyRepeatDays(item: any): number[] {
+  private dailyRepeatDays(item: Revenue | Expense): number[] {
     const repeatDays: number[] = []
     if (item.repeatSun) {
       repeatDays.push(0)
@@ -577,7 +577,7 @@ export class DailyService {
 
   private getStartDate(
     budgetStartDate: Moment,
-    itemStartDate: Moment,
+    itemStartDate: Moment | undefined,
     frequency: string,
     isForever: boolean,
   ): Moment {
@@ -586,13 +586,13 @@ export class DailyService {
     if (frequency === 'Weekly' || frequency === 'Bi-Weekly') {
       if (isForever) {
         date = date.weekday(0)
-      } else {
+      } else if (itemStartDate) {
         date = itemStartDate.clone().weekday(0)
       }
     }
 
     // if monthly get most recent month
-    if (frequency === 'Monthly') {
+    if (frequency === 'Monthly' && itemStartDate) {
       if (itemStartDate < budgetStartDate) {
         const monthNeeded = Math.ceil(
           budgetStartDate.diff(itemStartDate, 'months', true),
@@ -604,7 +604,7 @@ export class DailyService {
     }
 
     // if yearly get most recent year
-    if (frequency === 'Yearly') {
+    if (frequency === 'Yearly' && itemStartDate) {
       if (itemStartDate < budgetStartDate) {
         const yearsNeeded = Math.ceil(
           budgetStartDate.diff(itemStartDate, 'years', true),
@@ -620,11 +620,11 @@ export class DailyService {
 
   private getEndDate(
     budgetEndDate: Moment,
-    itemEndDate: Moment,
+    itemEndDate: Moment | undefined,
     isForever: boolean,
   ): Moment {
     let date = budgetEndDate.clone()
-    if (!isForever && itemEndDate <= budgetEndDate) {
+    if (!isForever && itemEndDate && itemEndDate <= budgetEndDate) {
       date = itemEndDate
     }
     return date

@@ -66,7 +66,6 @@ export class BudgetAddComponent implements OnInit {
   templateUrl: 'budget-add.component.html',
   styleUrls: ['./budget-add.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [DalBudgetService, FinanceService],
   imports: [
     CdkScrollable,
     FormsModule,
@@ -97,9 +96,9 @@ export class BudgetAddDialogComponent implements OnInit {
   myBudget: BudgetAdd | undefined
 
   constructor(
+    public matDialogRef: MatDialogRef<BudgetAddDialogComponent>,
     private dalBudgetService: DalBudgetService,
     private matSnackBar: MatSnackBar,
-    public matDialogRef: MatDialogRef<BudgetAddDialogComponent>,
   ) {}
 
   ngOnInit() {
@@ -113,18 +112,18 @@ export class BudgetAddDialogComponent implements OnInit {
     this.isRequesting = true
     this.errors = ''
     if (valid) {
-      this.dalBudgetService.add(value).subscribe(
-        () => {
+      this.dalBudgetService.add(value).subscribe({
+        next: () => {
           this.matDialogRef.close()
           this.matSnackBar.open('Saved', 'Dismiss', { duration: 2000 })
         },
-        (errors: any) => {
+        error: (errors) => {
           this.errors = errors
         },
-        () => {
+        complete: () => {
           this.isRequesting = false
         },
-      )
+      })
     }
   }
 }

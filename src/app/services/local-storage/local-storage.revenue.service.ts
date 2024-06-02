@@ -1,37 +1,34 @@
 import { Injectable } from '@angular/core'
 import { RevenueAdd } from '@interfaces/revenues/revenue-add.interface'
 import { RevenueEdit } from '@interfaces/revenues/revenue-edit.interface'
+import { Revenue } from '@interfaces/revenues/revenue.interface'
 import { localStorageService } from '@utilities/local-storage-utilities'
 import { getRansomStringFromObject } from '@utilities/string-utilities'
 import { Observable, of } from 'rxjs'
 
 @Injectable()
 export class LocalStorageRevenueService {
-  getAll(budgetId: number | string): Observable<object> {
-    const revenues = localStorageService.getObject('revenues')
+  getAll(budgetId: number | string): Observable<Revenue[]> {
+    const revenues = localStorageService.getObject<Revenue>('revenues')
     return of(
       Object.values(revenues).filter(
-        // TODO
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (revenue: any) => revenue.budgetId === budgetId,
+        (revenue) => revenue.budgetId === budgetId,
       ),
     )
   }
 
   add(value: RevenueAdd) {
-    const revenues = localStorageService.getObject('revenues')
+    const revenues = localStorageService.getObject<Revenue>('revenues')
 
     const id = getRansomStringFromObject(revenues)
     revenues[id] = { ...value, id }
     localStorageService.setObject('revenues', revenues)
 
-    const response = id
-
-    return of(response)
+    return of(id)
   }
 
   update(value: RevenueEdit) {
-    const revenues = localStorageService.getObject('revenues')
+    const revenues = localStorageService.getObject<Revenue>('revenues')
     const revenue = revenues[value.id]
     if (revenue) {
       revenue.description = value.description

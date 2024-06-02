@@ -110,7 +110,7 @@ export class ExpenseEditDialogComponent implements OnInit {
     private dalExpenseService: DalExpenseService,
     private matSnackBar: MatSnackBar,
     public matDialogRef: MatDialogRef<ExpenseEditDialogComponent> | null,
-    @Inject(MAT_DIALOG_DATA) public data: any,
+    @Inject(MAT_DIALOG_DATA) public data: { id: string },
   ) {}
 
   ngOnInit() {
@@ -159,6 +159,7 @@ export class ExpenseEditDialogComponent implements OnInit {
     this.oldExpense = expense
     if (this.oldExpense) {
       this.newExpense = {
+        budgetId: this.oldExpense.budgetId,
         description: this.oldExpense.description,
         amount: this.oldExpense.amount,
         isForever: this.oldExpense.isForever,
@@ -172,7 +173,6 @@ export class ExpenseEditDialogComponent implements OnInit {
         repeatFri: this.oldExpense.repeatFri,
         repeatSat: this.oldExpense.repeatSat,
         repeatSun: this.oldExpense.repeatSun,
-        budgetId: undefined,
       }
     }
   }
@@ -190,19 +190,18 @@ export class ExpenseEditDialogComponent implements OnInit {
     this.errors = ''
 
     if (valid && this.oldExpense) {
-      // TODO:
-      this.dalExpenseService.update(this.oldExpense, value).subscribe(
-        () => {
+      this.dalExpenseService.update(this.oldExpense, value).subscribe({
+        next: () => {
           this.matDialogRef?.close()
           this.matSnackBar.open('Saved', 'Dismiss', { duration: 2000 })
         },
-        (errors: any) => {
+        error: (errors) => {
           this.errors = errors
         },
-        () => {
+        complete: () => {
           this.isRequesting = false
         },
-      )
+      })
     }
   }
 }

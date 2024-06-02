@@ -32,20 +32,25 @@
                 "input": "public"
               }
             ],
-            "styles": [
-              "node_modules/bootstrap/dist/css/bootstrap.min.css",
-              "src/scss/themes.scss",
-              "src/scss/styles.scss"
-            ],
-            "scripts": []
+            "styles": ["src/scss/styles.scss"],
+            "scripts": [],
+            "allowedCommonJsDependencies": ["moment"]
           },
           "configurations": {
             "production": {
+              "optimization": {
+                "scripts": true,
+                "styles": {
+                  "minify": true,
+                  "inlineCritical": false
+                },
+                "fonts": true
+              },
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kB",
-                  "maximumError": "1MB"
+                  "maximumWarning": "2MB",
+                  "maximumError": "3MB"
                 },
                 {
                   "type": "anyComponentStyle",
@@ -91,11 +96,7 @@
                 "input": "public"
               }
             ],
-            "styles": [
-              "node_modules/bootstrap/dist/css/bootstrap.min.css",
-              "src/scss/themes.scss",
-              "src/scss/styles.scss"
-            ],
+            "styles": ["src/scss/styles.scss"],
             "scripts": []
           }
         },

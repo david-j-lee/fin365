@@ -1,9 +1,8 @@
-// public virtual int Id { get; set; }
-//         public virtual DateTime? Date { get; set; }
-//         public virtual double EstimatedBalance { get; set; }
-//         public virtual double ActualBalance { get; set; }
 import { Injectable } from '@angular/core'
+import { Balance } from '@interfaces/balances/balance.interface'
+import { Budget } from '@interfaces/budgets/budget.interface'
 import { SnapshotAddAll } from '@interfaces/snapshots/snapshot-add-all.interface'
+import { Snapshot } from '@interfaces/snapshots/snapshot.interface'
 import { localStorageService } from '@utilities/local-storage-utilities'
 import { getRansomStringFromObject } from '@utilities/string-utilities'
 import moment from 'moment'
@@ -11,43 +10,54 @@ import { Observable, of } from 'rxjs'
 
 @Injectable()
 export class LocalStorageSnapshotService {
-  getAll(budgetId: number | string): Observable<object> {
-    const snapshots = localStorageService.getObject('snapshots')
+  getAll(budgetId: number | string): Observable<Snapshot[]> {
+    const snapshots = localStorageService.getObject<Snapshot>('snapshots')
     return of(
       Object.values(snapshots).filter(
-        (snapshot: any) => snapshot.budgetId === budgetId,
+        (snapshot: Snapshot) => snapshot.budgetId === budgetId,
       ),
     )
   }
 
-  save(value: SnapshotAddAll) {
+  save(value: SnapshotAddAll): Observable<{
+    snapshotId: string
+    balanceIds: string[]
+  }> {
+    if (!value.budgetId) {
+      throw new Error('Budget ID is required')
+    }
+
     // add a snapshot
-    const snapshots = localStorageService.getObject('snapshots')
+    const snapshots = localStorageService.getObject<Snapshot>('snapshots')
     const id = getRansomStringFromObject(snapshots)
     snapshots[id] = {
       ...value.snapshot,
       id,
-      date: moment(value.snapshot.date, 'MM/DD/YYYY')
-        .utcOffset(moment().utcOffset())
-        .format(),
+      date: moment(value.snapshot.date, 'MM/DD/YYYY').utcOffset(
+        moment().utcOffset(),
+      ),
       budgetId: value.budgetId,
+      balanceDifference:
+        value.snapshot.actualBalance - value.snapshot.estimatedBalance,
     }
     localStorageService.setObject('snapshots', snapshots)
 
     // remove and add new balances
-    const balances = localStorageService.getObject('balances')
+    const balances = localStorageService.getObject<Balance>('balances')
     const filteredBalances = Object.fromEntries(
       Object.entries(balances).filter(
-        ([, balance]: [string, any]) => balance.budgetId !== value.budgetId,
+        ([, balance]) => balance.budgetId !== value.budgetId,
       ),
     )
-    value.snapshotBalances.forEach((balance: any) => {
-      filteredBalances[balance.id] = { ...balance, budgetId: value.budgetId }
+    value.snapshotBalances.forEach((balance) => {
+      if (value.budgetId) {
+        filteredBalances[balance.id] = { ...balance, budgetId: value.budgetId }
+      }
     })
     localStorageService.setObject('balances', filteredBalances)
 
     // update budget start date
-    const budgets = localStorageService.getObject('budgets')
+    const budgets = localStorageService.getObject<Budget>('budgets')
     const budget = budgets[value.budgetId ?? '']
     if (budget) {
       budget.startDate = snapshots[id].date

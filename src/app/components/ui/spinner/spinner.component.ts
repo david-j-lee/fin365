@@ -31,7 +31,7 @@ export class SpinnerComponent implements OnDestroy {
   public isDelayedRunning = false
   private currentTimeout: number = 0
 
-  ngOnDestroy(): any {
+  ngOnDestroy() {
     this.cancelTimeout()
   }
 
