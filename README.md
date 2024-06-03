@@ -9,5 +9,4 @@ This is a website where you can build out a budget for the next 365 days. You ca
 ## TODO
 
 - [ ] Remove this TODO section
-- [ ] Better overflow control, scroll bars for left vs right side, navbar always visible.
 - [ ] More views/tabs, like list view and maybe a tree view
