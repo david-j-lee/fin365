@@ -1,4 +1,4 @@
-<div class="wrapper d-flex flex-column h-100p">
+<div class="wrapper d-flex flex-column h-100">
   <div class="d-flex align-items-center py-1">
     <button
       mat-icon-button
@@ -30,7 +30,7 @@
     <div class="day-header">Fri</div>
     <div class="day-header">Sat</div>
   </div>
-  <div class="flex-grow-1 d-flex flex-column overflow-auto mb-3">
+  <div class="flex-grow-1 d-flex flex-column overflow-y-auto">
     <div *ngIf="calendarService.days" class="calendar flex-grow-1">
       <div
         *ngFor="let day of calendarService.days; let first = first"

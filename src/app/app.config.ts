@@ -18,6 +18,7 @@ import { LocalStorageExpenseService } from '@services/local-storage/local-storag
 import { LocalStorageRevenueService } from '@services/local-storage/local-storage.revenue.service'
 import { LocalStorageSnapshotService } from '@services/local-storage/local-storage.snapshot.service'
 import { SideBarService } from '@services/side-bar.service'
+import { ThemeService } from '@services/theme.service'
 import { provideCharts, withDefaultRegisterables } from 'ng2-charts'
 
 export const appConfig: ApplicationConfig = {
@@ -41,6 +42,7 @@ export const appConfig: ApplicationConfig = {
     { provide: LocalStorageExpenseService },
     { provide: LocalStorageRevenueService },
     { provide: LocalStorageSnapshotService },
+    { provide: ThemeService },
     { provide: SideBarService },
   ],
 }

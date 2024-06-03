@@ -6,6 +6,7 @@ import { MatIcon } from '@angular/material/icon'
 import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu'
 import { MatToolbar } from '@angular/material/toolbar'
 import { RouterLink } from '@angular/router'
+import { ThemePickerComponent } from '@components/theme-picker/theme-picker.component'
 import { FilterPipe } from '@pipes/filter.pipe'
 import { SortByPipe } from '@pipes/sort.pipe'
 import { FinanceService } from '@services/finance.service'
@@ -13,7 +14,6 @@ import { FinanceService } from '@services/finance.service'
 @Component({
   selector: 'app-toolbar',
   templateUrl: 'toolbar.component.html',
-  styleUrls: ['toolbar.component.scss'],
   standalone: true,
   imports: [
     MatToolbar,
@@ -28,6 +28,7 @@ import { FinanceService } from '@services/finance.service'
     MatMenuItem,
     NgClass,
     SortByPipe,
+    ThemePickerComponent,
     FilterPipe,
   ],
 })

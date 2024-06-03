@@ -9,7 +9,6 @@ import { FinanceService } from '@services/finance.service'
 @Component({
   selector: 'app-revenue-table',
   templateUrl: 'revenue-table.component.html',
-  styleUrls: ['revenue-table.component.scss'],
   standalone: true,
   imports: [MatList, NgFor, MatListItem, MatIconButton, RouterLink, MatIcon],
 })

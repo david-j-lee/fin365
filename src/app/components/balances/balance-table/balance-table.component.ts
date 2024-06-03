@@ -9,7 +9,6 @@ import { FinanceService } from '@services/finance.service'
 @Component({
   selector: 'app-balance-table',
   templateUrl: 'balance-table.component.html',
-  styleUrls: ['balance-table.component.scss'],
   standalone: true,
   imports: [MatList, NgFor, MatListItem, MatIconButton, RouterLink, MatIcon],
 })

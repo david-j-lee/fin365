@@ -9,7 +9,7 @@ export class FinanceService {
 
   frequencies = ['Once', 'Daily', 'Weekly', 'Bi-Weekly', 'Monthly', 'Yearly']
 
-  selectBudget(budget: Budget) {
+  selectBudget(budget: Budget | null) {
     this.selectedBudget = budget
   }
 

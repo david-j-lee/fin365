@@ -22,7 +22,6 @@ import { FinanceService } from '@services/finance.service'
 @Component({
   selector: 'app-expense-delete-dialog',
   templateUrl: 'expense-delete.component.html',
-  styleUrls: ['expense-delete.component.scss'],
   standalone: true,
   imports: [
     CdkScrollable,

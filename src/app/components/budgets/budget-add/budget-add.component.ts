@@ -35,7 +35,6 @@ import moment from 'moment'
 @Component({
   selector: 'app-budget-add-dialog',
   templateUrl: 'budget-add.component.html',
-  styleUrls: ['./budget-add.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CdkScrollable,

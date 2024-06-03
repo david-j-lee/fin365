@@ -40,7 +40,6 @@ import { FinanceService } from '@services/finance.service'
 @Component({
   selector: 'app-expense-edit-dialog',
   templateUrl: 'expense-edit.component.html',
-  styleUrls: ['expense-edit.component.scss'],
   standalone: true,
   imports: [
     CdkScrollable,

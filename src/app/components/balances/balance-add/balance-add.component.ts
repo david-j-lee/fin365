@@ -24,7 +24,6 @@ import { FinanceService } from '@services/finance.service'
 @Component({
   selector: 'app-balance-add-dialog',
   templateUrl: 'balance-add.component.html',
-  styleUrls: ['balance-add.component.scss'],
   standalone: true,
   imports: [
     CdkScrollable,

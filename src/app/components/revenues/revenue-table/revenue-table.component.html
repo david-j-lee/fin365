@@ -3,13 +3,6 @@
     *ngFor="let revenue of financeService.selectedBudget?.revenues"
   >
     <div class="d-flex align-items-center">
-      <button
-        mat-icon-button
-        [routerLink]="['./revenue', revenue.id, 'edit']"
-        class="me-2"
-      >
-        <mat-icon>edit</mat-icon>
-      </button>
       <div class="frequency-flag">{{ revenue.frequency.substring(0, 1) }}</div>
       <div class="fill-space text-ellipsis pe-1">
         <a

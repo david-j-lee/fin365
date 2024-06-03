@@ -1,13 +1,47 @@
 @import '../../node_modules/bootstrap/dist/css/bootstrap.min.css';
 @import 'themes';
 
-html,
-body {
-  height: 100%;
+::-webkit-scrollbar {
+  width: 5px;
+}
+::-webkit-scrollbar-track {
+  background: #333;
+}
+::-webkit-scrollbar-thumb {
+  background: #2a2a2a;
+  &:hover {
+    background: #1e1e1e;
+  }
+}
+
+html {
   font-family: 'Montserrat', sans-serif;
-  letter-spacing: 2px;
+}
+
+html,
+body,
+app-root {
   margin: 0;
   padding: 0;
+}
+
+@media (min-width: 768px) {
+  html,
+  body,
+  app-root {
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  app-budget-listing {
+    height: 100%;
+    overflow-y: auto;
+  }
+}
+
+app-root {
+  display: flex;
+  flex-direction: column;
 }
 
 h1,
@@ -57,57 +91,8 @@ a {
   font-size: 15px;
 }
 
-.listing-item:hover,
-.listing-item:focus {
-  background-color: rgba(127, 127, 127, 0.05);
-}
-
-// Budgets
-
-.budgets-pie-chart {
-  position: relative;
-  width: 100%;
-  height: 150px;
-}
-
-@media (min-width: 768px) {
-  .budgets-pie-chart {
-    height: 175px;
-  }
-}
-
-@media (min-width: 1200px) {
-  .budgets-pie-chart {
-    height: 200px;
-  }
-}
-
-/* Spacing and sizing helpers */
 .no-wrap {
   white-space: nowrap;
-}
-
-.overflow-auto {
-  overflow: auto;
-}
-
-.all-0 {
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-}
-
-.flex-grow-1 {
-  flex-grow: 1 !important;
-}
-
-.flex-grow-2 {
-  flex-grow: 2 !important;
-}
-
-.flex-column {
-  flex-direction: column;
 }
 
 .fill-space {
@@ -121,19 +106,9 @@ a {
   text-overflow: ellipsis;
 }
 
-.h-100p {
-  height: 100%;
-}
-
-.h-100vh {
-  height: 100vh;
-}
-
-.w-100p {
-  width: 100%;
-}
-
-/* Material Design */
+/*
+ * Material Design
+ */
 
 // For some reason adding theme to these components cause issues with the
 // line height causing icons to not be centered
@@ -158,16 +133,33 @@ button.mdc-icon-button {
   flex-grow: 1;
 }
 
-// .mat-form-field-infix {
-//   width: inherit !important;
-// }
+/*
+ * Shared component styles
+ */
 
-// .invalid-feedback {
-//   margin-top: inherit;
-//   font-size: inherit;
-// }
+// Rev & Exp Listings
+.frequency-flag {
+  font-size: 11px;
+  width: 20px;
+  text-align: center;
+  margin-right: 10px;
+}
 
-// .mat-tab-body-content {
-//   display: flex;
-//   flex-direction: column;
-// }
+// Budgets
+.budgets-pie-chart {
+  position: relative;
+  width: 100%;
+  height: 150px;
+}
+
+@media (min-width: 768px) {
+  .budgets-pie-chart {
+    height: 175px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .budgets-pie-chart {
+    height: 200px;
+  }
+}

@@ -32,7 +32,7 @@
                 "input": "public"
               }
             ],
-            "styles": ["src/scss/styles.scss"],
+            "styles": ["src/styles/style.scss"],
             "scripts": [],
             "allowedCommonJsDependencies": ["moment"]
           },
@@ -96,7 +96,7 @@
                 "input": "public"
               }
             ],
-            "styles": ["src/scss/styles.scss"],
+            "styles": ["src/styles/style.scss"],
             "scripts": []
           }
         },

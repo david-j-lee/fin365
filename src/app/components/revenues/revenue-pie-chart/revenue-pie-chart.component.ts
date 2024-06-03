@@ -6,7 +6,6 @@ import { BaseChartDirective } from 'ng2-charts'
 @Component({
   selector: 'app-revenue-pie-chart',
   templateUrl: 'revenue-pie-chart.component.html',
-  styleUrls: ['revenue-pie-chart.component.scss'],
   standalone: true,
   imports: [NgIf, BaseChartDirective, CurrencyPipe],
 })

@@ -37,7 +37,6 @@ import { FinanceService } from '@services/finance.service'
 @Component({
   selector: 'app-expense-add-dialog',
   templateUrl: 'expense-add.component.html',
-  styleUrls: ['expense-add.component.scss'],
   standalone: true,
   imports: [
     CdkScrollable,

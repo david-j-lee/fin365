@@ -10,7 +10,6 @@ import { FinanceService } from '@services/finance.service'
 @Component({
   selector: 'app-expense-table',
   templateUrl: 'expense-table.component.html',
-  styleUrls: ['expense-table.component.scss'],
   standalone: true,
   imports: [
     MatList,

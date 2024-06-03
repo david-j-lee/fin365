@@ -14,10 +14,10 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy()
   })
 
-  it(`should have the 'test-app-min' title`, () => {
+  it(`should have the 'fin365' title`, () => {
     const fixture = TestBed.createComponent(AppComponent)
     const app = fixture.componentInstance
-    expect(app.title).toEqual('test-app-min')
+    expect(app.title.getTitle()).toEqual('fin365')
   })
 
   it('should render title', () => {

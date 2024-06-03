@@ -40,7 +40,6 @@ import { FinanceService } from '@services/finance.service'
 @Component({
   selector: 'app-revenue-edit-dialog',
   templateUrl: 'revenue-edit.component.html',
-  styleUrls: ['revenue-edit.component.scss'],
   standalone: true,
   imports: [
     CdkScrollable,

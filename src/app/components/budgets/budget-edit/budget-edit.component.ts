@@ -27,7 +27,6 @@ import { FinanceService } from '@services/finance.service'
 @Component({
   selector: 'app-budget-edit-dialog',
   templateUrl: './budget-edit.component.html',
-  styleUrls: ['./budget-edit.component.scss'],
   standalone: true,
   imports: [
     CdkScrollable,

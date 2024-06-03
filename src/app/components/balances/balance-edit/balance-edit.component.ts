@@ -27,7 +27,6 @@ import { FinanceService } from '@services/finance.service'
 @Component({
   selector: 'app-balance-edit-dialog',
   templateUrl: 'balance-edit.component.html',
-  styleUrls: ['balance-edit.component.scss'],
   standalone: true,
   imports: [
     NgIf,

@@ -1,5 +1,5 @@
 import { NgIf } from '@angular/common'
-import { Component, OnInit } from '@angular/core'
+import { Component, OnDestroy, OnInit } from '@angular/core'
 import { MatIcon } from '@angular/material/icon'
 import { MatTab, MatTabGroup, MatTabLabel } from '@angular/material/tabs'
 import { ActivatedRoute, Params, Router, RouterOutlet } from '@angular/router'
@@ -41,8 +41,8 @@ import moment from 'moment'
     SidebarComponent,
   ],
 })
-export class BudgetDashboardComponent implements OnInit {
-  budgetId: string | undefined
+export class BudgetDashboardComponent implements OnInit, OnDestroy {
+  budgetId: string | null | undefined
   type: string = ''
 
   constructor(
@@ -71,36 +71,46 @@ export class BudgetDashboardComponent implements OnInit {
     })
   }
 
+  ngOnDestroy() {
+    this.budgetId = null
+    this.selectBudget()
+  }
+
   private selectBudget() {
     const selectedBudget = this.financeService.budgets?.find(
       (budget) => budget.id === this.budgetId,
     )
-    if (selectedBudget) {
-      this.financeService.selectBudget(selectedBudget)
 
-      if (!selectedBudget.isBalancesLoaded) {
-        this.sideBarService.setExpanded(this.type)
-        this.getBalances(selectedBudget)
-      }
-      if (!selectedBudget.isExpensesLoaded) {
-        this.sideBarService.setExpanded(this.type)
-        this.getExpenses(selectedBudget)
-      }
-      if (!selectedBudget.isRevenuesLoaded) {
-        this.sideBarService.setExpanded(this.type)
-        this.getRevenues(selectedBudget)
-      }
-      if (!selectedBudget.isSnapshotsLoaded) {
-        this.getSnapshots(selectedBudget)
-      }
-
-      this.dailyService.generateDailyBudget()
-      this.chartService.setChartBalance()
-      this.chartService.setChartRevenue()
-      this.chartService.setChartExpense()
-      this.chartService.setChartBudget()
-      this.calendarService.setFirstMonth()
+    if (!selectedBudget) {
+      this.financeService.selectBudget(null)
+      this.router.navigate(['/'])
+      return
     }
+
+    this.financeService.selectBudget(selectedBudget)
+
+    if (!selectedBudget.isBalancesLoaded) {
+      this.sideBarService.setExpanded(this.type)
+      this.getBalances(selectedBudget)
+    }
+    if (!selectedBudget.isExpensesLoaded) {
+      this.sideBarService.setExpanded(this.type)
+      this.getExpenses(selectedBudget)
+    }
+    if (!selectedBudget.isRevenuesLoaded) {
+      this.sideBarService.setExpanded(this.type)
+      this.getRevenues(selectedBudget)
+    }
+    if (!selectedBudget.isSnapshotsLoaded) {
+      this.getSnapshots(selectedBudget)
+    }
+
+    this.dailyService.generateDailyBudget()
+    this.chartService.setChartBalance()
+    this.chartService.setChartRevenue()
+    this.chartService.setChartExpense()
+    this.chartService.setChartBudget()
+    this.calendarService.setFirstMonth()
   }
 
   private getBalances(budget: Budget) {

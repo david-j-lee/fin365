@@ -1,9 +1,13 @@
 # README
 
-This is a lite local version of the Finance application in the [daebit](https://github.com/david-j-lee/daebit) repo.
+This is a website where you can build out a budget for the next 365 days. You can view your daily balances and see your financial plan through graphs or in a calendar view.
 
-The version in the daebit repo has a server with account management and data persistance.
+## Development Requirements
 
-## Requirements
+- node v20+
 
-- node v14+
+## TODO
+
+- [ ] Remove this TODO section
+- [ ] Better overflow control, scroll bars for left vs right side, navbar always visible.
+- [ ] More views/tabs, like list view and maybe a tree view

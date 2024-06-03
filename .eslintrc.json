@@ -37,7 +37,7 @@
         "max-lines-per-function": ["error", 100],
         "max-lines": "off",
         "max-params": ["error", 15],
-        "max-statements": ["error", 20],
+        "max-statements": ["error", 30],
         "new-cap": "off",
         "no-console": ["error", { "allow": ["error"] }],
         "no-continue": "off",
