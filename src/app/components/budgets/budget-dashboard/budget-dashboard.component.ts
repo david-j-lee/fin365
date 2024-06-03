@@ -42,7 +42,7 @@ import moment from 'moment'
   ],
 })
 export class BudgetDashboardComponent implements OnInit, OnDestroy {
-  budgetId: string | null | undefined
+  budgetId: string | null = null
   type: string = ''
 
   constructor(
