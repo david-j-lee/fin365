@@ -8,7 +8,6 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "publish": "npm run build && aws s3 rm s3://letsblastoff.com --recursive && aws s3 sync dist/fin365 s3://letsblastoff.com",
     "lint": "ng lint",
     "lint:fix": "ng lint --fix",
     "format": "prettier --write ."
