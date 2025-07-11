@@ -68,7 +68,7 @@ export class SnapshotHistoryDialogComponent implements OnInit {
 
   ngOnInit() {
     this.dataSource = new MatTableDataSource(
-      this.financeService.selectedBudget?.snapshots,
+      this.financeService.budget?.snapshots,
     )
   }
 }
@@ -90,7 +90,7 @@ export class SnapshotHistoryComponent implements OnInit {
       this.matDialogRef = this.matDialog.open(SnapshotHistoryDialogComponent)
       this.matDialogRef.afterClosed().subscribe(() => {
         this.matDialogRef = null
-        this.router.navigate(['/', this.financeService.selectedBudget?.id])
+        this.router.navigate(['/', this.financeService.budget?.id])
       })
     })
   }

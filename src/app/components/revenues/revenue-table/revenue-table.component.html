@@ -1,6 +1,6 @@
 <mat-list>
   @for (
-    revenue of financeService.selectedBudget?.revenues | sortBy: 'description';
+    revenue of financeService.budget?.revenues | sortBy: 'description';
     track revenue
   ) {
     <mat-list-item>

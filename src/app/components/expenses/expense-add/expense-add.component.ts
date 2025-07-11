@@ -72,7 +72,7 @@ export class ExpenseAddDialogComponent implements OnInit {
 
   ngOnInit() {
     this.myExpense = {
-      budgetId: this.financeService.selectedBudget?.id ?? '',
+      budgetId: this.financeService.budget?.id ?? '',
       description: '',
       amount: 0,
       isForever: true,
@@ -94,7 +94,7 @@ export class ExpenseAddDialogComponent implements OnInit {
     if (valid) {
       this.isSubmitting = true
       this.errors = ''
-      value.budgetId = this.financeService.selectedBudget?.id
+      value.budgetId = this.financeService.budget?.id
       this.dalExpenseService.add(value).subscribe({
         next: () => {
           this.matDialogRef.close()
@@ -128,7 +128,7 @@ export class ExpenseAddComponent implements OnInit {
       this.matDialogRef = this.matDialog.open(ExpenseAddDialogComponent)
       this.matDialogRef.afterClosed().subscribe(() => {
         this.matDialogRef = null
-        this.router.navigate(['/', this.financeService.selectedBudget?.id])
+        this.router.navigate(['/', this.financeService.budget?.id])
       })
     })
   }

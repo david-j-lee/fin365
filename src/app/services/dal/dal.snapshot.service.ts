@@ -8,7 +8,7 @@ import { CalendarService } from '@services/calendar.service'
 import { ChartService } from '@services/chart.service'
 import { DailyService } from '@services/daily.service'
 import { FinanceService } from '@services/finance.service'
-import { LocalStorageSnapshotService } from '@services/local-storage/local-storage.snapshot.service'
+import { LocalStorageSnapshotService } from '@storage/local-storage/local-storage.snapshot'
 import moment from 'moment'
 import { Observable } from 'rxjs'
 import { map } from 'rxjs/operators'
@@ -17,7 +17,8 @@ const SERVICE = 'localStorageSnapshotService'
 
 @Injectable()
 export class DalSnapshotService {
-  private localStorageSnapshotService = inject(LocalStorageSnapshotService)
+  private localStorageSnapshotService = LocalStorageSnapshotService
+
   private financeService = inject(FinanceService)
   private dailyService = inject(DailyService)
   private chartService = inject(ChartService)
@@ -84,10 +85,10 @@ export class DalSnapshotService {
           newBalances.push(newBalance)
         })
 
-        if (this.financeService.selectedBudget) {
-          this.financeService.selectedBudget.startDate = snapshot.date
-          this.financeService.selectedBudget.snapshots?.unshift(snapshot)
-          this.financeService.selectedBudget.balances = newBalances
+        if (this.financeService.budget) {
+          this.financeService.budget.startDate = snapshot.date
+          this.financeService.budget.snapshots?.unshift(snapshot)
+          this.financeService.budget.balances = newBalances
         }
 
         this.dailyService.generateDailyBudget()

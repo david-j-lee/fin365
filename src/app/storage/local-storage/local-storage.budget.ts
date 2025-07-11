@@ -1,4 +1,3 @@
-import { Injectable } from '@angular/core'
 import { Balance } from '@interfaces/balances/balance.interface'
 import { BudgetAdd } from '@interfaces/budgets/budget-add.interface'
 import { BudgetEdit } from '@interfaces/budgets/budget-edit.interface'
@@ -6,17 +5,15 @@ import { Budget } from '@interfaces/budgets/budget.interface'
 import { Expense } from '@interfaces/expenses/expense.interface'
 import { Revenue } from '@interfaces/revenues/revenue.interface'
 import { Snapshot } from '@interfaces/snapshots/snapshot.interface'
-import { localStorageService } from '@utilities/local-storage-utilities'
+import { localStorageService } from '@storage/local-storage/local-storage-utilities'
 import { getRansomStringFromObject } from '@utilities/string-utilities'
 import { Observable, of } from 'rxjs'
 
-@Injectable()
-export class LocalStorageBudgetService {
+export const LocalStorageBudgetService = {
   getAll(): Observable<Budget[]> {
     const budgets = localStorageService.getObject<Budget>('budgets')
     return of(Object.values(budgets))
-  }
-
+  },
   add(value: BudgetAdd) {
     const budgets = localStorageService.getObject<Budget>('budgets')
     const budgetId = getRansomStringFromObject(budgets)
@@ -58,8 +55,7 @@ export class LocalStorageBudgetService {
     localStorageService.setObject('snapshots', snapshots)
 
     return of({ budgetId, snapshotId })
-  }
-
+  },
   update(value: BudgetEdit): Observable<Budget> {
     const budgets = localStorageService.getObject<Budget>('budgets')
     const budget = budgets[value.id]
@@ -67,8 +63,7 @@ export class LocalStorageBudgetService {
     budget.isActive = value.isActive
     localStorageService.setObject('budgets', budgets)
     return of(budget)
-  }
-
+  },
   delete(id: string): Observable<boolean> {
     const budgets = localStorageService.getObject<Budget>('budgets')
     if (budgets[id]) {
@@ -102,5 +97,5 @@ export class LocalStorageBudgetService {
       return of(true)
     }
     return of(false)
-  }
+  },
 }

@@ -1,4 +1,3 @@
-import { DailyService } from './daily.service'
 import { FinanceService } from './finance.service'
 import { Injectable, inject } from '@angular/core'
 import { Day } from '@interfaces/daily/day.interface'
@@ -7,7 +6,6 @@ import moment from 'moment'
 @Injectable()
 export class CalendarService {
   private financeService = inject(FinanceService)
-  private dailyService = inject(DailyService)
 
   days: Day[] = []
 
@@ -25,13 +23,13 @@ export class CalendarService {
 
   setFirstMonth() {
     if (
-      this.financeService.selectedBudget?.days &&
-      this.financeService.selectedBudget.days.length > 0
+      this.financeService.budget?.days &&
+      this.financeService.budget.days.length > 0
     ) {
-      const [firstDay] = this.financeService.selectedBudget.days
+      const [firstDay] = this.financeService.budget.days
       const lastDay =
-        this.financeService.selectedBudget.days[
-          this.financeService.selectedBudget.days.length - 1
+        this.financeService.budget.days[
+          this.financeService.budget.days.length - 1
         ]
 
       this.minMonth = firstDay.date.month() + 1
@@ -47,10 +45,10 @@ export class CalendarService {
   }
 
   setMonth(year: number, month: number) {
-    if (this.financeService.selectedBudget?.days) {
+    if (this.financeService.budget?.days) {
       this.currentMonthText = moment(this.currentMonth, 'M').format('MMMM')
       this.days = []
-      const days = this.financeService.selectedBudget.days.filter(
+      const days = this.financeService.budget.days.filter(
         (day) => day.year === year && day.month + 1 === month,
       )
 
@@ -68,7 +66,7 @@ export class CalendarService {
         let lastBalance = 0
 
         for (let i = 0; i <= numLoops; i++) {
-          const day = this.financeService.selectedBudget.days.find(
+          const day = this.financeService.budget.days.find(
             (budgetDay) =>
               budgetDay.date.format('L') ===
               firstDate.clone().add(i, 'days').format('L'),

@@ -70,32 +70,32 @@ export class BudgetDashboardComponent implements OnInit, OnDestroy {
   }
 
   private selectBudget() {
-    const selectedBudget = this.financeService.budgets?.find(
+    const budget = this.financeService.budgets?.find(
       (budget) => budget.id === this.budgetId,
     )
 
-    if (!selectedBudget) {
+    if (!budget) {
       this.financeService.selectBudget(null)
       this.router.navigate(['/'])
       return
     }
 
-    this.financeService.selectBudget(selectedBudget)
+    this.financeService.selectBudget(budget)
 
-    if (!selectedBudget.isBalancesLoaded) {
+    if (!budget.isBalancesLoaded) {
       this.sideBarService.setExpanded(this.type)
-      this.getBalances(selectedBudget)
+      this.getBalances(budget)
     }
-    if (!selectedBudget.isExpensesLoaded) {
+    if (!budget.isExpensesLoaded) {
       this.sideBarService.setExpanded(this.type)
-      this.getExpenses(selectedBudget)
+      this.getExpenses(budget)
     }
-    if (!selectedBudget.isRevenuesLoaded) {
+    if (!budget.isRevenuesLoaded) {
       this.sideBarService.setExpanded(this.type)
-      this.getRevenues(selectedBudget)
+      this.getRevenues(budget)
     }
-    if (!selectedBudget.isSnapshotsLoaded) {
-      this.getSnapshots(selectedBudget)
+    if (!budget.isSnapshotsLoaded) {
+      this.getSnapshots(budget)
     }
 
     this.dailyService.generateDailyBudget()

@@ -49,11 +49,11 @@ export class ExpenseDeleteDialogComponent implements OnInit {
   deleteExpense: Expense | undefined
 
   ngOnInit() {
-    if (this.financeService.selectedBudget?.expenses) {
+    if (this.financeService.budget?.expenses) {
       this.getData()
-    } else if (this.financeService.selectedBudget) {
+    } else if (this.financeService.budget) {
       this.dalExpenseService
-        .getAll(this.financeService.selectedBudget.id)
+        .getAll(this.financeService.budget.id)
         .subscribe(() => {
           this.getData()
         })
@@ -62,7 +62,7 @@ export class ExpenseDeleteDialogComponent implements OnInit {
 
   getData() {
     // Get Balance
-    const expenseToDelete = this.financeService.selectedBudget?.expenses?.find(
+    const expenseToDelete = this.financeService.budget?.expenses?.find(
       (expense) => expense.id === this.data.id,
     )
     this.deleteExpense = expenseToDelete

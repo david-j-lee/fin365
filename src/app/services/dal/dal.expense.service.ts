@@ -5,7 +5,7 @@ import { Expense } from '@interfaces/expenses/expense.interface'
 import { ChartService } from '@services/chart.service'
 import { DailyService } from '@services/daily.service'
 import { FinanceService } from '@services/finance.service'
-import { LocalStorageExpenseService } from '@services/local-storage/local-storage.expense.service'
+import { LocalStorageExpenseService } from '@storage/local-storage/local-storage.expense'
 import { Observable } from 'rxjs'
 import { map } from 'rxjs/operators'
 
@@ -13,7 +13,8 @@ const SERVICE = 'localStorageExpenseService'
 
 @Injectable()
 export class DalExpenseService {
-  private localStorageExpenseService = inject(LocalStorageExpenseService)
+  private localStorageExpenseService = LocalStorageExpenseService
+
   private financeService = inject(FinanceService)
   private dailyService = inject(DailyService)
   private chartService = inject(ChartService)
@@ -45,8 +46,8 @@ export class DalExpenseService {
           dailyExpenses: [],
         }
 
-        if (this.financeService.selectedBudget?.expenses) {
-          this.financeService.selectedBudget.expenses.push(newExpense)
+        if (this.financeService.budget?.expenses) {
+          this.financeService.budget.expenses.push(newExpense)
         }
 
         this.dailyService.generateExpense(newExpense)
@@ -94,19 +95,13 @@ export class DalExpenseService {
   delete(id: string): Observable<boolean> {
     return this[SERVICE].delete(id).pipe(
       map(() => {
-        if (
-          this.financeService.selectedBudget &&
-          this.financeService.selectedBudget.expenses
-        ) {
-          const deletedExpense =
-            this.financeService.selectedBudget.expenses.find(
-              (data) => data.id === id,
-            )
+        if (this.financeService.budget && this.financeService.budget.expenses) {
+          const deletedExpense = this.financeService.budget.expenses.find(
+            (data) => data.id === id,
+          )
           if (deletedExpense) {
-            this.financeService.selectedBudget.expenses.splice(
-              this.financeService.selectedBudget.expenses.indexOf(
-                deletedExpense,
-              ),
+            this.financeService.budget.expenses.splice(
+              this.financeService.budget.expenses.indexOf(deletedExpense),
               1,
             )
 

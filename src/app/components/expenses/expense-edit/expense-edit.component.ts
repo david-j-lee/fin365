@@ -86,11 +86,11 @@ export class ExpenseEditDialogComponent implements OnInit {
   ngOnInit() {
     this.setAfterClosed()
     // Get Balance
-    if (this.financeService.selectedBudget?.expenses) {
+    if (this.financeService.budget?.expenses) {
       this.getData()
-    } else if (this.financeService.selectedBudget) {
+    } else if (this.financeService.budget) {
       this.dalExpenseService
-        .getAll(this.financeService.selectedBudget.id)
+        .getAll(this.financeService.budget.id)
         .subscribe((result) => {
           if (result) {
             this.getData()
@@ -109,13 +109,13 @@ export class ExpenseEditDialogComponent implements OnInit {
         if (this.navigateToDelete) {
           this.router.navigate([
             './',
-            this.financeService.selectedBudget?.id,
+            this.financeService.budget?.id,
             'expense',
             this.oldExpense?.id,
             'delete',
           ])
         } else {
-          this.router.navigate(['/', this.financeService.selectedBudget?.id])
+          this.router.navigate(['/', this.financeService.budget?.id])
         }
       }
     })
@@ -123,7 +123,7 @@ export class ExpenseEditDialogComponent implements OnInit {
 
   getData() {
     // Get Balance
-    const expense = this.financeService.selectedBudget?.expenses?.find(
+    const expense = this.financeService.budget?.expenses?.find(
       (budgetExpense) => budgetExpense.id === this.data.id,
     )
     this.oldExpense = expense

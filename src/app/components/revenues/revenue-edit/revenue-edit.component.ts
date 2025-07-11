@@ -86,11 +86,11 @@ export class RevenueEditDialogComponent implements OnInit {
   ngOnInit() {
     this.setAfterClosed()
     // Get Balance
-    if (this.financeService.selectedBudget?.revenues) {
+    if (this.financeService.budget?.revenues) {
       this.getData()
-    } else if (this.financeService.selectedBudget) {
+    } else if (this.financeService.budget) {
       this.dalRevenueService
-        .getAll(this.financeService.selectedBudget.id)
+        .getAll(this.financeService.budget.id)
         .subscribe((result) => {
           if (result) {
             this.getData()
@@ -114,13 +114,13 @@ export class RevenueEditDialogComponent implements OnInit {
         if (this.navigateToDelete) {
           this.router.navigate([
             './',
-            this.financeService.selectedBudget?.id,
+            this.financeService.budget?.id,
             'revenue',
             this.oldRevenue?.id,
             'delete',
           ])
         } else {
-          this.router.navigate(['/', this.financeService.selectedBudget?.id])
+          this.router.navigate(['/', this.financeService.budget?.id])
         }
       })
     }
@@ -128,7 +128,7 @@ export class RevenueEditDialogComponent implements OnInit {
 
   getData() {
     // Get Revenue
-    const revenue = this.financeService.selectedBudget?.revenues?.find(
+    const revenue = this.financeService.budget?.revenues?.find(
       (budgetRevenue) => budgetRevenue.id === this.data.id,
     )
     if (!revenue) {

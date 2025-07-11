@@ -46,7 +46,7 @@ export class BudgetDeleteDialogComponent implements OnInit {
 
   ngOnInit() {
     this.setAfterClose()
-    this.deleteBudget = this.financeService.selectedBudget
+    this.deleteBudget = this.financeService.budget
   }
 
   setAfterClose() {
@@ -67,7 +67,7 @@ export class BudgetDeleteDialogComponent implements OnInit {
         ) {
           this.router.navigate(['/', this.financeService.budgets[0].id])
         } else if (action !== 'edit') {
-          this.router.navigate(['/', this.financeService.selectedBudget?.id])
+          this.router.navigate(['/', this.financeService.budget?.id])
         }
       })
     }

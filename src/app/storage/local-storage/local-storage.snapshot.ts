@@ -1,15 +1,13 @@
-import { Injectable } from '@angular/core'
 import { Balance } from '@interfaces/balances/balance.interface'
 import { Budget } from '@interfaces/budgets/budget.interface'
 import { SnapshotAddAll } from '@interfaces/snapshots/snapshot-add-all.interface'
 import { Snapshot } from '@interfaces/snapshots/snapshot.interface'
-import { localStorageService } from '@utilities/local-storage-utilities'
+import { localStorageService } from '@storage/local-storage/local-storage-utilities'
 import { getRansomStringFromObject } from '@utilities/string-utilities'
 import moment from 'moment'
 import { Observable, of } from 'rxjs'
 
-@Injectable()
-export class LocalStorageSnapshotService {
+export const LocalStorageSnapshotService = {
   getAll(budgetId: string): Observable<Snapshot[]> {
     const snapshots = localStorageService.getObject<Snapshot>('snapshots')
     return of(
@@ -17,8 +15,7 @@ export class LocalStorageSnapshotService {
         (snapshot: Snapshot) => snapshot.budgetId === budgetId,
       ),
     )
-  }
-
+  },
   save(value: SnapshotAddAll): Observable<{
     snapshotId: string
     balanceIds: string[]
@@ -67,8 +64,7 @@ export class LocalStorageSnapshotService {
       balanceIds: value.snapshotBalances.map((balance) => balance.id),
       snapshotId: id,
     })
-  }
-
+  },
   delete(id: string) {
     const snapshots = localStorageService.getObject<Snapshot>('snapshots')
     if (snapshots[id]) {
@@ -76,5 +72,5 @@ export class LocalStorageSnapshotService {
       return of(true)
     }
     return of(false)
-  }
+  },
 }

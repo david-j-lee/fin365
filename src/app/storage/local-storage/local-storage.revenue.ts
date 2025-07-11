@@ -1,13 +1,11 @@
-import { Injectable } from '@angular/core'
 import { RevenueAdd } from '@interfaces/revenues/revenue-add.interface'
 import { RevenueEdit } from '@interfaces/revenues/revenue-edit.interface'
 import { Revenue } from '@interfaces/revenues/revenue.interface'
-import { localStorageService } from '@utilities/local-storage-utilities'
+import { localStorageService } from '@storage/local-storage/local-storage-utilities'
 import { getRansomStringFromObject } from '@utilities/string-utilities'
 import { Observable, of } from 'rxjs'
 
-@Injectable()
-export class LocalStorageRevenueService {
+export const LocalStorageRevenueService = {
   getAll(budgetId: string): Observable<Revenue[]> {
     const revenues = localStorageService.getObject<Revenue>('revenues')
     return of(
@@ -15,8 +13,7 @@ export class LocalStorageRevenueService {
         (revenue) => revenue.budgetId === budgetId,
       ),
     )
-  }
-
+  },
   add(value: RevenueAdd) {
     const revenues = localStorageService.getObject<Revenue>('revenues')
 
@@ -25,8 +22,7 @@ export class LocalStorageRevenueService {
     localStorageService.setObject('revenues', revenues)
 
     return of(id)
-  }
-
+  },
   update(value: RevenueEdit) {
     const revenues = localStorageService.getObject<Revenue>('revenues')
     const revenue = revenues[value.id]
@@ -48,8 +44,7 @@ export class LocalStorageRevenueService {
       return of(true)
     }
     return of(false)
-  }
-
+  },
   delete(id: string) {
     const revenues = localStorageService.getObject<Revenue>('revenues')
     if (revenues[id]) {
@@ -57,5 +52,5 @@ export class LocalStorageRevenueService {
       return of(true)
     }
     return of(false)
-  }
+  },
 }

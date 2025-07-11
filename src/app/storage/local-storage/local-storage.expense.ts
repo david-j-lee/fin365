@@ -1,13 +1,11 @@
-import { Injectable } from '@angular/core'
 import { ExpenseAdd } from '@interfaces/expenses/expense-add.interface'
 import { ExpenseEdit } from '@interfaces/expenses/expense-edit.interface'
 import { Expense } from '@interfaces/expenses/expense.interface'
-import { localStorageService } from '@utilities/local-storage-utilities'
+import { localStorageService } from '@storage/local-storage/local-storage-utilities'
 import { getRansomStringFromObject } from '@utilities/string-utilities'
 import { Observable, of } from 'rxjs'
 
-@Injectable()
-export class LocalStorageExpenseService {
+export const LocalStorageExpenseService = {
   getAll(budgetId: string): Observable<Expense[]> {
     const expenses = localStorageService.getObject<Expense>('expenses')
     return of(
@@ -15,8 +13,7 @@ export class LocalStorageExpenseService {
         (expense) => expense.budgetId === budgetId,
       ),
     )
-  }
-
+  },
   add(value: ExpenseAdd) {
     const expenses = localStorageService.getObject<Expense>('expenses')
 
@@ -27,8 +24,7 @@ export class LocalStorageExpenseService {
     const response = id
 
     return of(response)
-  }
-
+  },
   update(value: ExpenseEdit) {
     const expenses = localStorageService.getObject<Expense>('expenses')
     const expense = expenses[value.id]
@@ -50,8 +46,7 @@ export class LocalStorageExpenseService {
       return of(true)
     }
     return of(false)
-  }
-
+  },
   delete(id: string) {
     const expenses = localStorageService.getObject<Expense>('expenses')
     if (expenses[id]) {
@@ -59,5 +54,5 @@ export class LocalStorageExpenseService {
       return of(true)
     }
     return of(false)
-  }
+  },
 }

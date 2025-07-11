@@ -50,7 +50,7 @@ export class BalanceAddDialogComponent implements OnInit {
   myBalance: BalanceAdd | undefined
 
   ngOnInit() {
-    const budgetId = this.financeService.selectedBudget?.id
+    const budgetId = this.financeService.budget?.id
 
     if (!budgetId) {
       return
@@ -65,10 +65,10 @@ export class BalanceAddDialogComponent implements OnInit {
 
   create(form: NgForm) {
     const { value, valid } = form
-    if (valid && this.financeService.selectedBudget) {
+    if (valid && this.financeService.budget) {
       this.isSubmitting = true
       this.errors = ''
-      value.budgetId = this.financeService.selectedBudget.id
+      value.budgetId = this.financeService.budget.id
       this.dalBalanceService.add(value).subscribe({
         next: () => {
           this.matDialogRef.close()
@@ -102,7 +102,7 @@ export class BalanceAddComponent implements OnInit {
       this.matDialogRef = this.matDialog.open(BalanceAddDialogComponent)
       this.matDialogRef.afterClosed().subscribe(() => {
         this.matDialogRef = null
-        this.router.navigate(['/', this.financeService.selectedBudget?.id])
+        this.router.navigate(['/', this.financeService.budget?.id])
       })
     })
   }

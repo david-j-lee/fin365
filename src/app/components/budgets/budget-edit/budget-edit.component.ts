@@ -63,7 +63,7 @@ export class BudgetEditDialogComponent implements OnInit {
 
   ngOnInit() {
     this.setAfterClosed()
-    this.oldBudget = this.financeService.selectedBudget
+    this.oldBudget = this.financeService.budget
     if (this.oldBudget) {
       this.newBudget = {
         id: this.oldBudget.id,
@@ -83,13 +83,9 @@ export class BudgetEditDialogComponent implements OnInit {
         return
       }
       if (this.navigateToDelete) {
-        this.router.navigate([
-          '/',
-          this.financeService.selectedBudget?.id,
-          'delete',
-        ])
+        this.router.navigate(['/', this.financeService.budget?.id, 'delete'])
       } else {
-        this.router.navigate(['/', this.financeService.selectedBudget?.id])
+        this.router.navigate(['/', this.financeService.budget?.id])
       }
     })
   }

@@ -93,7 +93,7 @@ export class SnapshotTableDialogComponent implements OnInit {
   displayColumns = ['description', 'amount', 'delete']
   dataSource = new MatTableDataSource<SnapshotBalanceAdd>()
   addSnapshot: SnapshotAdd = {
-    budgetId: this.financeService.selectedBudget?.id ?? '',
+    budgetId: this.financeService.budget?.id ?? '',
     date: this.mostRecentSnapshotDate ?? moment(),
     estimatedBalance: 0,
     actualBalance: 0,
@@ -103,8 +103,8 @@ export class SnapshotTableDialogComponent implements OnInit {
 
   ngOnInit() {
     // Create models to add balances to db
-    if (this.financeService.selectedBudget?.balances) {
-      this.financeService.selectedBudget.balances.forEach((balance) => {
+    if (this.financeService.budget?.balances) {
+      this.financeService.budget.balances.forEach((balance) => {
         const balanceAdd: SnapshotBalanceAdd = {
           id: balance.id,
           description: balance.description,
@@ -114,7 +114,11 @@ export class SnapshotTableDialogComponent implements OnInit {
       })
     }
 
-    this.balances.push({} as SnapshotBalanceAdd)
+    this.balances.push({
+      id: '',
+      description: '',
+      amount: 0,
+    })
 
     this.dataSource = new MatTableDataSource(this.balances)
   }
@@ -126,7 +130,7 @@ export class SnapshotTableDialogComponent implements OnInit {
   }
 
   update() {
-    const budgetId = this.financeService.selectedBudget?.id
+    const budgetId = this.financeService.budget?.id
     if (budgetId && this.addSnapshot) {
       this.isSubmitting = true
       this.addSnapshot.budgetId = budgetId
@@ -151,7 +155,11 @@ export class SnapshotTableDialogComponent implements OnInit {
       // Update the last row so it has an ID now
       balance.id = this.getSnapshotBalanceId()
       // Add another empty row
-      this.balances.push({} as SnapshotBalanceAdd)
+      this.balances.push({
+        id: '',
+        description: '',
+        amount: 0,
+      })
       this.dataSource = new MatTableDataSource(this.balances)
     }
   }
@@ -196,7 +204,7 @@ export class SnapshotTableComponent implements OnInit {
       this.matDialogRef = this.matDialog.open(SnapshotTableDialogComponent)
       this.matDialogRef.afterClosed().subscribe(() => {
         this.matDialogRef = null
-        this.router.navigate(['/', this.financeService.selectedBudget?.id])
+        this.router.navigate(['/', this.financeService.budget?.id])
       })
     })
   }

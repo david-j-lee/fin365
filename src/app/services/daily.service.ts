@@ -1,7 +1,6 @@
 import { FinanceService } from './finance.service'
 import { Injectable, inject } from '@angular/core'
 import { Balance } from '@interfaces/balances/balance.interface'
-import { Budget } from '@interfaces/budgets/budget.interface'
 import { DailyBalance } from '@interfaces/daily/daily-balance.interface'
 import { DailyExpense } from '@interfaces/daily/daily-expense.interface'
 import { DailyRevenue } from '@interfaces/daily/daily-revenue.interface'
@@ -18,17 +17,13 @@ export class DailyService {
   startDate: Moment = moment()
   endDate: Moment = moment()
   numberOfDays = 365
-  budget: Budget = {} as Budget
 
   getBalanceForGivenDay(date: string) {
-    if (
-      !this.financeService.selectedBudget ||
-      !this.financeService.selectedBudget.days
-    ) {
+    if (!this.financeService.budget || !this.financeService.budget.days) {
       return 0
     }
 
-    const day = this.financeService.selectedBudget.days.find(
+    const day = this.financeService.budget.days.find(
       (budgetDay) => budgetDay.date.format('MM/DD/YYYY') === date,
     )
 
@@ -48,21 +43,17 @@ export class DailyService {
   }
 
   resetDailyBudget() {
-    this.budget.expenses?.forEach((expense) => {
+    this.financeService.budget?.expenses?.forEach((expense) => {
       expense.dailyExpenses = []
     })
-    this.budget.revenues?.forEach((revenue) => {
+    this.financeService.budget?.revenues?.forEach((revenue) => {
       revenue.dailyRevenues = []
     })
   }
 
   generateDailyBudget() {
-    if (
-      this.financeService.selectedBudget &&
-      this.financeService.selectedBudget.startDate
-    ) {
-      this.budget = this.financeService.selectedBudget
-      this.startDate = this.financeService.selectedBudget.startDate.clone()
+    if (this.financeService.budget && this.financeService.budget.startDate) {
+      this.startDate = this.financeService.budget.startDate.clone()
       this.endDate = this.startDate.clone().add(this.numberOfDays, 'days')
 
       this.resetDailyBudget()
@@ -78,7 +69,7 @@ export class DailyService {
 
   setRunningTotals() {
     let lastBalance = 0
-    this.budget.days?.forEach((day) => {
+    this.financeService.budget?.days?.forEach((day) => {
       day.balance =
         lastBalance + day.totalBalance + day.totalRevenue - day.totalExpense
       lastBalance = day.balance
@@ -89,8 +80,8 @@ export class DailyService {
   }
 
   generateBalance(balance: Balance) {
-    if (this.budget.days) {
-      const [firstDay] = this.budget.days
+    if (this.financeService.budget?.days) {
+      const [firstDay] = this.financeService.budget.days
       const dailyBalance: DailyBalance = {
         day: firstDay,
         balance,
@@ -154,7 +145,7 @@ export class DailyService {
   }
 
   deleteBalance(balance: Balance) {
-    this.budget.days?.forEach((day) => {
+    this.financeService.budget?.days?.forEach((day) => {
       day.dailyBalances = day.dailyBalances.filter(
         (dailyBalance) => dailyBalance.balance !== balance,
       )
@@ -167,7 +158,7 @@ export class DailyService {
 
   deleteRevenue(revenue: Revenue) {
     revenue.dailyRevenues = []
-    this.budget.days?.forEach((day) => {
+    this.financeService.budget?.days?.forEach((day) => {
       day.dailyRevenues = day.dailyRevenues.filter(
         (dailyRevenue) => dailyRevenue.revenue !== revenue,
       )
@@ -180,7 +171,7 @@ export class DailyService {
 
   deleteExpense(expense: Expense) {
     expense.dailyExpenses = []
-    this.budget.days?.forEach((day) => {
+    this.financeService.budget?.days?.forEach((day) => {
       day.dailyExpenses = day.dailyExpenses.filter(
         (dailyExpense) => dailyExpense.expense !== expense,
       )
@@ -192,7 +183,11 @@ export class DailyService {
   }
 
   private generateDays() {
-    this.budget.days = []
+    if (!this.financeService.budget) {
+      return
+    }
+
+    this.financeService.budget.days = []
 
     for (let i = 0; i < this.numberOfDays; i++) {
       const date = this.startDate.clone().add(i, 'days')
@@ -208,31 +203,31 @@ export class DailyService {
         totalExpense: 0,
         balance: 0,
       }
-      this.budget.days.push(day)
+      this.financeService.budget?.days.push(day)
     }
   }
 
   generateBalances() {
-    this.budget.balances?.forEach((balance) => {
+    this.financeService.budget?.balances?.forEach((balance) => {
       this.generateBalance(balance)
     })
   }
 
   private generateRevenues() {
-    this.budget.revenues?.forEach((revenue) => {
+    this.financeService.budget?.revenues?.forEach((revenue) => {
       this.generateRevenue(revenue)
     })
   }
 
   private generateExpenses() {
-    this.budget.expenses?.forEach((expense) => {
+    this.financeService.budget?.expenses?.forEach((expense) => {
       this.generateExpense(expense)
     })
   }
 
   private generateOnceRevenue(revenue: Revenue) {
-    if (this.financeService.selectedBudget) {
-      const day = this.financeService.selectedBudget.days?.find(
+    if (this.financeService.budget) {
+      const day = this.financeService.budget.days?.find(
         (budgetDay) =>
           budgetDay.date.format('L') === revenue.startDate?.format('L'),
       )
@@ -253,8 +248,8 @@ export class DailyService {
   }
 
   private generateOnceExpense(expense: Expense) {
-    if (this.financeService.selectedBudget) {
-      const day = this.financeService.selectedBudget.days?.find(
+    if (this.financeService.budget) {
+      const day = this.financeService.budget.days?.find(
         (budgetDay) =>
           budgetDay.date.format('L') === expense.startDate?.format('L'),
       )
@@ -275,7 +270,7 @@ export class DailyService {
   }
 
   private generateDailyRevenue(revenue: Revenue) {
-    if (!this.budget.days) {
+    if (!this.financeService.budget?.days) {
       return
     }
 
@@ -285,13 +280,13 @@ export class DailyService {
       revenue.frequency,
       revenue.isForever,
     )
-    const minDay = this.budget.days.find(
+    const minDay = this.financeService.budget?.days.find(
       (day) => day.date.format('L') === minDate.format('L'),
     )
     if (!minDay) {
       return
     }
-    const minDayIndex = this.budget.days.indexOf(minDay)
+    const minDayIndex = this.financeService.budget?.days.indexOf(minDay)
     const maxDate = this.getEndDate(
       this.endDate,
       revenue.endDate,
@@ -300,7 +295,7 @@ export class DailyService {
     const numLoops = maxDate.diff(minDate, 'days', true)
 
     for (let i = 0; i < numLoops; i++) {
-      const day = this.budget.days[minDayIndex + i]
+      const day = this.financeService.budget?.days[minDayIndex + i]
       if (day) {
         const dailyRevenue: DailyRevenue = {
           day,
@@ -318,7 +313,7 @@ export class DailyService {
   }
 
   private generateDailyExpense(expense: Expense) {
-    if (!this.budget.days) {
+    if (!this.financeService.budget?.days) {
       return
     }
 
@@ -328,13 +323,13 @@ export class DailyService {
       expense.frequency,
       expense.isForever,
     )
-    const minDay = this.budget.days.find(
+    const minDay = this.financeService.budget?.days.find(
       (day) => day.date.format('L') === minDate.format('L'),
     )
     if (!minDay) {
       return
     }
-    const minDayIndex = this.budget.days.indexOf(minDay)
+    const minDayIndex = this.financeService.budget?.days.indexOf(minDay)
     const maxDate = this.getEndDate(
       this.endDate,
       expense.endDate,
@@ -343,7 +338,7 @@ export class DailyService {
     const numLoops = maxDate.diff(minDate, 'days', true)
 
     for (let i = 0; i < numLoops; i++) {
-      const day = this.budget.days[minDayIndex + i]
+      const day = this.financeService.budget?.days[minDayIndex + i]
       if (day) {
         const dailyExpense: DailyExpense = {
           day,
@@ -382,10 +377,13 @@ export class DailyService {
 
     for (let i = 0; i < numLoops; i++) {
       repeatDays.forEach((repeatDay) => {
-        if (!this.budget.days) {
+        if (!this.financeService.budget?.days) {
           return
         }
-        const day = this.budget.days[firstDateIndex + i * skipDays + repeatDay]
+        const day =
+          this.financeService.budget?.days[
+            firstDateIndex + i * skipDays + repeatDay
+          ]
         if (day) {
           const dailyRevenue: DailyRevenue = {
             day,
@@ -404,7 +402,7 @@ export class DailyService {
   }
 
   private generateWeeksExpense(expense: Expense, byWeeks: number) {
-    if (!this.budget.days) {
+    if (!this.financeService.budget?.days) {
       return
     }
 
@@ -429,10 +427,13 @@ export class DailyService {
 
     for (let i = 0; i < numLoops; i++) {
       repeatDays.forEach((repeatDay) => {
-        if (!this.budget.days) {
+        if (!this.financeService.budget?.days) {
           return
         }
-        const day = this.budget.days[firstDateIndex + i * skipDays + repeatDay]
+        const day =
+          this.financeService.budget?.days[
+            firstDateIndex + i * skipDays + repeatDay
+          ]
         if (day) {
           const dailyExpense: DailyExpense = {
             day,
@@ -451,7 +452,7 @@ export class DailyService {
   }
 
   private generateMonthsRevenue(revenue: Revenue, numMonths: number) {
-    if (!this.budget.days) {
+    if (!this.financeService.budget?.days) {
       return
     }
 
@@ -466,19 +467,22 @@ export class DailyService {
       revenue.frequency,
       revenue.isForever,
     )
-    const budgetFirstDay = this.budget.days.find(
+    const budgetFirstDay = this.financeService.budget?.days.find(
       (day) => day.date.format('L') === firstDate.format('L'),
     )
     if (!budgetFirstDay) {
       return
     }
-    const firstDateIndex = this.budget.days.indexOf(budgetFirstDay)
+    const firstDateIndex =
+      this.financeService.budget?.days.indexOf(budgetFirstDay)
     const numLoops = Math.ceil(maxDate.diff(firstDate, 'M', true)) / numMonths
 
     for (let i = 0; i <= numLoops; i++) {
       const date = firstDate.clone().add(i * numMonths, 'M')
       const day =
-        this.budget.days[firstDateIndex + date.diff(firstDate, 'days', true)]
+        this.financeService.budget?.days[
+          firstDateIndex + date.diff(firstDate, 'days', true)
+        ]
       if (day) {
         const dailyRevenue: DailyRevenue = {
           day,
@@ -496,7 +500,7 @@ export class DailyService {
   }
 
   private generateMonthsExpense(expense: Expense, numMonths: number) {
-    if (!this.budget.days) {
+    if (!this.financeService.budget?.days) {
       return
     }
 
@@ -511,19 +515,22 @@ export class DailyService {
       expense.frequency,
       expense.isForever,
     )
-    const budgetFirstDay = this.budget.days.find(
+    const budgetFirstDay = this.financeService.budget?.days.find(
       (day) => day.date.format('L') === firstDate.format('L'),
     )
     if (!budgetFirstDay) {
       return
     }
-    const firstDateIndex = this.budget.days.indexOf(budgetFirstDay)
+    const firstDateIndex =
+      this.financeService.budget?.days.indexOf(budgetFirstDay)
     const numLoops = Math.ceil(maxDate.diff(firstDate, 'M', true)) / numMonths
 
     for (let i = 0; i <= numLoops; i++) {
       const date = firstDate.clone().add(i * numMonths, 'M')
       const day =
-        this.budget.days[firstDateIndex + date.diff(firstDate, 'days', true)]
+        this.financeService.budget?.days[
+          firstDateIndex + date.diff(firstDate, 'days', true)
+        ]
       if (day) {
         const dailyExpense: DailyExpense = {
           day,
@@ -567,20 +574,20 @@ export class DailyService {
   }
 
   private getFirstDayIndex(date: Moment) {
-    if (!this.budget.days) {
+    if (!this.financeService.budget?.days) {
       return null
     }
-    const [firstDay] = this.budget.days
+    const [firstDay] = this.financeService.budget.days
     if (date < firstDay.date) {
       return date.diff(firstDay.date, 'd')
     }
-    const budgetFirstDay = this.budget.days.find(
+    const budgetFirstDay = this.financeService.budget?.days.find(
       (day) => day.date.format('L') === date.format('L'),
     )
     if (!budgetFirstDay) {
       return null
     }
-    return this.budget.days.indexOf(budgetFirstDay)
+    return this.financeService.budget?.days.indexOf(budgetFirstDay)
   }
 
   private getStartDate(

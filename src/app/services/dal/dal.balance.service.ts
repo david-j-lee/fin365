@@ -5,7 +5,7 @@ import { Balance } from '@interfaces/balances/balance.interface'
 import { ChartService } from '@services/chart.service'
 import { DailyService } from '@services/daily.service'
 import { FinanceService } from '@services/finance.service'
-import { LocalStorageBalanceService } from '@services/local-storage/local-storage.balance.service'
+import { LocalStorageBalanceService } from '@storage/local-storage/local-storage.balance'
 import { Observable } from 'rxjs'
 import { map } from 'rxjs/operators'
 
@@ -13,7 +13,8 @@ const SERVICE = 'localStorageBalanceService'
 
 @Injectable()
 export class DalBalanceService {
-  private localStorageBalanceService = inject(LocalStorageBalanceService)
+  private localStorageBalanceService = LocalStorageBalanceService
+
   private financeService = inject(FinanceService)
   private dailyService = inject(DailyService)
   private chartService = inject(ChartService)
@@ -32,8 +33,8 @@ export class DalBalanceService {
           budgetId: value.budgetId,
         }
 
-        if (this.financeService.selectedBudget?.balances) {
-          this.financeService.selectedBudget.balances.push(newBalance)
+        if (this.financeService.budget?.balances) {
+          this.financeService.budget.balances.push(newBalance)
         }
 
         this.dailyService.generateBalance(newBalance)
@@ -66,19 +67,13 @@ export class DalBalanceService {
   delete(id: string): Observable<boolean> {
     return this[SERVICE].delete(id).pipe(
       map(() => {
-        if (
-          this.financeService.selectedBudget &&
-          this.financeService.selectedBudget.balances
-        ) {
-          const deletedBalance =
-            this.financeService.selectedBudget.balances.find(
-              (data) => data.id === id,
-            )
+        if (this.financeService.budget && this.financeService.budget.balances) {
+          const deletedBalance = this.financeService.budget.balances.find(
+            (data) => data.id === id,
+          )
           if (deletedBalance) {
-            this.financeService.selectedBudget.balances.splice(
-              this.financeService.selectedBudget.balances.indexOf(
-                deletedBalance,
-              ),
+            this.financeService.budget.balances.splice(
+              this.financeService.budget.balances.indexOf(deletedBalance),
               1,
             )
 

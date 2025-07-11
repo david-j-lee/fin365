@@ -6,80 +6,86 @@ import { ChartBudget } from '@interfaces/charts/chart-budget.interface'
 import { ChartExpense } from '@interfaces/charts/chart-expense.interface'
 import { ChartRevenue } from '@interfaces/charts/chart-revenue.interface'
 
+const pieOptions = {
+  animation: { duration: 0 },
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: { display: false },
+  },
+}
+
+const balanceColors = {
+  Lightest: 'rgba(54, 162, 235, 0.2)',
+  Light: 'rgba(54, 162, 235, 0.8)',
+  Normal: 'rgba(54, 162, 235, 1)',
+}
+
+const revenueColors = {
+  Lightest: 'rgba(75, 192, 192, 0.2)',
+  Light: 'rgba(75, 192, 192, 0.8)',
+  Normal: 'rgba(75, 192, 192, 1)',
+}
+
+const expenseColors = {
+  Lightest: 'rgba(255, 99, 132, 0.2)',
+  Light: 'rgba(255, 99, 132, 0.8)',
+  Normal: 'rgba(255, 99, 132, 1)',
+}
+
+const colorPalettes = {
+  balances: {
+    // Balances
+    color: balanceColors.Normal,
+    backgroundColor: balanceColors.Lightest,
+    hoverBackgroundColor: balanceColors.Light,
+    borderColor: balanceColors.Normal,
+    hoverBorderColor: balanceColors.Normal,
+    pointBackgroundColor: balanceColors.Normal,
+    pointBorderColor: '#fff',
+    pointHoverBackgroundColor: '#fff',
+    pointHoverBorderColor: balanceColors.Light,
+  },
+  revenues: {
+    // Revenues
+    color: revenueColors.Normal,
+    backgroundColor: revenueColors.Lightest,
+    hoverBackgroundColor: revenueColors.Light,
+    borderColor: revenueColors.Normal,
+    hoverBorderColor: revenueColors.Normal,
+    pointBackgroundColor: revenueColors.Normal,
+    pointBorderColor: '#fff',
+    pointHoverBackgroundColor: '#fff',
+    pointHoverBorderColor: revenueColors.Light,
+  },
+  expenses: {
+    // Expenses
+    color: expenseColors.Normal,
+    backgroundColor: expenseColors.Lightest,
+    hoverBackgroundColor: expenseColors.Light,
+    borderColor: expenseColors.Normal,
+    hoverBorderColor: expenseColors.Normal,
+    pointBackgroundColor: expenseColors.Normal,
+    pointBorderColor: '#fff',
+    pointHoverBackgroundColor: '#fff',
+    pointHoverBorderColor: expenseColors.Light,
+  },
+}
+
 @Injectable()
 export class ChartService {
   private financeService = inject(FinanceService)
   private dailyService = inject(DailyService)
 
-  pieOptions = {
-    animation: { duration: 0 },
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { display: false },
-    },
-  }
-
-  balanceColorLightest = 'rgba(54, 162, 235, 0.2)'
-  balanceColorLight = 'rgba(54, 162, 235, 0.8)'
-  balanceColorNormal = 'rgba(54, 162, 235, 1)'
-
-  revenueColorLightest = 'rgba(75, 192, 192, 0.2)'
-  revenueColorLight = 'rgba(75, 192, 192, 0.8)'
-  revenueColorNormal = 'rgba(75, 192, 192, 1)'
-
-  expenseColorLightest = 'rgba(255, 99, 132, 0.2)'
-  expenseColorLight = 'rgba(255, 99, 132, 0.8)'
-  expenseColorNormal = 'rgba(255, 99, 132, 1)'
-
-  colorPalettes = {
-    balances: {
-      // Balances
-      color: this.balanceColorNormal,
-      backgroundColor: this.balanceColorLightest,
-      hoverBackgroundColor: this.balanceColorLight,
-      borderColor: this.balanceColorNormal,
-      hoverBorderColor: this.balanceColorNormal,
-      pointBackgroundColor: this.balanceColorNormal,
-      pointBorderColor: '#fff',
-      pointHoverBackgroundColor: '#fff',
-      pointHoverBorderColor: this.balanceColorLight,
-    },
-    revenues: {
-      // Revenues
-      color: this.revenueColorNormal,
-      backgroundColor: this.revenueColorLightest,
-      hoverBackgroundColor: this.revenueColorLight,
-      borderColor: this.revenueColorNormal,
-      hoverBorderColor: this.revenueColorNormal,
-      pointBackgroundColor: this.revenueColorNormal,
-      pointBorderColor: '#fff',
-      pointHoverBackgroundColor: '#fff',
-      pointHoverBorderColor: this.revenueColorLight,
-    },
-    expenses: {
-      // Expenses
-      color: this.expenseColorNormal,
-      backgroundColor: this.expenseColorLightest,
-      hoverBackgroundColor: this.expenseColorLight,
-      borderColor: this.expenseColorNormal,
-      hoverBorderColor: this.expenseColorNormal,
-      pointBackgroundColor: this.expenseColorNormal,
-      pointBorderColor: '#fff',
-      pointHoverBackgroundColor: '#fff',
-      pointHoverBorderColor: this.expenseColorLight,
-    },
-  }
-
   chartBalance: ChartBalance = {
     chartType: 'doughnut',
-    options: this.pieOptions,
+    options: pieOptions,
     data: {
       labels: [],
       datasets: [
         {
           data: [],
-          ...this.colorPalettes.balances,
+          ...colorPalettes.balances,
         },
       ],
     },
@@ -88,13 +94,13 @@ export class ChartService {
 
   chartRevenue: ChartRevenue = {
     chartType: 'doughnut',
-    options: this.pieOptions,
+    options: pieOptions,
     data: {
       labels: [],
       datasets: [
         {
           data: [],
-          ...this.colorPalettes.revenues,
+          ...colorPalettes.revenues,
         },
       ],
     },
@@ -103,13 +109,13 @@ export class ChartService {
 
   chartExpense: ChartExpense = {
     chartType: 'doughnut',
-    options: this.pieOptions,
+    options: pieOptions,
     data: {
       labels: [],
       datasets: [
         {
           data: [],
-          ...this.colorPalettes.expenses,
+          ...colorPalettes.expenses,
         },
       ],
     },
@@ -137,29 +143,29 @@ export class ChartService {
         {
           label: 'Balance',
           data: [],
-          ...this.colorPalettes.balances,
+          ...colorPalettes.balances,
         },
         {
           label: 'Revenue',
           data: [],
-          ...this.colorPalettes.revenues,
+          ...colorPalettes.revenues,
         },
         {
           label: 'Expense',
           data: [],
-          ...this.colorPalettes.expenses,
+          ...colorPalettes.expenses,
         },
       ],
     },
   }
 
   setChartBalance() {
-    if (this.financeService.selectedBudget?.balances) {
+    if (this.financeService.budget?.balances) {
       let total = 0
 
       const data: number[] = []
       const labels: string[] = []
-      this.financeService.selectedBudget.balances.forEach((balance) => {
+      this.financeService.budget.balances.forEach((balance) => {
         data.push(balance.amount)
         labels.push(balance.description)
         total += balance.amount
@@ -180,12 +186,12 @@ export class ChartService {
   }
 
   setChartRevenue() {
-    if (this.financeService.selectedBudget?.revenues) {
+    if (this.financeService.budget?.revenues) {
       let total = 0
 
       const data: number[] = []
       const labels: string[] = []
-      this.financeService.selectedBudget.revenues.forEach((revenue) => {
+      this.financeService.budget.revenues.forEach((revenue) => {
         revenue.yearlyAmount = this.dailyService.getTotalRevenue(revenue)
         data.push(revenue.yearlyAmount)
         labels.push(revenue.description)
@@ -207,12 +213,12 @@ export class ChartService {
   }
 
   setChartExpense() {
-    if (this.financeService.selectedBudget?.expenses) {
+    if (this.financeService.budget?.expenses) {
       let total = 0
 
       const data: number[] = []
       const labels: string[] = []
-      this.financeService.selectedBudget.expenses.forEach((expense) => {
+      this.financeService.budget.expenses.forEach((expense) => {
         expense.yearlyAmount = this.dailyService.getTotalExpense(expense)
         data.push(expense.yearlyAmount)
         labels.push(expense.description)
@@ -234,7 +240,7 @@ export class ChartService {
   }
 
   setChartBudget() {
-    if (this.financeService.selectedBudget?.days) {
+    if (this.financeService.budget?.days) {
       const labels: string[] = []
       const datasets = [...this.chartBudget.data.datasets]
 
@@ -242,7 +248,7 @@ export class ChartService {
       datasets[1].data = []
       datasets[2].data = []
 
-      this.financeService.selectedBudget.days.forEach((day) => {
+      this.financeService.budget.days.forEach((day) => {
         labels.push(day.date.format('M/D'))
         datasets[0].data.push(day.balance)
         datasets[1].data.push(day.totalRevenue)

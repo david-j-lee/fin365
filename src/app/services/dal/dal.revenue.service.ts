@@ -5,7 +5,7 @@ import { Revenue } from '@interfaces/revenues/revenue.interface'
 import { ChartService } from '@services/chart.service'
 import { DailyService } from '@services/daily.service'
 import { FinanceService } from '@services/finance.service'
-import { LocalStorageRevenueService } from '@services/local-storage/local-storage.revenue.service'
+import { LocalStorageRevenueService } from '@storage/local-storage/local-storage.revenue'
 import { Observable } from 'rxjs'
 import { map } from 'rxjs/operators'
 
@@ -13,7 +13,8 @@ const SERVICE = 'localStorageRevenueService'
 
 @Injectable()
 export class DalRevenueService {
-  private localStorageRevenueService = inject(LocalStorageRevenueService)
+  private localStorageRevenueService = LocalStorageRevenueService
+
   private financeService = inject(FinanceService)
   private dailyService = inject(DailyService)
   private chartService = inject(ChartService)
@@ -29,7 +30,7 @@ export class DalRevenueService {
           id: result,
           budgetId: value.budgetId,
           description: value.description,
-          amount: value.amount as number,
+          amount: value.amount,
           isForever: value.isForever,
           frequency: value.frequency,
           startDate: value.startDate,
@@ -45,8 +46,8 @@ export class DalRevenueService {
           dailyRevenues: [],
         }
 
-        if (this.financeService.selectedBudget?.revenues) {
-          this.financeService.selectedBudget.revenues.push(newRevenue)
+        if (this.financeService.budget?.revenues) {
+          this.financeService.budget.revenues.push(newRevenue)
         }
 
         // Update daily data and charts
@@ -94,19 +95,13 @@ export class DalRevenueService {
   delete(id: string): Observable<boolean> {
     return this[SERVICE].delete(id).pipe(
       map(() => {
-        if (
-          this.financeService.selectedBudget &&
-          this.financeService.selectedBudget.revenues
-        ) {
-          const deletedRevenue =
-            this.financeService.selectedBudget.revenues.find(
-              (data) => data.id === id,
-            )
+        if (this.financeService.budget && this.financeService.budget.revenues) {
+          const deletedRevenue = this.financeService.budget.revenues.find(
+            (data) => data.id === id,
+          )
           if (deletedRevenue) {
-            this.financeService.selectedBudget.revenues.splice(
-              this.financeService.selectedBudget.revenues.indexOf(
-                deletedRevenue,
-              ),
+            this.financeService.budget.revenues.splice(
+              this.financeService.budget.revenues.indexOf(deletedRevenue),
               1,
             )
 
