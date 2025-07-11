@@ -52,7 +52,7 @@ export class BudgetDashboardComponent implements OnInit, OnDestroy {
   private calendarService = inject(CalendarService)
 
   budgetId: string | null = null
-  type: string = ''
+  type = ''
 
   ngOnInit() {
     this.activatedRoute.params.subscribe((params: Params) => {

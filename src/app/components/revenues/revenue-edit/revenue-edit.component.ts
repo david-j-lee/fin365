@@ -74,8 +74,8 @@ export class RevenueEditDialogComponent implements OnInit {
     id: string
   }>(MAT_DIALOG_DATA)
 
-  errors: string = ''
-  isSubmitting: boolean = false
+  errors = ''
+  isSubmitting = false
 
   oldRevenue: Revenue | undefined
   newRevenue: RevenueAdd | undefined

@@ -65,8 +65,8 @@ export class ExpenseAddDialogComponent implements OnInit {
   private matSnackBar = inject(MatSnackBar)
   matDialogRef = inject<MatDialogRef<ExpenseAddDialogComponent>>(MatDialogRef)
 
-  errors: string = ''
-  isSubmitting: boolean = false
+  errors = ''
+  isSubmitting = false
 
   myExpense: ExpenseAdd | undefined
 

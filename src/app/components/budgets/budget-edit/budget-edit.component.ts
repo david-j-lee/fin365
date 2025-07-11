@@ -52,8 +52,8 @@ export class BudgetEditDialogComponent implements OnInit {
     MatDialogRef<BudgetEditDialogComponent>,
   )
 
-  errors: string = ''
-  isSubmitting: boolean = false
+  errors = ''
+  isSubmitting = false
 
   oldBudget: Budget | null = null
   newBudget: BudgetEdit | null = null

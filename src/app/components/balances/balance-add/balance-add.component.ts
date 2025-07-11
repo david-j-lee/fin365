@@ -45,8 +45,8 @@ export class BalanceAddDialogComponent implements OnInit {
   private matSnackBar = inject(MatSnackBar)
   matDialogRef = inject<MatDialogRef<BalanceAddDialogComponent>>(MatDialogRef)
 
-  errors: string = ''
-  isSubmitting: boolean = false
+  errors = ''
+  isSubmitting = false
   myBalance: BalanceAdd | undefined
 
   ngOnInit() {

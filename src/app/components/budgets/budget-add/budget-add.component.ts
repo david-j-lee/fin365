@@ -65,8 +65,8 @@ export class BudgetAddDialogComponent implements OnInit {
   private dalBudgetService = inject(DalBudgetService)
   private matSnackBar = inject(MatSnackBar)
 
-  errors: string = ''
-  isSubmitting: boolean = false
+  errors = ''
+  isSubmitting = false
 
   myBudget: BudgetAdd | undefined
 

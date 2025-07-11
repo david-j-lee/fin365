@@ -39,8 +39,8 @@ export class BudgetDeleteDialogComponent implements OnInit {
     MatDialogRef<BudgetDeleteDialogComponent>,
   )
 
-  errors: string = ''
-  isSubmitting: boolean = false
+  errors = ''
+  isSubmitting = false
 
   deleteBudget: Budget | null = null
 

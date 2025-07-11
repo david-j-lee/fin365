@@ -43,8 +43,8 @@ export class BalanceDeleteDialogComponent implements OnInit {
     id: string
   }>(MAT_DIALOG_DATA)
 
-  errors: string = ''
-  isSubmitting: boolean = false
+  errors = ''
+  isSubmitting = false
 
   deleteBalance: Balance | undefined
 

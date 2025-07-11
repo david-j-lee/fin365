@@ -65,8 +65,8 @@ export class RevenueAddDialogComponent implements OnInit {
   private matSnackBar = inject(MatSnackBar)
   matDialogRef = inject<MatDialogRef<RevenueAddDialogComponent>>(MatDialogRef)
 
-  errors: string = ''
-  isSubmitting: boolean = false
+  errors = ''
+  isSubmitting = false
 
   myRevenue: RevenueAdd | undefined
 

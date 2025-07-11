@@ -29,7 +29,7 @@ export class DalSnapshotService {
 
   save(
     addSnapshot: SnapshotAdd,
-    balances: Array<SnapshotBalanceAdd>,
+    balances: SnapshotBalanceAdd[],
   ): Observable<Snapshot> {
     const { budgetId } = addSnapshot
     const filteredBalances = balances.filter((balance) => balance.id)

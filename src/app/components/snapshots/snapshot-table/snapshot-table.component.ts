@@ -99,7 +99,7 @@ export class SnapshotTableDialogComponent implements OnInit {
     actualBalance: 0,
   }
   balances: SnapshotBalanceAdd[] = []
-  isSubmitting: boolean = false
+  isSubmitting = false
 
   ngOnInit() {
     // Create models to add balances to db
@@ -169,7 +169,7 @@ export class SnapshotTableDialogComponent implements OnInit {
   getSnapshotBalanceId() {
     return getRansomStringFromObject(
       this.balances.reduce(
-        (accumulator: { [id: string]: SnapshotBalanceAdd }, item) => {
+        (accumulator: Record<string, SnapshotBalanceAdd>, item) => {
           accumulator[item.id] = item
           return accumulator
         },
