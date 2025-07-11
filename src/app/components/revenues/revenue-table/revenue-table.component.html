@@ -1,5 +1,8 @@
 <mat-list>
-  @for (revenue of financeService.selectedBudget?.revenues; track revenue) {
+  @for (
+    revenue of financeService.selectedBudget?.revenues | sortBy: 'description';
+    track revenue
+  ) {
     <mat-list-item>
       <div class="d-flex align-items-center">
         <div class="frequency-flag">

@@ -14,9 +14,16 @@ export class SortByPipe implements PipeTransform {
       return []
     }
     return [...items].sort((a, b) => {
-      if (a[prop] < b[prop]) {
+      const aValue = a[prop]
+      const bValue = b[prop]
+
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        return aValue.localeCompare(bValue)
+      }
+
+      if (aValue < bValue) {
         return -1
-      } else if (a[prop] > b[prop]) {
+      } else if (aValue > bValue) {
         return 1
       }
       return 0
