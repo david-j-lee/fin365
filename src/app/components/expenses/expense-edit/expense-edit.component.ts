@@ -1,5 +1,5 @@
 import { CdkScrollable } from '@angular/cdk/scrolling'
-import { Component, Inject, OnInit } from '@angular/core'
+import { Component, OnInit, inject } from '@angular/core'
 import { FormsModule, NgForm } from '@angular/forms'
 import { MatButton } from '@angular/material/button'
 import { MatCheckbox } from '@angular/material/checkbox'
@@ -63,6 +63,17 @@ import { FinanceService } from '@services/finance.service'
   ],
 })
 export class ExpenseEditDialogComponent implements OnInit {
+  financeService = inject(FinanceService)
+  private router = inject(Router)
+  private dalExpenseService = inject(DalExpenseService)
+  private matSnackBar = inject(MatSnackBar)
+  matDialogRef = inject<MatDialogRef<ExpenseEditDialogComponent> | null>(
+    MatDialogRef<ExpenseEditDialogComponent>,
+  )
+  data = inject<{
+    id: string
+  }>(MAT_DIALOG_DATA)
+
   errors: string = ''
   isSubmitting: boolean = false
 
@@ -71,17 +82,6 @@ export class ExpenseEditDialogComponent implements OnInit {
 
   navigateToDelete = false
   deleteModal: MatDialogRef<ExpenseDeleteComponent> | null = null
-
-  constructor(
-    public financeService: FinanceService,
-    private router: Router,
-    private dalExpenseService: DalExpenseService,
-    private matSnackBar: MatSnackBar,
-    public matDialogRef: MatDialogRef<ExpenseEditDialogComponent> | null,
-    @Inject(MAT_DIALOG_DATA) public data: { id: string },
-  ) {
-    // Inject
-  }
 
   ngOnInit() {
     this.setAfterClosed()
@@ -179,14 +179,10 @@ export class ExpenseEditDialogComponent implements OnInit {
   standalone: true,
 })
 export class ExpenseEditComponent implements OnInit {
-  matDialogRef: MatDialogRef<ExpenseEditDialogComponent> | null = null
+  matDialog = inject(MatDialog)
+  private activatedRoute = inject(ActivatedRoute)
 
-  constructor(
-    public matDialog: MatDialog,
-    private activatedRoute: ActivatedRoute,
-  ) {
-    // Inject
-  }
+  matDialogRef: MatDialogRef<ExpenseEditDialogComponent> | null = null
 
   ngOnInit() {
     this.activatedRoute.parent?.params.subscribe(() => {

@@ -1,5 +1,5 @@
 import { NgClass } from '@angular/common'
-import { Component } from '@angular/core'
+import { Component, inject } from '@angular/core'
 import { MatButton, MatIconButton } from '@angular/material/button'
 import { MatDialog } from '@angular/material/dialog'
 import { MatIcon } from '@angular/material/icon'
@@ -30,12 +30,8 @@ import { FinanceService } from '@services/finance.service'
   ],
 })
 export class ToolbarComponent {
-  showArchivedBudgets = false
+  matDialog = inject(MatDialog)
+  financeService = inject(FinanceService)
 
-  constructor(
-    public matDialog: MatDialog,
-    public financeService: FinanceService,
-  ) {
-    // Inject the services
-  }
+  showArchivedBudgets = false
 }

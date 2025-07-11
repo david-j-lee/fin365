@@ -1,5 +1,5 @@
 import { FinanceService } from './finance.service'
-import { Injectable } from '@angular/core'
+import { Injectable, inject } from '@angular/core'
 import { Balance } from '@interfaces/balances/balance.interface'
 import { Budget } from '@interfaces/budgets/budget.interface'
 import { DailyBalance } from '@interfaces/daily/daily-balance.interface'
@@ -12,15 +12,13 @@ import moment, { Moment } from 'moment'
 
 @Injectable()
 export class DailyService {
+  private financeService = inject(FinanceService)
+
   todaysEstimatedBalance = 0
   startDate: Moment = moment()
   endDate: Moment = moment()
   numberOfDays = 365
   budget: Budget = {} as Budget
-
-  constructor(private financeService: FinanceService) {
-    // Inject services
-  }
 
   getBalanceForGivenDay(date: string) {
     if (

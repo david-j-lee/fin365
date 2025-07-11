@@ -1,5 +1,5 @@
 import { CdkScrollable } from '@angular/cdk/scrolling'
-import { Component, OnInit } from '@angular/core'
+import { Component, OnInit, inject } from '@angular/core'
 import { MatButton } from '@angular/material/button'
 import {
   MatDialog,
@@ -31,20 +31,18 @@ import { FinanceService } from '@services/finance.service'
   ],
 })
 export class BudgetDeleteDialogComponent implements OnInit {
+  private router = inject(Router)
+  private financeService = inject(FinanceService)
+  private dalBudgetService = inject(DalBudgetService)
+  matDialog = inject(MatDialog)
+  matDialogRef = inject<MatDialogRef<BudgetDeleteDialogComponent> | null>(
+    MatDialogRef<BudgetDeleteDialogComponent>,
+  )
+
   errors: string = ''
   isSubmitting: boolean = false
 
   deleteBudget: Budget | null = null
-
-  constructor(
-    private router: Router,
-    private financeService: FinanceService,
-    private dalBudgetService: DalBudgetService,
-    public matDialog: MatDialog,
-    public matDialogRef: MatDialogRef<BudgetDeleteDialogComponent> | null,
-  ) {
-    // Inject all the things
-  }
 
   ngOnInit() {
     this.setAfterClose()
@@ -99,11 +97,9 @@ export class BudgetDeleteDialogComponent implements OnInit {
   standalone: true,
 })
 export class BudgetDeleteComponent implements OnInit {
-  matDialogRef: MatDialogRef<BudgetDeleteDialogComponent> | null = null
+  matDialog = inject(MatDialog)
 
-  constructor(public matDialog: MatDialog) {
-    // Inject dependencies
-  }
+  matDialogRef: MatDialogRef<BudgetDeleteDialogComponent> | null = null
 
   ngOnInit() {
     setTimeout(() => {

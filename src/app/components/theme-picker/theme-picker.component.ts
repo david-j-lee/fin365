@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core'
+import { Component, OnInit, inject } from '@angular/core'
 import { MatIconButton } from '@angular/material/button'
 import { MatIcon } from '@angular/material/icon'
 import { ThemeService } from '@services/theme.service'
@@ -9,9 +9,8 @@ import { ThemeService } from '@services/theme.service'
   imports: [MatIcon, MatIconButton],
 })
 export class ThemePickerComponent implements OnInit {
-  constructor(public themeService: ThemeService) {
-    // Inject
-  }
+  themeService = inject(ThemeService)
+
   ngOnInit(): void {
     const html = document.getElementsByTagName('html')[0]
     // Remove the default

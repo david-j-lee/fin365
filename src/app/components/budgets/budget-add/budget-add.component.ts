@@ -1,5 +1,10 @@
 import { CdkScrollable } from '@angular/cdk/scrolling'
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core'
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  inject,
+} from '@angular/core'
 import { FormsModule, NgForm } from '@angular/forms'
 import { MatButton } from '@angular/material/button'
 import {
@@ -56,18 +61,14 @@ import moment from 'moment'
   ],
 })
 export class BudgetAddDialogComponent implements OnInit {
+  matDialogRef = inject<MatDialogRef<BudgetAddDialogComponent>>(MatDialogRef)
+  private dalBudgetService = inject(DalBudgetService)
+  private matSnackBar = inject(MatSnackBar)
+
   errors: string = ''
   isSubmitting: boolean = false
 
   myBudget: BudgetAdd | undefined
-
-  constructor(
-    public matDialogRef: MatDialogRef<BudgetAddDialogComponent>,
-    private dalBudgetService: DalBudgetService,
-    private matSnackBar: MatSnackBar,
-  ) {
-    // Inject services
-  }
 
   ngOnInit() {
     this.myBudget = { name: '', startDate: moment() }
@@ -100,15 +101,11 @@ export class BudgetAddDialogComponent implements OnInit {
   standalone: true,
 })
 export class BudgetAddComponent implements OnInit {
-  matDialogRef: MatDialogRef<BudgetAddDialogComponent> | null = null
+  matDialog = inject(MatDialog)
+  private router = inject(Router)
+  private financeService = inject(FinanceService)
 
-  constructor(
-    public matDialog: MatDialog,
-    private router: Router,
-    private financeService: FinanceService,
-  ) {
-    // Inject services
-  }
+  matDialogRef: MatDialogRef<BudgetAddDialogComponent> | null = null
 
   ngOnInit() {
     setTimeout(() => {

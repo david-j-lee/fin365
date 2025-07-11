@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core'
+import { Component, OnDestroy, OnInit, inject } from '@angular/core'
 import { MatIcon } from '@angular/material/icon'
 import { MatTab, MatTabGroup, MatTabLabel } from '@angular/material/tabs'
 import { ActivatedRoute, Params, Router, RouterOutlet } from '@angular/router'
@@ -39,24 +39,20 @@ import moment from 'moment'
   ],
 })
 export class BudgetDashboardComponent implements OnInit, OnDestroy {
+  financeService = inject(FinanceService)
+  private router = inject(Router)
+  private activatedRoute = inject(ActivatedRoute)
+  private dailyService = inject(DailyService)
+  private dalBalanceService = inject(DalBalanceService)
+  private dalExpenseService = inject(DalExpenseService)
+  private dalRevenueService = inject(DalRevenueService)
+  private dalSnapshotService = inject(DalSnapshotService)
+  private chartService = inject(ChartService)
+  private sideBarService = inject(SideBarService)
+  private calendarService = inject(CalendarService)
+
   budgetId: string | null = null
   type: string = ''
-
-  constructor(
-    public financeService: FinanceService,
-    private router: Router,
-    private activatedRoute: ActivatedRoute,
-    private dailyService: DailyService,
-    private dalBalanceService: DalBalanceService,
-    private dalExpenseService: DalExpenseService,
-    private dalRevenueService: DalRevenueService,
-    private dalSnapshotService: DalSnapshotService,
-    private chartService: ChartService,
-    private sideBarService: SideBarService,
-    private calendarService: CalendarService,
-  ) {
-    // Inject services
-  }
 
   ngOnInit() {
     this.activatedRoute.params.subscribe((params: Params) => {

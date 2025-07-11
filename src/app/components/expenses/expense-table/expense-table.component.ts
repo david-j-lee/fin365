@@ -1,4 +1,4 @@
-import { Component } from '@angular/core'
+import { Component, inject } from '@angular/core'
 import { MatList, MatListItem } from '@angular/material/list'
 import { RouterLink } from '@angular/router'
 import { SortByPipe } from '@pipes/sort.pipe'
@@ -10,7 +10,5 @@ import { FinanceService } from '@services/finance.service'
   imports: [MatList, MatListItem, RouterLink, SortByPipe],
 })
 export class ExpenseTableComponent {
-  constructor(public financeService: FinanceService) {
-    // Inject
-  }
+  financeService = inject(FinanceService)
 }

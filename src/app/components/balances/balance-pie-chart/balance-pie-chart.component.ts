@@ -1,5 +1,5 @@
 import { CurrencyPipe } from '@angular/common'
-import { Component } from '@angular/core'
+import { Component, inject } from '@angular/core'
 import { ChartService } from '@services/chart.service'
 import { BaseChartDirective } from 'ng2-charts'
 
@@ -9,7 +9,5 @@ import { BaseChartDirective } from 'ng2-charts'
   imports: [BaseChartDirective, CurrencyPipe],
 })
 export class BalancePieChartComponent {
-  constructor(public chartService: ChartService) {
-    // Inject
-  }
+  chartService = inject(ChartService)
 }

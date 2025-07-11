@@ -1,5 +1,5 @@
 import { CdkScrollable } from '@angular/cdk/scrolling'
-import { Component, OnInit } from '@angular/core'
+import { Component, OnInit, inject } from '@angular/core'
 import { FormsModule, NgForm } from '@angular/forms'
 import { MatButton } from '@angular/material/button'
 import { MatCheckbox } from '@angular/material/checkbox'
@@ -44,6 +44,14 @@ import { FinanceService } from '@services/finance.service'
   ],
 })
 export class BudgetEditDialogComponent implements OnInit {
+  private router = inject(Router)
+  private financeService = inject(FinanceService)
+  private dalBudgetService = inject(DalBudgetService)
+  private matSnackBar = inject(MatSnackBar)
+  matDialogRef = inject<MatDialogRef<BudgetEditDialogComponent> | null>(
+    MatDialogRef<BudgetEditDialogComponent>,
+  )
+
   errors: string = ''
   isSubmitting: boolean = false
 
@@ -52,16 +60,6 @@ export class BudgetEditDialogComponent implements OnInit {
 
   navigateToDelete = false
   deleteModal: MatDialogRef<BudgetDeleteComponent> | null = null
-
-  constructor(
-    private router: Router,
-    private financeService: FinanceService,
-    private dalBudgetService: DalBudgetService,
-    private matSnackBar: MatSnackBar,
-    public matDialogRef: MatDialogRef<BudgetEditDialogComponent> | null,
-  ) {
-    // Inject
-  }
 
   ngOnInit() {
     this.setAfterClosed()
@@ -129,11 +127,9 @@ export class BudgetEditDialogComponent implements OnInit {
   standalone: true,
 })
 export class BudgetEditComponent implements OnInit {
-  matDialogRef: MatDialogRef<BudgetEditDialogComponent> | null = null
+  matDialog = inject(MatDialog)
 
-  constructor(public matDialog: MatDialog) {
-    // Inject
-  }
+  matDialogRef: MatDialogRef<BudgetEditDialogComponent> | null = null
 
   ngOnInit() {
     setTimeout(() => {

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core'
+import { Component, OnInit, inject } from '@angular/core'
 import { MatProgressSpinner } from '@angular/material/progress-spinner'
 import { Title } from '@angular/platform-browser'
 import { RouterOutlet } from '@angular/router'
@@ -12,13 +12,9 @@ import { FinanceService } from '@services/finance.service'
   imports: [ToolbarComponent, RouterOutlet, MatProgressSpinner],
 })
 export class AppComponent implements OnInit {
-  constructor(
-    public title: Title,
-    public financeService: FinanceService,
-    private dalBudgetService: DalBudgetService,
-  ) {
-    // Inject
-  }
+  title = inject(Title)
+  financeService = inject(FinanceService)
+  private dalBudgetService = inject(DalBudgetService)
 
   ngOnInit() {
     this.title.setTitle('fin365')

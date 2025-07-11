@@ -1,5 +1,5 @@
 import { CdkScrollable } from '@angular/cdk/scrolling'
-import { Component, Inject, OnInit } from '@angular/core'
+import { Component, OnInit, inject } from '@angular/core'
 import { FormsModule, NgForm } from '@angular/forms'
 import { MatButton } from '@angular/material/button'
 import {
@@ -43,6 +43,17 @@ import { FinanceService } from '@services/finance.service'
   ],
 })
 export class BalanceEditDialogComponent implements OnInit {
+  private router = inject(Router)
+  private financeService = inject(FinanceService)
+  private dalBalanceService = inject(DalBalanceService)
+  private matSnackBar = inject(MatSnackBar)
+  matDialogRef = inject<MatDialogRef<BalanceEditDialogComponent> | null>(
+    MatDialogRef<BalanceEditDialogComponent>,
+  )
+  data = inject<{
+    id: string
+  }>(MAT_DIALOG_DATA)
+
   errors: string = ''
   isSubmitting: boolean = false
 
@@ -51,17 +62,6 @@ export class BalanceEditDialogComponent implements OnInit {
 
   navigateToDelete = false
   deleteModal: MatDialogRef<BalanceDeleteComponent> | null = null
-
-  constructor(
-    private router: Router,
-    private financeService: FinanceService,
-    private dalBalanceService: DalBalanceService,
-    private matSnackBar: MatSnackBar,
-    public matDialogRef: MatDialogRef<BalanceEditDialogComponent> | null,
-    @Inject(MAT_DIALOG_DATA) public data: { id: string },
-  ) {
-    // Inject
-  }
 
   ngOnInit() {
     this.setAfterClosed()
@@ -148,14 +148,10 @@ export class BalanceEditDialogComponent implements OnInit {
   standalone: true,
 })
 export class BalanceEditComponent implements OnInit {
-  matDialogRef: MatDialogRef<BalanceEditDialogComponent> | null = null
+  matDialog = inject(MatDialog)
+  private activatedRoute = inject(ActivatedRoute)
 
-  constructor(
-    public matDialog: MatDialog,
-    private activatedRoute: ActivatedRoute,
-  ) {
-    // Inject
-  }
+  matDialogRef: MatDialogRef<BalanceEditDialogComponent> | null = null
 
   ngOnInit() {
     this.activatedRoute.parent?.params.subscribe(() => {

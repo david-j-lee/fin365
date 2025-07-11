@@ -1,6 +1,6 @@
 import { DailyService } from './daily.service'
 import { FinanceService } from './finance.service'
-import { Injectable } from '@angular/core'
+import { Injectable, inject } from '@angular/core'
 import { ChartBalance } from '@interfaces/charts/chart-balance.interface'
 import { ChartBudget } from '@interfaces/charts/chart-budget.interface'
 import { ChartExpense } from '@interfaces/charts/chart-expense.interface'
@@ -8,6 +8,9 @@ import { ChartRevenue } from '@interfaces/charts/chart-revenue.interface'
 
 @Injectable()
 export class ChartService {
+  private financeService = inject(FinanceService)
+  private dailyService = inject(DailyService)
+
   pieOptions = {
     animation: { duration: 0 },
     responsive: true,
@@ -148,13 +151,6 @@ export class ChartService {
         },
       ],
     },
-  }
-
-  constructor(
-    private financeService: FinanceService,
-    private dailyService: DailyService,
-  ) {
-    // Inject services
   }
 
   setChartBalance() {

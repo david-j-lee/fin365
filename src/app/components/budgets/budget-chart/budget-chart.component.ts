@@ -1,4 +1,4 @@
-import { Component } from '@angular/core'
+import { Component, inject } from '@angular/core'
 import { ChartService } from '@services/chart.service'
 import { BaseChartDirective } from 'ng2-charts'
 
@@ -9,7 +9,5 @@ import { BaseChartDirective } from 'ng2-charts'
   imports: [BaseChartDirective],
 })
 export class BudgetChartComponent {
-  constructor(public chartService: ChartService) {
-    // Inject
-  }
+  chartService = inject(ChartService)
 }

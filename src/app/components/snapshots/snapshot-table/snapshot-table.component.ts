@@ -1,6 +1,6 @@
 import { CdkScrollable } from '@angular/cdk/scrolling'
 import { CurrencyPipe } from '@angular/common'
-import { Component, OnInit } from '@angular/core'
+import { Component, OnInit, inject } from '@angular/core'
 import { FormsModule } from '@angular/forms'
 import { MatButton, MatIconButton } from '@angular/material/button'
 import {
@@ -79,6 +79,13 @@ import moment from 'moment'
   ],
 })
 export class SnapshotTableDialogComponent implements OnInit {
+  private financeService = inject(FinanceService)
+  private dailyService = inject(DailyService)
+  private dalSnapshotService = inject(DalSnapshotService)
+  private matSnackBar = inject(MatSnackBar)
+  matDialogRef =
+    inject<MatDialogRef<SnapshotTableDialogComponent>>(MatDialogRef)
+
   mostRecentSnapshotDate = this.financeService.getMostRecentSnapshotDate()
   estimatedTotalBalance = this.dailyService.getBalanceForGivenDay(
     this.mostRecentSnapshotDate?.format('MM/DD/YYYY') ?? '',
@@ -93,16 +100,6 @@ export class SnapshotTableDialogComponent implements OnInit {
   }
   balances: SnapshotBalanceAdd[] = []
   isSubmitting: boolean = false
-
-  constructor(
-    private financeService: FinanceService,
-    private dailyService: DailyService,
-    private dalSnapshotService: DalSnapshotService,
-    private matSnackBar: MatSnackBar,
-    public matDialogRef: MatDialogRef<SnapshotTableDialogComponent>,
-  ) {
-    // Inject Services
-  }
 
   ngOnInit() {
     // Create models to add balances to db
@@ -188,15 +185,11 @@ export class SnapshotTableDialogComponent implements OnInit {
   standalone: true,
 })
 export class SnapshotTableComponent implements OnInit {
-  matDialogRef: MatDialogRef<SnapshotTableDialogComponent> | null = null
+  matDialog = inject(MatDialog)
+  private router = inject(Router)
+  private financeService = inject(FinanceService)
 
-  constructor(
-    public matDialog: MatDialog,
-    private router: Router,
-    private financeService: FinanceService,
-  ) {
-    // Inject services
-  }
+  matDialogRef: MatDialogRef<SnapshotTableDialogComponent> | null = null
 
   ngOnInit() {
     setTimeout(() => {

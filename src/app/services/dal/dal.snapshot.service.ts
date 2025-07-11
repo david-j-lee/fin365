@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core'
+import { Injectable, inject } from '@angular/core'
 import { Balance } from '@interfaces/balances/balance.interface'
 import { SnapshotAddAll } from '@interfaces/snapshots/snapshot-add-all.interface'
 import { SnapshotAdd } from '@interfaces/snapshots/snapshot-add.interface'
@@ -17,15 +17,11 @@ const SERVICE = 'localStorageSnapshotService'
 
 @Injectable()
 export class DalSnapshotService {
-  constructor(
-    private localStorageSnapshotService: LocalStorageSnapshotService,
-    private financeService: FinanceService,
-    private dailyService: DailyService,
-    private chartService: ChartService,
-    private calendarService: CalendarService,
-  ) {
-    // Injecting services
-  }
+  private localStorageSnapshotService = inject(LocalStorageSnapshotService)
+  private financeService = inject(FinanceService)
+  private dailyService = inject(DailyService)
+  private chartService = inject(ChartService)
+  private calendarService = inject(CalendarService)
 
   getAll(budgetId: string) {
     return this[SERVICE].getAll(budgetId).pipe(map((result) => result))

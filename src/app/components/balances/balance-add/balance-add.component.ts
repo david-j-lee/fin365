@@ -1,5 +1,5 @@
 import { CdkScrollable } from '@angular/cdk/scrolling'
-import { Component, OnInit } from '@angular/core'
+import { Component, OnInit, inject } from '@angular/core'
 import { FormsModule, NgForm } from '@angular/forms'
 import { MatButton } from '@angular/material/button'
 import {
@@ -40,18 +40,14 @@ import { FinanceService } from '@services/finance.service'
   ],
 })
 export class BalanceAddDialogComponent implements OnInit {
+  financeService = inject(FinanceService)
+  private dalBalanceService = inject(DalBalanceService)
+  private matSnackBar = inject(MatSnackBar)
+  matDialogRef = inject<MatDialogRef<BalanceAddDialogComponent>>(MatDialogRef)
+
   errors: string = ''
   isSubmitting: boolean = false
   myBalance: BalanceAdd | undefined
-
-  constructor(
-    public financeService: FinanceService,
-    private dalBalanceService: DalBalanceService,
-    private matSnackBar: MatSnackBar,
-    public matDialogRef: MatDialogRef<BalanceAddDialogComponent>,
-  ) {
-    // Inject
-  }
 
   ngOnInit() {
     const budgetId = this.financeService.selectedBudget?.id
@@ -95,15 +91,11 @@ export class BalanceAddDialogComponent implements OnInit {
   standalone: true,
 })
 export class BalanceAddComponent implements OnInit {
-  matDialogRef: MatDialogRef<BalanceAddDialogComponent> | null = null
+  matDialog = inject(MatDialog)
+  private router = inject(Router)
+  private financeService = inject(FinanceService)
 
-  constructor(
-    public matDialog: MatDialog,
-    private router: Router,
-    private financeService: FinanceService,
-  ) {
-    // Inject
-  }
+  matDialogRef: MatDialogRef<BalanceAddDialogComponent> | null = null
 
   ngOnInit() {
     setTimeout(() => {

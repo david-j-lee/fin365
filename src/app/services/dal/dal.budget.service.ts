@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core'
+import { Injectable, inject } from '@angular/core'
 import { BudgetAdd } from '@interfaces/budgets/budget-add.interface'
 import { BudgetEdit } from '@interfaces/budgets/budget-edit.interface'
 import { Budget } from '@interfaces/budgets/budget.interface'
@@ -16,15 +16,11 @@ const SERVICE = 'localStorageBudgetService'
 
 @Injectable()
 export class DalBudgetService {
-  constructor(
-    private financeService: FinanceService,
-    private chartService: ChartService,
-    private dailyService: DailyService,
-    private calendarService: CalendarService,
-    private localStorageBudgetService: LocalStorageBudgetService,
-  ) {
-    // Inject services
-  }
+  private financeService = inject(FinanceService)
+  private chartService = inject(ChartService)
+  private dailyService = inject(DailyService)
+  private calendarService = inject(CalendarService)
+  private localStorageBudgetService = inject(LocalStorageBudgetService)
 
   getAll(): Observable<Budget[]> {
     return this[SERVICE].getAll().pipe(
