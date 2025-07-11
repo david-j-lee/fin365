@@ -8,9 +8,12 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "lint": "ng lint",
-    "lint:fix": "ng lint --fix",
-    "format": "prettier --write ."
+    "lint": "npm run lint:ng && npm run lint:eslint && npm run lint:format",
+    "lint:ng": "ng lint",
+    "lint:eslint": "eslint . --ext .ts,.html",
+    "lint:format": "prettier .",
+    "fix:lint:ng": "ng lint --fix",
+    "fix:lint:format": "prettier --write ."
   },
   "dependencies": {
     "@angular/animations": "^20.1.0",
