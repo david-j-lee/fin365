@@ -7,8 +7,8 @@ import { Injectable, Pipe, PipeTransform } from '@angular/core'
 })
 @Injectable()
 export class FilterPipe implements PipeTransform {
-  transform<T extends Record<string, unknown>>(
-    items: T[],
+  transform<T extends object>(
+    items: T[] | null | undefined,
     field: keyof T,
     value: T[keyof T],
   ): T[] {

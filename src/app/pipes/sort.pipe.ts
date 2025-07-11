@@ -6,7 +6,7 @@ import { Pipe, PipeTransform } from '@angular/core'
   standalone: true,
 })
 export class SortByPipe implements PipeTransform {
-  transform<T extends Record<string, unknown>>(
+  transform<T extends object>(
     items: T[] | null | undefined,
     prop: keyof T,
   ): T[] {
@@ -14,9 +14,9 @@ export class SortByPipe implements PipeTransform {
       return []
     }
     return [...items].sort((a, b) => {
-      if (a[prop]! < b[prop]!) {
+      if (a[prop] < b[prop]) {
         return -1
-      } else if (a[prop]! > b[prop]!) {
+      } else if (a[prop] > b[prop]) {
         return 1
       }
       return 0
