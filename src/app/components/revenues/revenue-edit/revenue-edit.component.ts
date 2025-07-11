@@ -1,5 +1,4 @@
 import { CdkScrollable } from '@angular/cdk/scrolling'
-import { NgFor, NgIf } from '@angular/common'
 import { Component, Inject, OnInit } from '@angular/core'
 import { FormsModule, NgForm } from '@angular/forms'
 import { MatButton } from '@angular/material/button'
@@ -38,32 +37,30 @@ import { DalRevenueService } from '@services/dal/dal.revenue.service'
 import { FinanceService } from '@services/finance.service'
 
 @Component({
-    selector: 'app-revenue-edit-dialog',
-    templateUrl: 'revenue-edit.component.html',
-    imports: [
-        CdkScrollable,
-        FormsModule,
-        MatButton,
-        MatCheckbox,
-        MatDatepicker,
-        MatDatepickerInput,
-        MatDatepickerToggle,
-        MatDialogActions,
-        MatDialogClose,
-        MatDialogContent,
-        MatDialogTitle,
-        MatError,
-        MatFormField,
-        MatHint,
-        MatIcon,
-        MatInput,
-        MatOption,
-        MatSelect,
-        MatSuffix,
-        NgFor,
-        NgIf,
-        SpinnerComponent,
-    ]
+  selector: 'app-revenue-edit-dialog',
+  templateUrl: 'revenue-edit.component.html',
+  imports: [
+    CdkScrollable,
+    FormsModule,
+    MatButton,
+    MatCheckbox,
+    MatDatepicker,
+    MatDatepickerInput,
+    MatDatepickerToggle,
+    MatDialogActions,
+    MatDialogClose,
+    MatDialogContent,
+    MatDialogTitle,
+    MatError,
+    MatFormField,
+    MatHint,
+    MatIcon,
+    MatInput,
+    MatOption,
+    MatSelect,
+    MatSuffix,
+    SpinnerComponent,
+  ],
 })
 export class RevenueEditDialogComponent implements OnInit {
   errors: string = ''

@@ -1,5 +1,5 @@
 import { CdkScrollable } from '@angular/cdk/scrolling'
-import { DatePipe, NgIf } from '@angular/common'
+import { DatePipe } from '@angular/common'
 import { Component, OnInit } from '@angular/core'
 import { MatButton } from '@angular/material/button'
 import {
@@ -29,30 +29,29 @@ import { Snapshot } from '@interfaces/snapshots/snapshot.interface'
 import { FinanceService } from '@services/finance.service'
 
 @Component({
-    selector: 'app-snapshot-history-dialog',
-    templateUrl: 'snapshot-history.component.html',
-    styleUrls: ['snapshot-history.component.scss'],
-    imports: [
-        CdkScrollable,
-        DatePipe,
-        MatButton,
-        MatCell,
-        MatCellDef,
-        MatColumnDef,
-        MatDialogActions,
-        MatDialogClose,
-        MatDialogContent,
-        MatDialogTitle,
-        MatHeaderCell,
-        MatHeaderCellDef,
-        MatHeaderRow,
-        MatHeaderRowDef,
-        MatIcon,
-        MatRow,
-        MatRowDef,
-        MatTable,
-        NgIf,
-    ]
+  selector: 'app-snapshot-history-dialog',
+  templateUrl: 'snapshot-history.component.html',
+  styleUrls: ['snapshot-history.component.scss'],
+  imports: [
+    CdkScrollable,
+    DatePipe,
+    MatButton,
+    MatCell,
+    MatCellDef,
+    MatColumnDef,
+    MatDialogActions,
+    MatDialogClose,
+    MatDialogContent,
+    MatDialogTitle,
+    MatHeaderCell,
+    MatHeaderCellDef,
+    MatHeaderRow,
+    MatHeaderRowDef,
+    MatIcon,
+    MatRow,
+    MatRowDef,
+    MatTable,
+  ],
 })
 export class SnapshotHistoryDialogComponent implements OnInit {
   displayColumns = [

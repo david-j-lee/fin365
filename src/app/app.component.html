@@ -1,8 +1,10 @@
 <app-toolbar />
-<ng-container *ngIf="financeService.isLoaded">
+@if (financeService.isLoaded) {
   <router-outlet />
-</ng-container>
-<div *ngIf="!financeService.isLoaded" class="mx-auto my-auto">
-  <mat-progress-spinner color="primary" mode="indeterminate">
-  </mat-progress-spinner>
-</div>
+}
+@if (!financeService.isLoaded) {
+  <div class="mx-auto my-auto">
+    <mat-progress-spinner color="primary" mode="indeterminate">
+    </mat-progress-spinner>
+  </div>
+}

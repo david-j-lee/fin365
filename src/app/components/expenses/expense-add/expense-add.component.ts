@@ -1,5 +1,4 @@
 import { CdkScrollable } from '@angular/cdk/scrolling'
-import { NgFor, NgIf } from '@angular/common'
 import { Component, OnInit } from '@angular/core'
 import { FormsModule, NgForm } from '@angular/forms'
 import { MatButton } from '@angular/material/button'
@@ -35,32 +34,30 @@ import { DalExpenseService } from '@services/dal/dal.expense.service'
 import { FinanceService } from '@services/finance.service'
 
 @Component({
-    selector: 'app-expense-add-dialog',
-    templateUrl: 'expense-add.component.html',
-    imports: [
-        CdkScrollable,
-        FormsModule,
-        MatButton,
-        MatCheckbox,
-        MatDatepicker,
-        MatDatepickerInput,
-        MatDatepickerToggle,
-        MatDialogActions,
-        MatDialogClose,
-        MatDialogContent,
-        MatDialogTitle,
-        MatError,
-        MatFormField,
-        MatHint,
-        MatIcon,
-        MatInput,
-        MatOption,
-        MatSelect,
-        MatSuffix,
-        NgFor,
-        NgIf,
-        SpinnerComponent,
-    ]
+  selector: 'app-expense-add-dialog',
+  templateUrl: 'expense-add.component.html',
+  imports: [
+    CdkScrollable,
+    FormsModule,
+    MatButton,
+    MatCheckbox,
+    MatDatepicker,
+    MatDatepickerInput,
+    MatDatepickerToggle,
+    MatDialogActions,
+    MatDialogClose,
+    MatDialogContent,
+    MatDialogTitle,
+    MatError,
+    MatFormField,
+    MatHint,
+    MatIcon,
+    MatInput,
+    MatOption,
+    MatSelect,
+    MatSuffix,
+    SpinnerComponent,
+  ],
 })
 export class ExpenseAddDialogComponent implements OnInit {
   errors: string = ''

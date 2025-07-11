@@ -1,14 +1,16 @@
 <h6 class="text-center">Balances</h6>
-<div *ngIf="chartService.chartBalance">
-  <div class="budgets-pie-chart">
-    <canvas
-      baseChart
-      [type]="chartService.chartBalance.chartType"
-      [options]="chartService.chartBalance.options"
-      [data]="chartService.chartBalance.data"
-    ></canvas>
+@if (chartService.chartBalance) {
+  <div>
+    <div class="budgets-pie-chart">
+      <canvas
+        baseChart
+        [type]="chartService.chartBalance.chartType"
+        [options]="chartService.chartBalance.options"
+        [data]="chartService.chartBalance.data"
+      ></canvas>
+    </div>
+    <h5 class="text-center mt-3">
+      {{ chartService.chartBalance.total | currency: '' : 'symbol' : '1.0-0' }}
+    </h5>
   </div>
-  <h5 class="text-center mt-3">
-    {{ chartService.chartBalance.total | currency: '' : 'symbol' : '1.0-0' }}
-  </h5>
-</div>
+}

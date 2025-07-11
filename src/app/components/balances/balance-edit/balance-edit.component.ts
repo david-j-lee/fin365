@@ -1,5 +1,4 @@
 import { CdkScrollable } from '@angular/cdk/scrolling'
-import { NgIf } from '@angular/common'
 import { Component, Inject, OnInit } from '@angular/core'
 import { FormsModule, NgForm } from '@angular/forms'
 import { MatButton } from '@angular/material/button'
@@ -25,24 +24,23 @@ import { DalBalanceService } from '@services/dal/dal.balance.service'
 import { FinanceService } from '@services/finance.service'
 
 @Component({
-    selector: 'app-balance-edit-dialog',
-    templateUrl: 'balance-edit.component.html',
-    imports: [
-        NgIf,
-        FormsModule,
-        MatDialogTitle,
-        CdkScrollable,
-        MatDialogContent,
-        MatFormField,
-        MatIcon,
-        MatInput,
-        MatHint,
-        MatError,
-        MatButton,
-        MatDialogActions,
-        MatDialogClose,
-        SpinnerComponent,
-    ]
+  selector: 'app-balance-edit-dialog',
+  templateUrl: 'balance-edit.component.html',
+  imports: [
+    FormsModule,
+    MatDialogTitle,
+    CdkScrollable,
+    MatDialogContent,
+    MatFormField,
+    MatIcon,
+    MatInput,
+    MatHint,
+    MatError,
+    MatButton,
+    MatDialogActions,
+    MatDialogClose,
+    SpinnerComponent,
+  ],
 })
 export class BalanceEditDialogComponent implements OnInit {
   errors: string = ''

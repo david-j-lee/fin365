@@ -1,4 +1,4 @@
-import { NgClass, NgFor, NgIf } from '@angular/common'
+import { NgClass } from '@angular/common'
 import { Component } from '@angular/core'
 import { MatButton, MatIconButton } from '@angular/material/button'
 import { MatDialog } from '@angular/material/dialog'
@@ -12,24 +12,22 @@ import { SortByPipe } from '@pipes/sort.pipe'
 import { FinanceService } from '@services/finance.service'
 
 @Component({
-    selector: 'app-toolbar',
-    templateUrl: 'toolbar.component.html',
-    imports: [
-        MatToolbar,
-        NgIf,
-        MatIconButton,
-        RouterLink,
-        MatIcon,
-        MatButton,
-        MatMenuTrigger,
-        MatMenu,
-        NgFor,
-        MatMenuItem,
-        NgClass,
-        SortByPipe,
-        ThemePickerComponent,
-        FilterPipe,
-    ]
+  selector: 'app-toolbar',
+  templateUrl: 'toolbar.component.html',
+  imports: [
+    MatToolbar,
+    MatIconButton,
+    RouterLink,
+    MatIcon,
+    MatButton,
+    MatMenuTrigger,
+    MatMenu,
+    MatMenuItem,
+    NgClass,
+    SortByPipe,
+    ThemePickerComponent,
+    FilterPipe,
+  ],
 })
 export class ToolbarComponent {
   showArchivedBudgets = false

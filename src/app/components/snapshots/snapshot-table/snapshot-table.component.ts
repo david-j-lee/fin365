@@ -1,5 +1,5 @@
 import { CdkScrollable } from '@angular/cdk/scrolling'
-import { CurrencyPipe, NgIf } from '@angular/common'
+import { CurrencyPipe } from '@angular/common'
 import { Component, OnInit } from '@angular/core'
 import { FormsModule } from '@angular/forms'
 import { MatButton, MatIconButton } from '@angular/material/button'
@@ -44,40 +44,39 @@ import { getRansomStringFromObject } from '@utilities/string-utilities'
 import moment from 'moment'
 
 @Component({
-    selector: 'app-snapshot-table-dialog',
-    templateUrl: 'snapshot-table.component.html',
-    styleUrls: ['snapshot-table.component.scss'],
-    imports: [
-        CdkScrollable,
-        CurrencyPipe,
-        FormsModule,
-        MatButton,
-        MatCell,
-        MatCellDef,
-        MatColumnDef,
-        MatDatepicker,
-        MatDatepickerInput,
-        MatDatepickerToggle,
-        MatDialogActions,
-        MatDialogClose,
-        MatDialogContent,
-        MatDialogTitle,
-        MatError,
-        MatFormField,
-        MatHeaderCell,
-        MatHeaderCellDef,
-        MatHeaderRow,
-        MatHeaderRowDef,
-        MatIcon,
-        MatIconButton,
-        MatInput,
-        MatRow,
-        MatRowDef,
-        MatSuffix,
-        MatTable,
-        NgIf,
-        SpinnerComponent,
-    ]
+  selector: 'app-snapshot-table-dialog',
+  templateUrl: 'snapshot-table.component.html',
+  styleUrls: ['snapshot-table.component.scss'],
+  imports: [
+    CdkScrollable,
+    CurrencyPipe,
+    FormsModule,
+    MatButton,
+    MatCell,
+    MatCellDef,
+    MatColumnDef,
+    MatDatepicker,
+    MatDatepickerInput,
+    MatDatepickerToggle,
+    MatDialogActions,
+    MatDialogClose,
+    MatDialogContent,
+    MatDialogTitle,
+    MatError,
+    MatFormField,
+    MatHeaderCell,
+    MatHeaderCellDef,
+    MatHeaderRow,
+    MatHeaderRowDef,
+    MatIcon,
+    MatIconButton,
+    MatInput,
+    MatRow,
+    MatRowDef,
+    MatSuffix,
+    MatTable,
+    SpinnerComponent,
+  ],
 })
 export class SnapshotTableDialogComponent implements OnInit {
   mostRecentSnapshotDate = this.financeService.getMostRecentSnapshotDate()

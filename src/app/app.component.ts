@@ -1,4 +1,3 @@
-import { NgIf } from '@angular/common'
 import { Component, OnInit } from '@angular/core'
 import { MatProgressSpinner } from '@angular/material/progress-spinner'
 import { Title } from '@angular/platform-browser'
@@ -8,9 +7,9 @@ import { DalBudgetService } from '@services/dal/dal.budget.service'
 import { FinanceService } from '@services/finance.service'
 
 @Component({
-    selector: 'app-root',
-    templateUrl: './app.component.html',
-    imports: [ToolbarComponent, NgIf, RouterOutlet, MatProgressSpinner]
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  imports: [ToolbarComponent, RouterOutlet, MatProgressSpinner],
 })
 export class AppComponent implements OnInit {
   constructor(

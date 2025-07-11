@@ -1,5 +1,4 @@
 import { CdkScrollable } from '@angular/cdk/scrolling'
-import { NgIf } from '@angular/common'
 import { Component, Inject, OnInit } from '@angular/core'
 import { MatButton } from '@angular/material/button'
 import {
@@ -20,19 +19,18 @@ import { DalBalanceService } from '@services/dal/dal.balance.service'
 import { FinanceService } from '@services/finance.service'
 
 @Component({
-    selector: 'app-balance-delete-dialog',
-    templateUrl: 'balance-delete.component.html',
-    imports: [
-        CdkScrollable,
-        MatButton,
-        MatDialogActions,
-        MatDialogClose,
-        MatDialogContent,
-        MatDialogTitle,
-        MatIcon,
-        NgIf,
-        SpinnerComponent,
-    ]
+  selector: 'app-balance-delete-dialog',
+  templateUrl: 'balance-delete.component.html',
+  imports: [
+    CdkScrollable,
+    MatButton,
+    MatDialogActions,
+    MatDialogClose,
+    MatDialogContent,
+    MatDialogTitle,
+    MatIcon,
+    SpinnerComponent,
+  ],
 })
 export class BalanceDeleteDialogComponent implements OnInit {
   errors: string = ''

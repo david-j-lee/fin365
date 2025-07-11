@@ -1,19 +1,21 @@
 <mat-list>
-  <mat-list-item
-    *ngFor="let revenue of financeService.selectedBudget?.revenues"
-  >
-    <div class="d-flex align-items-center">
-      <div class="frequency-flag">{{ revenue.frequency.substring(0, 1) }}</div>
-      <div class="fill-space text-ellipsis pe-1">
-        <a
-          class="pointer"
-          matLine
-          [routerLink]="['./revenue', revenue.id, 'edit']"
-          class="me-2"
-          >{{ revenue.description }}</a
-        >
+  @for (revenue of financeService.selectedBudget?.revenues; track revenue) {
+    <mat-list-item>
+      <div class="d-flex align-items-center">
+        <div class="frequency-flag">
+          {{ revenue.frequency.substring(0, 1) }}
+        </div>
+        <div class="fill-space text-ellipsis pe-1">
+          <a
+            class="pointer"
+            matLine
+            [routerLink]="['./revenue', revenue.id, 'edit']"
+            class="me-2"
+            >{{ revenue.description }}</a
+          >
+        </div>
+        <div class="fill-space text-end">$ {{ revenue.amount }}</div>
       </div>
-      <div class="fill-space text-end">$ {{ revenue.amount }}</div>
-    </div>
-  </mat-list-item>
+    </mat-list-item>
+  }
 </mat-list>

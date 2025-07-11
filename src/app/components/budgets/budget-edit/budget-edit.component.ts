@@ -1,5 +1,4 @@
 import { CdkScrollable } from '@angular/cdk/scrolling'
-import { NgIf } from '@angular/common'
 import { Component, OnInit } from '@angular/core'
 import { FormsModule, NgForm } from '@angular/forms'
 import { MatButton } from '@angular/material/button'
@@ -25,25 +24,24 @@ import { DalBudgetService } from '@services/dal/dal.budget.service'
 import { FinanceService } from '@services/finance.service'
 
 @Component({
-    selector: 'app-budget-edit-dialog',
-    templateUrl: './budget-edit.component.html',
-    imports: [
-        CdkScrollable,
-        FormsModule,
-        MatButton,
-        MatCheckbox,
-        MatDialogActions,
-        MatDialogClose,
-        MatDialogContent,
-        MatDialogTitle,
-        MatError,
-        MatFormField,
-        MatHint,
-        MatIcon,
-        MatInput,
-        NgIf,
-        SpinnerComponent,
-    ]
+  selector: 'app-budget-edit-dialog',
+  templateUrl: './budget-edit.component.html',
+  imports: [
+    CdkScrollable,
+    FormsModule,
+    MatButton,
+    MatCheckbox,
+    MatDialogActions,
+    MatDialogClose,
+    MatDialogContent,
+    MatDialogTitle,
+    MatError,
+    MatFormField,
+    MatHint,
+    MatIcon,
+    MatInput,
+    SpinnerComponent,
+  ],
 })
 export class BudgetEditDialogComponent implements OnInit {
   errors: string = ''

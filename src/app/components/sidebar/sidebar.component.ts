@@ -1,4 +1,4 @@
-import { DatePipe, DecimalPipe, NgIf } from '@angular/common'
+import { DatePipe, DecimalPipe } from '@angular/common'
 import { Component } from '@angular/core'
 import { MatButton } from '@angular/material/button'
 import { MatDivider } from '@angular/material/divider'
@@ -18,24 +18,23 @@ import { FinanceService } from '@services/finance.service'
 import { SideBarService } from '@services/side-bar.service'
 
 @Component({
-    selector: 'app-sidebar',
-    templateUrl: 'sidebar.component.html',
-    imports: [
-        BalanceTableComponent,
-        DatePipe,
-        DecimalPipe,
-        ExpenseTableComponent,
-        MatAccordion,
-        MatButton,
-        MatDivider,
-        MatExpansionPanel,
-        MatExpansionPanelHeader,
-        MatExpansionPanelTitle,
-        MatIcon,
-        NgIf,
-        RevenueTableComponent,
-        RouterLink,
-    ]
+  selector: 'app-sidebar',
+  templateUrl: 'sidebar.component.html',
+  imports: [
+    BalanceTableComponent,
+    DatePipe,
+    DecimalPipe,
+    ExpenseTableComponent,
+    MatAccordion,
+    MatButton,
+    MatDivider,
+    MatExpansionPanel,
+    MatExpansionPanelHeader,
+    MatExpansionPanelTitle,
+    MatIcon,
+    RevenueTableComponent,
+    RouterLink,
+  ],
 })
 export class SidebarComponent {
   constructor(

@@ -1,13 +1,12 @@
-import { NgIf } from '@angular/common'
 import { Component, OnInit } from '@angular/core'
 import { MatIconButton } from '@angular/material/button'
 import { MatIcon } from '@angular/material/icon'
 import { ThemeService } from '@services/theme.service'
 
 @Component({
-    selector: 'app-theme-picker',
-    templateUrl: './theme-picker.component.html',
-    imports: [MatIcon, MatIconButton, NgIf]
+  selector: 'app-theme-picker',
+  templateUrl: './theme-picker.component.html',
+  imports: [MatIcon, MatIconButton],
 })
 export class ThemePickerComponent implements OnInit {
   constructor(public themeService: ThemeService) {

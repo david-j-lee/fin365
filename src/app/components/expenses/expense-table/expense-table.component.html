@@ -1,22 +1,24 @@
 <mat-list>
-  <mat-list-item
-    *ngFor="
-      let expense of financeService.selectedBudget?.expenses
-        | sortBy: 'description'
-    "
-  >
-    <div class="d-flex align-items-center">
-      <div class="frequency-flag">{{ expense.frequency.substring(0, 1) }}</div>
-      <div class="fill-space text-ellipsis pe-1">
-        <a
-          class="pointer"
-          matLine
-          [routerLink]="['./expense', expense.id, 'edit']"
-          class="me-2"
-          >{{ expense.description }}</a
-        >
+  @for (
+    expense of financeService.selectedBudget?.expenses | sortBy: 'description';
+    track expense
+  ) {
+    <mat-list-item>
+      <div class="d-flex align-items-center">
+        <div class="frequency-flag">
+          {{ expense.frequency.substring(0, 1) }}
+        </div>
+        <div class="fill-space text-ellipsis pe-1">
+          <a
+            class="pointer"
+            matLine
+            [routerLink]="['./expense', expense.id, 'edit']"
+            class="me-2"
+            >{{ expense.description }}</a
+          >
+        </div>
+        <div class="fill-space text-end">$ {{ expense.amount }}</div>
       </div>
-      <div class="fill-space text-end">$ {{ expense.amount }}</div>
-    </div>
-  </mat-list-item>
+    </mat-list-item>
+  }
 </mat-list>
