@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Pipe, PipeTransform } from '@angular/core'
 
 @Pipe({
@@ -6,13 +5,22 @@ import { Pipe, PipeTransform } from '@angular/core'
   standalone: true,
 })
 export class SearchPipe implements PipeTransform {
-  public transform(value: any, keys: string, term: any) {
-    return (value || []).filter((item: any) =>
+  public transform<T extends Record<string, unknown>>(
+    value: T[],
+    keys: string,
+    term: string,
+  ): T[] {
+    if (!Array.isArray(value) || !term) {
+      return value || []
+    }
+    return value.filter((item) =>
       keys
         .split(',')
         .some(
-          (key: any) =>
-            Object.hasOwn(item, key) && new RegExp(term, 'giu').test(item[key]),
+          (key) =>
+            Object.hasOwn(item, key) &&
+            typeof item[key] === 'string' &&
+            new RegExp(term, 'giu').test(item[key] as string),
         ),
     )
   }
