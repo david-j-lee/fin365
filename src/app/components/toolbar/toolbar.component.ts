@@ -12,25 +12,24 @@ import { SortByPipe } from '@pipes/sort.pipe'
 import { FinanceService } from '@services/finance.service'
 
 @Component({
-  selector: 'app-toolbar',
-  templateUrl: 'toolbar.component.html',
-  standalone: true,
-  imports: [
-    MatToolbar,
-    NgIf,
-    MatIconButton,
-    RouterLink,
-    MatIcon,
-    MatButton,
-    MatMenuTrigger,
-    MatMenu,
-    NgFor,
-    MatMenuItem,
-    NgClass,
-    SortByPipe,
-    ThemePickerComponent,
-    FilterPipe,
-  ],
+    selector: 'app-toolbar',
+    templateUrl: 'toolbar.component.html',
+    imports: [
+        MatToolbar,
+        NgIf,
+        MatIconButton,
+        RouterLink,
+        MatIcon,
+        MatButton,
+        MatMenuTrigger,
+        MatMenu,
+        NgFor,
+        MatMenuItem,
+        NgClass,
+        SortByPipe,
+        ThemePickerComponent,
+        FilterPipe,
+    ]
 })
 export class ToolbarComponent {
   showArchivedBudgets = false

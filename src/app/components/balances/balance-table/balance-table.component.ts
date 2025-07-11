@@ -7,10 +7,9 @@ import { RouterLink } from '@angular/router'
 import { FinanceService } from '@services/finance.service'
 
 @Component({
-  selector: 'app-balance-table',
-  templateUrl: 'balance-table.component.html',
-  standalone: true,
-  imports: [MatList, NgFor, MatListItem, MatIconButton, RouterLink, MatIcon],
+    selector: 'app-balance-table',
+    templateUrl: 'balance-table.component.html',
+    imports: [MatList, NgFor, MatListItem, MatIconButton, RouterLink, MatIcon]
 })
 export class BalanceTableComponent {
   constructor(public financeService: FinanceService) {

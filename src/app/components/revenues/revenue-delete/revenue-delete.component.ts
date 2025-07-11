@@ -20,20 +20,19 @@ import { DalRevenueService } from '@services/dal/dal.revenue.service'
 import { FinanceService } from '@services/finance.service'
 
 @Component({
-  selector: 'app-revenue-delete-dialog',
-  templateUrl: 'revenue-delete.component.html',
-  standalone: true,
-  imports: [
-    CdkScrollable,
-    MatButton,
-    MatDialogActions,
-    MatDialogClose,
-    MatDialogContent,
-    MatDialogTitle,
-    MatIcon,
-    NgIf,
-    SpinnerComponent,
-  ],
+    selector: 'app-revenue-delete-dialog',
+    templateUrl: 'revenue-delete.component.html',
+    imports: [
+        CdkScrollable,
+        MatButton,
+        MatDialogActions,
+        MatDialogClose,
+        MatDialogContent,
+        MatDialogTitle,
+        MatIcon,
+        NgIf,
+        SpinnerComponent,
+    ]
 })
 export class RevenueDeleteDialogComponent implements OnInit {
   errors: string = ''

@@ -18,20 +18,19 @@ import { DalBudgetService } from '@services/dal/dal.budget.service'
 import { FinanceService } from '@services/finance.service'
 
 @Component({
-  selector: 'app-budget-delete-dialog',
-  templateUrl: 'budget-delete.component.html',
-  standalone: true,
-  imports: [
-    CdkScrollable,
-    MatButton,
-    MatDialogActions,
-    MatDialogClose,
-    MatDialogContent,
-    MatDialogTitle,
-    MatIcon,
-    NgIf,
-    SpinnerComponent,
-  ],
+    selector: 'app-budget-delete-dialog',
+    templateUrl: 'budget-delete.component.html',
+    imports: [
+        CdkScrollable,
+        MatButton,
+        MatDialogActions,
+        MatDialogClose,
+        MatDialogContent,
+        MatDialogTitle,
+        MatIcon,
+        NgIf,
+        SpinnerComponent,
+    ]
 })
 export class BudgetDeleteDialogComponent implements OnInit {
   errors: string = ''

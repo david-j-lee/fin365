@@ -22,24 +22,23 @@ import { SideBarService } from '@services/side-bar.service'
 import moment from 'moment'
 
 @Component({
-  selector: 'app-budget-dashboard',
-  templateUrl: './budget-dashboard.component.html',
-  styleUrls: ['./budget-dashboard.component.scss'],
-  standalone: true,
-  imports: [
-    BalancePieChartComponent,
-    BudgetChartComponent,
-    CalendarComponent,
-    ExpensePieChartComponent,
-    MatIcon,
-    MatTab,
-    MatTabLabel,
-    MatTabGroup,
-    NgIf,
-    RevenuePieChartComponent,
-    RouterOutlet,
-    SidebarComponent,
-  ],
+    selector: 'app-budget-dashboard',
+    templateUrl: './budget-dashboard.component.html',
+    styleUrls: ['./budget-dashboard.component.scss'],
+    imports: [
+        BalancePieChartComponent,
+        BudgetChartComponent,
+        CalendarComponent,
+        ExpensePieChartComponent,
+        MatIcon,
+        MatTab,
+        MatTabLabel,
+        MatTabGroup,
+        NgIf,
+        RevenuePieChartComponent,
+        RouterOutlet,
+        SidebarComponent,
+    ]
 })
 export class BudgetDashboardComponent implements OnInit, OnDestroy {
   budgetId: string | null = null

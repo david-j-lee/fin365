@@ -33,30 +33,29 @@ import { FinanceService } from '@services/finance.service'
 import moment from 'moment'
 
 @Component({
-  selector: 'app-budget-add-dialog',
-  templateUrl: 'budget-add.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    CdkScrollable,
-    FormsModule,
-    MatButton,
-    MatDatepicker,
-    MatDatepickerInput,
-    MatDatepickerToggle,
-    MatDialogActions,
-    MatDialogClose,
-    MatDialogContent,
-    MatDialogTitle,
-    MatError,
-    MatFormField,
-    MatHint,
-    MatIcon,
-    MatInput,
-    MatSuffix,
-    NgIf,
-    SpinnerComponent,
-  ],
-  standalone: true,
+    selector: 'app-budget-add-dialog',
+    templateUrl: 'budget-add.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [
+        CdkScrollable,
+        FormsModule,
+        MatButton,
+        MatDatepicker,
+        MatDatepickerInput,
+        MatDatepickerToggle,
+        MatDialogActions,
+        MatDialogClose,
+        MatDialogContent,
+        MatDialogTitle,
+        MatError,
+        MatFormField,
+        MatHint,
+        MatIcon,
+        MatInput,
+        MatSuffix,
+        NgIf,
+        SpinnerComponent,
+    ]
 })
 export class BudgetAddDialogComponent implements OnInit {
   errors: string = ''

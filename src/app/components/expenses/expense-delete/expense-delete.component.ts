@@ -20,20 +20,19 @@ import { DalExpenseService } from '@services/dal/dal.expense.service'
 import { FinanceService } from '@services/finance.service'
 
 @Component({
-  selector: 'app-expense-delete-dialog',
-  templateUrl: 'expense-delete.component.html',
-  standalone: true,
-  imports: [
-    CdkScrollable,
-    MatButton,
-    MatDialogActions,
-    MatDialogClose,
-    MatDialogContent,
-    MatDialogTitle,
-    MatIcon,
-    NgIf,
-    SpinnerComponent,
-  ],
+    selector: 'app-expense-delete-dialog',
+    templateUrl: 'expense-delete.component.html',
+    imports: [
+        CdkScrollable,
+        MatButton,
+        MatDialogActions,
+        MatDialogClose,
+        MatDialogContent,
+        MatDialogTitle,
+        MatIcon,
+        NgIf,
+        SpinnerComponent,
+    ]
 })
 export class ExpenseDeleteDialogComponent implements OnInit {
   errors: string = ''

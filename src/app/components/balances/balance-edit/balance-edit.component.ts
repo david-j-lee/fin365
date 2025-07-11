@@ -25,25 +25,24 @@ import { DalBalanceService } from '@services/dal/dal.balance.service'
 import { FinanceService } from '@services/finance.service'
 
 @Component({
-  selector: 'app-balance-edit-dialog',
-  templateUrl: 'balance-edit.component.html',
-  standalone: true,
-  imports: [
-    NgIf,
-    FormsModule,
-    MatDialogTitle,
-    CdkScrollable,
-    MatDialogContent,
-    MatFormField,
-    MatIcon,
-    MatInput,
-    MatHint,
-    MatError,
-    MatButton,
-    MatDialogActions,
-    MatDialogClose,
-    SpinnerComponent,
-  ],
+    selector: 'app-balance-edit-dialog',
+    templateUrl: 'balance-edit.component.html',
+    imports: [
+        NgIf,
+        FormsModule,
+        MatDialogTitle,
+        CdkScrollable,
+        MatDialogContent,
+        MatFormField,
+        MatIcon,
+        MatInput,
+        MatHint,
+        MatError,
+        MatButton,
+        MatDialogActions,
+        MatDialogClose,
+        SpinnerComponent,
+    ]
 })
 export class BalanceEditDialogComponent implements OnInit {
   errors: string = ''

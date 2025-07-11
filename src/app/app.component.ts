@@ -8,10 +8,9 @@ import { DalBudgetService } from '@services/dal/dal.budget.service'
 import { FinanceService } from '@services/finance.service'
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  standalone: true,
-  imports: [ToolbarComponent, NgIf, RouterOutlet, MatProgressSpinner],
+    selector: 'app-root',
+    templateUrl: './app.component.html',
+    imports: [ToolbarComponent, NgIf, RouterOutlet, MatProgressSpinner]
 })
 export class AppComponent implements OnInit {
   constructor(

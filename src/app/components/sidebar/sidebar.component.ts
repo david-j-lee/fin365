@@ -18,25 +18,24 @@ import { FinanceService } from '@services/finance.service'
 import { SideBarService } from '@services/side-bar.service'
 
 @Component({
-  selector: 'app-sidebar',
-  templateUrl: 'sidebar.component.html',
-  standalone: true,
-  imports: [
-    BalanceTableComponent,
-    DatePipe,
-    DecimalPipe,
-    ExpenseTableComponent,
-    MatAccordion,
-    MatButton,
-    MatDivider,
-    MatExpansionPanel,
-    MatExpansionPanelHeader,
-    MatExpansionPanelTitle,
-    MatIcon,
-    NgIf,
-    RevenueTableComponent,
-    RouterLink,
-  ],
+    selector: 'app-sidebar',
+    templateUrl: 'sidebar.component.html',
+    imports: [
+        BalanceTableComponent,
+        DatePipe,
+        DecimalPipe,
+        ExpenseTableComponent,
+        MatAccordion,
+        MatButton,
+        MatDivider,
+        MatExpansionPanel,
+        MatExpansionPanelHeader,
+        MatExpansionPanelTitle,
+        MatIcon,
+        NgIf,
+        RevenueTableComponent,
+        RouterLink,
+    ]
 })
 export class SidebarComponent {
   constructor(

@@ -20,20 +20,19 @@ import { DalBalanceService } from '@services/dal/dal.balance.service'
 import { FinanceService } from '@services/finance.service'
 
 @Component({
-  selector: 'app-balance-delete-dialog',
-  templateUrl: 'balance-delete.component.html',
-  standalone: true,
-  imports: [
-    CdkScrollable,
-    MatButton,
-    MatDialogActions,
-    MatDialogClose,
-    MatDialogContent,
-    MatDialogTitle,
-    MatIcon,
-    NgIf,
-    SpinnerComponent,
-  ],
+    selector: 'app-balance-delete-dialog',
+    templateUrl: 'balance-delete.component.html',
+    imports: [
+        CdkScrollable,
+        MatButton,
+        MatDialogActions,
+        MatDialogClose,
+        MatDialogContent,
+        MatDialogTitle,
+        MatIcon,
+        NgIf,
+        SpinnerComponent,
+    ]
 })
 export class BalanceDeleteDialogComponent implements OnInit {
   errors: string = ''

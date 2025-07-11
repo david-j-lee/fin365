@@ -7,10 +7,9 @@ import { RouterLink } from '@angular/router'
 import { FinanceService } from '@services/finance.service'
 
 @Component({
-  selector: 'app-revenue-table',
-  templateUrl: 'revenue-table.component.html',
-  standalone: true,
-  imports: [MatList, NgFor, MatListItem, MatIconButton, RouterLink, MatIcon],
+    selector: 'app-revenue-table',
+    templateUrl: 'revenue-table.component.html',
+    imports: [MatList, NgFor, MatListItem, MatIconButton, RouterLink, MatIcon]
 })
 export class RevenueTableComponent {
   constructor(public financeService: FinanceService) {

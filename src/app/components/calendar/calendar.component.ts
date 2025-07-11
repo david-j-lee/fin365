@@ -7,20 +7,19 @@ import { CalendarService } from '@services/calendar.service'
 import moment, { Moment } from 'moment'
 
 @Component({
-  selector: 'app-calendar',
-  templateUrl: 'calendar.component.html',
-  styleUrls: ['calendar.component.scss'],
-  standalone: true,
-  imports: [
-    DatePipe,
-    DecimalPipe,
-    MatIcon,
-    MatIconButton,
-    MatTooltip,
-    NgClass,
-    NgFor,
-    NgIf,
-  ],
+    selector: 'app-calendar',
+    templateUrl: 'calendar.component.html',
+    styleUrls: ['calendar.component.scss'],
+    imports: [
+        DatePipe,
+        DecimalPipe,
+        MatIcon,
+        MatIconButton,
+        MatTooltip,
+        NgClass,
+        NgFor,
+        NgIf,
+    ]
 })
 export class CalendarComponent {
   today: Moment = moment()
