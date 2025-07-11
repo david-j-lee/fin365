@@ -1,6 +1,6 @@
 import { CdkScrollable } from '@angular/cdk/scrolling'
-import { CurrencyPipe, NgIf } from '@angular/common'
-import { Component, OnInit } from '@angular/core'
+import { CurrencyPipe } from '@angular/common'
+import { Component, OnInit, inject } from '@angular/core'
 import { FormsModule } from '@angular/forms'
 import { MatButton, MatIconButton } from '@angular/material/button'
 import {
@@ -47,7 +47,6 @@ import moment from 'moment'
   selector: 'app-snapshot-table-dialog',
   templateUrl: 'snapshot-table.component.html',
   styleUrls: ['snapshot-table.component.scss'],
-  standalone: true,
   imports: [
     CdkScrollable,
     CurrencyPipe,
@@ -76,11 +75,17 @@ import moment from 'moment'
     MatRowDef,
     MatSuffix,
     MatTable,
-    NgIf,
     SpinnerComponent,
   ],
 })
 export class SnapshotTableDialogComponent implements OnInit {
+  private financeService = inject(FinanceService)
+  private dailyService = inject(DailyService)
+  private dalSnapshotService = inject(DalSnapshotService)
+  private matSnackBar = inject(MatSnackBar)
+  matDialogRef =
+    inject<MatDialogRef<SnapshotTableDialogComponent>>(MatDialogRef)
+
   mostRecentSnapshotDate = this.financeService.getMostRecentSnapshotDate()
   estimatedTotalBalance = this.dailyService.getBalanceForGivenDay(
     this.mostRecentSnapshotDate?.format('MM/DD/YYYY') ?? '',
@@ -94,17 +99,7 @@ export class SnapshotTableDialogComponent implements OnInit {
     actualBalance: 0,
   }
   balances: SnapshotBalanceAdd[] = []
-  isSubmitting: boolean = false
-
-  constructor(
-    private financeService: FinanceService,
-    private dailyService: DailyService,
-    private dalSnapshotService: DalSnapshotService,
-    private matSnackBar: MatSnackBar,
-    public matDialogRef: MatDialogRef<SnapshotTableDialogComponent>,
-  ) {
-    // Inject Services
-  }
+  isSubmitting = false
 
   ngOnInit() {
     // Create models to add balances to db
@@ -174,7 +169,7 @@ export class SnapshotTableDialogComponent implements OnInit {
   getSnapshotBalanceId() {
     return getRansomStringFromObject(
       this.balances.reduce(
-        (accumulator: { [id: string]: SnapshotBalanceAdd }, item) => {
+        (accumulator: Record<string, SnapshotBalanceAdd>, item) => {
           accumulator[item.id] = item
           return accumulator
         },
@@ -190,15 +185,11 @@ export class SnapshotTableDialogComponent implements OnInit {
   standalone: true,
 })
 export class SnapshotTableComponent implements OnInit {
-  matDialogRef: MatDialogRef<SnapshotTableDialogComponent> | null = null
+  matDialog = inject(MatDialog)
+  private router = inject(Router)
+  private financeService = inject(FinanceService)
 
-  constructor(
-    public matDialog: MatDialog,
-    private router: Router,
-    private financeService: FinanceService,
-  ) {
-    // Inject services
-  }
+  matDialogRef: MatDialogRef<SnapshotTableDialogComponent> | null = null
 
   ngOnInit() {
     setTimeout(() => {

@@ -1,9 +1,11 @@
 <h5 class="text-center">Daily Finances</h5>
-<div *ngIf="chartService.chartBudget" class="chart-wrapper">
-  <canvas
-    baseChart
-    [type]="chartService.chartBudget.chartType"
-    [options]="chartService.chartBudget.options"
-    [data]="chartService.chartBudget.data"
-  ></canvas>
-</div>
+@if (chartService.chartBudget) {
+  <div class="chart-wrapper">
+    <canvas
+      baseChart
+      [type]="chartService.chartBudget.chartType"
+      [options]="chartService.chartBudget.options"
+      [data]="chartService.chartBudget.data"
+    ></canvas>
+  </div>
+}

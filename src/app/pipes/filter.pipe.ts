@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable, Pipe, PipeTransform } from '@angular/core'
 
 @Pipe({
@@ -8,7 +7,11 @@ import { Injectable, Pipe, PipeTransform } from '@angular/core'
 })
 @Injectable()
 export class FilterPipe implements PipeTransform {
-  transform(items: any[], field: string, value: string | boolean): any[] {
+  transform<T extends object>(
+    items: T[] | null | undefined,
+    field: keyof T,
+    value: T[keyof T],
+  ): T[] {
     if (!items) {
       return []
     }

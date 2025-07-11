@@ -4,9 +4,4 @@ This is a website where you can build out a budget for the next 365 days. You ca
 
 ## Development Requirements
 
-- node v20+
-
-## TODO
-
-- [ ] More views/tabs, like list view and maybe a tree view
-- [ ] Setup wizard to get a budget filled out
+- node v22+

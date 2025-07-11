@@ -1,5 +1,4 @@
-import { NgIf } from '@angular/common'
-import { Component, OnDestroy, OnInit } from '@angular/core'
+import { Component, OnDestroy, OnInit, inject } from '@angular/core'
 import { MatIcon } from '@angular/material/icon'
 import { MatTab, MatTabGroup, MatTabLabel } from '@angular/material/tabs'
 import { ActivatedRoute, Params, Router, RouterOutlet } from '@angular/router'
@@ -25,7 +24,6 @@ import moment from 'moment'
   selector: 'app-budget-dashboard',
   templateUrl: './budget-dashboard.component.html',
   styleUrls: ['./budget-dashboard.component.scss'],
-  standalone: true,
   imports: [
     BalancePieChartComponent,
     BudgetChartComponent,
@@ -35,31 +33,26 @@ import moment from 'moment'
     MatTab,
     MatTabLabel,
     MatTabGroup,
-    NgIf,
     RevenuePieChartComponent,
     RouterOutlet,
     SidebarComponent,
   ],
 })
 export class BudgetDashboardComponent implements OnInit, OnDestroy {
-  budgetId: string | null = null
-  type: string = ''
+  financeService = inject(FinanceService)
+  private router = inject(Router)
+  private activatedRoute = inject(ActivatedRoute)
+  private dailyService = inject(DailyService)
+  private dalBalanceService = inject(DalBalanceService)
+  private dalExpenseService = inject(DalExpenseService)
+  private dalRevenueService = inject(DalRevenueService)
+  private dalSnapshotService = inject(DalSnapshotService)
+  private chartService = inject(ChartService)
+  private sideBarService = inject(SideBarService)
+  private calendarService = inject(CalendarService)
 
-  constructor(
-    public financeService: FinanceService,
-    private router: Router,
-    private activatedRoute: ActivatedRoute,
-    private dailyService: DailyService,
-    private dalBalanceService: DalBalanceService,
-    private dalExpenseService: DalExpenseService,
-    private dalRevenueService: DalRevenueService,
-    private dalSnapshotService: DalSnapshotService,
-    private chartService: ChartService,
-    private sideBarService: SideBarService,
-    private calendarService: CalendarService,
-  ) {
-    // Inject services
-  }
+  budgetId: string | null = null
+  type = ''
 
   ngOnInit() {
     this.activatedRoute.params.subscribe((params: Params) => {

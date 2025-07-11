@@ -1,6 +1,5 @@
 import { CdkScrollable } from '@angular/cdk/scrolling'
-import { NgIf } from '@angular/common'
-import { Component, Inject, OnInit } from '@angular/core'
+import { Component, OnInit, inject } from '@angular/core'
 import { MatButton } from '@angular/material/button'
 import {
   MAT_DIALOG_DATA,
@@ -22,7 +21,6 @@ import { FinanceService } from '@services/finance.service'
 @Component({
   selector: 'app-expense-delete-dialog',
   templateUrl: 'expense-delete.component.html',
-  standalone: true,
   imports: [
     CdkScrollable,
     MatButton,
@@ -31,26 +29,24 @@ import { FinanceService } from '@services/finance.service'
     MatDialogContent,
     MatDialogTitle,
     MatIcon,
-    NgIf,
     SpinnerComponent,
   ],
 })
 export class ExpenseDeleteDialogComponent implements OnInit {
-  errors: string = ''
-  isSubmitting: boolean = false
+  private financeService = inject(FinanceService)
+  private dalExpenseService = inject(DalExpenseService)
+  matDialog = inject(MatDialog)
+  private matSnackBar = inject(MatSnackBar)
+  matDialogRef =
+    inject<MatDialogRef<ExpenseDeleteDialogComponent>>(MatDialogRef)
+  data = inject<{
+    id: string
+  }>(MAT_DIALOG_DATA)
+
+  errors = ''
+  isSubmitting = false
 
   deleteExpense: Expense | undefined
-
-  constructor(
-    private financeService: FinanceService,
-    private dalExpenseService: DalExpenseService,
-    public matDialog: MatDialog,
-    private matSnackBar: MatSnackBar,
-    public matDialogRef: MatDialogRef<ExpenseDeleteDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { id: string },
-  ) {
-    // Inject
-  }
 
   ngOnInit() {
     if (this.financeService.selectedBudget?.expenses) {
@@ -97,15 +93,11 @@ export class ExpenseDeleteDialogComponent implements OnInit {
   standalone: true,
 })
 export class ExpenseDeleteComponent implements OnInit {
-  matDialogRef: MatDialogRef<ExpenseDeleteDialogComponent> | null = null
+  matDialog = inject(MatDialog)
+  private router = inject(Router)
+  private activatedRoute = inject(ActivatedRoute)
 
-  constructor(
-    public matDialog: MatDialog,
-    private router: Router,
-    private activatedRoute: ActivatedRoute,
-  ) {
-    // Inject
-  }
+  matDialogRef: MatDialogRef<ExpenseDeleteDialogComponent> | null = null
 
   ngOnInit() {
     this.activatedRoute.parent?.params.subscribe((parentParams) => {

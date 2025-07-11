@@ -1,6 +1,6 @@
 import { CdkScrollable } from '@angular/cdk/scrolling'
-import { DatePipe, NgIf } from '@angular/common'
-import { Component, OnInit } from '@angular/core'
+import { DatePipe } from '@angular/common'
+import { Component, OnInit, inject } from '@angular/core'
 import { MatButton } from '@angular/material/button'
 import {
   MatDialog,
@@ -32,7 +32,6 @@ import { FinanceService } from '@services/finance.service'
   selector: 'app-snapshot-history-dialog',
   templateUrl: 'snapshot-history.component.html',
   styleUrls: ['snapshot-history.component.scss'],
-  standalone: true,
   imports: [
     CdkScrollable,
     DatePipe,
@@ -52,10 +51,13 @@ import { FinanceService } from '@services/finance.service'
     MatRow,
     MatRowDef,
     MatTable,
-    NgIf,
   ],
 })
 export class SnapshotHistoryDialogComponent implements OnInit {
+  financeService = inject(FinanceService)
+  matDialogRef =
+    inject<MatDialogRef<SnapshotHistoryDialogComponent>>(MatDialogRef)
+
   displayColumns = [
     'date',
     'estimatedBalance',
@@ -63,13 +65,6 @@ export class SnapshotHistoryDialogComponent implements OnInit {
     'balanceDifference',
   ]
   dataSource = new MatTableDataSource<Snapshot>()
-
-  constructor(
-    public financeService: FinanceService,
-    public matDialogRef: MatDialogRef<SnapshotHistoryDialogComponent>,
-  ) {
-    // Inject services
-  }
 
   ngOnInit() {
     this.dataSource = new MatTableDataSource(
@@ -84,15 +79,11 @@ export class SnapshotHistoryDialogComponent implements OnInit {
   standalone: true,
 })
 export class SnapshotHistoryComponent implements OnInit {
-  matDialogRef: MatDialogRef<SnapshotHistoryDialogComponent> | null = null
+  matDialog = inject(MatDialog)
+  private router = inject(Router)
+  private financeService = inject(FinanceService)
 
-  constructor(
-    public matDialog: MatDialog,
-    private router: Router,
-    private financeService: FinanceService,
-  ) {
-    // Inject Services
-  }
+  matDialogRef: MatDialogRef<SnapshotHistoryDialogComponent> | null = null
 
   ngOnInit() {
     setTimeout(() => {

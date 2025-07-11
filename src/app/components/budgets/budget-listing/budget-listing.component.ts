@@ -1,5 +1,4 @@
-import { NgFor, NgIf } from '@angular/common'
-import { Component } from '@angular/core'
+import { Component, inject } from '@angular/core'
 import { MatCard, MatCardHeader, MatCardTitle } from '@angular/material/card'
 import { RouterLink, RouterOutlet } from '@angular/router'
 import { FilterPipe } from '@pipes/filter.pipe'
@@ -10,10 +9,7 @@ import { FinanceService } from '@services/finance.service'
   selector: 'app-budget-listing',
   templateUrl: './budget-listing.component.html',
   styleUrls: ['./budget-listing.component.scss'],
-  standalone: true,
   imports: [
-    NgIf,
-    NgFor,
     MatCard,
     RouterLink,
     MatCardHeader,
@@ -24,7 +20,5 @@ import { FinanceService } from '@services/finance.service'
   ],
 })
 export class BudgetListingComponent {
-  constructor(public financeService: FinanceService) {
-    // Inject
-  }
+  financeService = inject(FinanceService)
 }

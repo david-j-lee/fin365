@@ -9,7 +9,6 @@ import { Component, Input, OnDestroy } from '@angular/core'
 export class SpinnerComponent implements OnDestroy {
   @Input() public delay = 150
 
-  // eslint-disable-next-line accessor-pairs
   @Input()
   public set isRunning(value: boolean) {
     if (!value) {
@@ -30,7 +29,7 @@ export class SpinnerComponent implements OnDestroy {
   }
 
   public isDelayedRunning = false
-  private currentTimeout: number = 0
+  private currentTimeout = 0
 
   ngOnDestroy() {
     this.cancelTimeout()

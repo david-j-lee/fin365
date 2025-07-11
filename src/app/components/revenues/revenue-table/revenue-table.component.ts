@@ -1,19 +1,14 @@
-import { NgFor } from '@angular/common'
-import { Component } from '@angular/core'
-import { MatIconButton } from '@angular/material/button'
-import { MatIcon } from '@angular/material/icon'
+import { Component, inject } from '@angular/core'
 import { MatList, MatListItem } from '@angular/material/list'
 import { RouterLink } from '@angular/router'
+import { SortByPipe } from '@pipes/sort.pipe'
 import { FinanceService } from '@services/finance.service'
 
 @Component({
   selector: 'app-revenue-table',
   templateUrl: 'revenue-table.component.html',
-  standalone: true,
-  imports: [MatList, NgFor, MatListItem, MatIconButton, RouterLink, MatIcon],
+  imports: [MatList, MatListItem, RouterLink, SortByPipe],
 })
 export class RevenueTableComponent {
-  constructor(public financeService: FinanceService) {
-    // Inject service
-  }
+  financeService = inject(FinanceService)
 }

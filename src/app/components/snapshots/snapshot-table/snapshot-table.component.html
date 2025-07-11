@@ -14,7 +14,9 @@
     />
     <mat-datepicker-toggle matSuffix [for]="datePicker"></mat-datepicker-toggle>
     <mat-datepicker #datePicker></mat-datepicker>
-    <mat-error *ngIf="date.invalid">Date is not valid</mat-error>
+    @if (date.invalid) {
+      <mat-error>Date is not valid</mat-error>
+    }
   </mat-form-field>
 
   <p>

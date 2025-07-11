@@ -1,6 +1,5 @@
 import { CdkScrollable } from '@angular/cdk/scrolling'
-import { NgFor, NgIf } from '@angular/common'
-import { Component, Inject, OnInit } from '@angular/core'
+import { Component, OnInit, inject } from '@angular/core'
 import { FormsModule, NgForm } from '@angular/forms'
 import { MatButton } from '@angular/material/button'
 import { MatCheckbox } from '@angular/material/checkbox'
@@ -40,7 +39,6 @@ import { FinanceService } from '@services/finance.service'
 @Component({
   selector: 'app-expense-edit-dialog',
   templateUrl: 'expense-edit.component.html',
-  standalone: true,
   imports: [
     CdkScrollable,
     FormsModule,
@@ -61,31 +59,29 @@ import { FinanceService } from '@services/finance.service'
     MatOption,
     MatSelect,
     MatSuffix,
-    NgFor,
-    NgIf,
     SpinnerComponent,
   ],
 })
 export class ExpenseEditDialogComponent implements OnInit {
-  errors: string = ''
-  isSubmitting: boolean = false
+  financeService = inject(FinanceService)
+  private router = inject(Router)
+  private dalExpenseService = inject(DalExpenseService)
+  private matSnackBar = inject(MatSnackBar)
+  matDialogRef = inject<MatDialogRef<ExpenseEditDialogComponent> | null>(
+    MatDialogRef<ExpenseEditDialogComponent>,
+  )
+  data = inject<{
+    id: string
+  }>(MAT_DIALOG_DATA)
+
+  errors = ''
+  isSubmitting = false
 
   oldExpense: Expense | undefined
   newExpense: ExpenseAdd | undefined
 
   navigateToDelete = false
   deleteModal: MatDialogRef<ExpenseDeleteComponent> | null = null
-
-  constructor(
-    public financeService: FinanceService,
-    private router: Router,
-    private dalExpenseService: DalExpenseService,
-    private matSnackBar: MatSnackBar,
-    public matDialogRef: MatDialogRef<ExpenseEditDialogComponent> | null,
-    @Inject(MAT_DIALOG_DATA) public data: { id: string },
-  ) {
-    // Inject
-  }
 
   ngOnInit() {
     this.setAfterClosed()
@@ -183,14 +179,10 @@ export class ExpenseEditDialogComponent implements OnInit {
   standalone: true,
 })
 export class ExpenseEditComponent implements OnInit {
-  matDialogRef: MatDialogRef<ExpenseEditDialogComponent> | null = null
+  matDialog = inject(MatDialog)
+  private activatedRoute = inject(ActivatedRoute)
 
-  constructor(
-    public matDialog: MatDialog,
-    private activatedRoute: ActivatedRoute,
-  ) {
-    // Inject
-  }
+  matDialogRef: MatDialogRef<ExpenseEditDialogComponent> | null = null
 
   ngOnInit() {
     this.activatedRoute.parent?.params.subscribe(() => {

@@ -1,6 +1,5 @@
 import { CdkScrollable } from '@angular/cdk/scrolling'
-import { NgFor, NgIf } from '@angular/common'
-import { Component, OnInit } from '@angular/core'
+import { Component, OnInit, inject } from '@angular/core'
 import { FormsModule, NgForm } from '@angular/forms'
 import { MatButton } from '@angular/material/button'
 import { MatCheckbox } from '@angular/material/checkbox'
@@ -37,7 +36,6 @@ import { FinanceService } from '@services/finance.service'
 @Component({
   selector: 'app-revenue-add-dialog',
   templateUrl: 'revenue-add.component.html',
-  standalone: true,
   imports: [
     CdkScrollable,
     FormsModule,
@@ -58,25 +56,19 @@ import { FinanceService } from '@services/finance.service'
     MatOption,
     MatSelect,
     MatSuffix,
-    NgFor,
-    NgIf,
     SpinnerComponent,
   ],
 })
 export class RevenueAddDialogComponent implements OnInit {
-  errors: string = ''
-  isSubmitting: boolean = false
+  financeService = inject(FinanceService)
+  private dalRevenueService = inject(DalRevenueService)
+  private matSnackBar = inject(MatSnackBar)
+  matDialogRef = inject<MatDialogRef<RevenueAddDialogComponent>>(MatDialogRef)
+
+  errors = ''
+  isSubmitting = false
 
   myRevenue: RevenueAdd | undefined
-
-  constructor(
-    public financeService: FinanceService,
-    private dalRevenueService: DalRevenueService,
-    private matSnackBar: MatSnackBar,
-    public matDialogRef: MatDialogRef<RevenueAddDialogComponent>,
-  ) {
-    // Inject
-  }
 
   ngOnInit() {
     this.myRevenue = {
@@ -125,15 +117,11 @@ export class RevenueAddDialogComponent implements OnInit {
   standalone: true,
 })
 export class RevenueAddComponent implements OnInit {
-  matDialogRef: MatDialogRef<RevenueAddDialogComponent> | null = null
+  matDialog = inject(MatDialog)
+  private router = inject(Router)
+  private financeService = inject(FinanceService)
 
-  constructor(
-    public matDialog: MatDialog,
-    private router: Router,
-    private financeService: FinanceService,
-  ) {
-    // Inject
-  }
+  matDialogRef: MatDialogRef<RevenueAddDialogComponent> | null = null
 
   ngOnInit() {
     setTimeout(() => {

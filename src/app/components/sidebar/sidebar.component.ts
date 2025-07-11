@@ -1,5 +1,5 @@
-import { DatePipe, DecimalPipe, NgIf } from '@angular/common'
-import { Component } from '@angular/core'
+import { DatePipe, DecimalPipe } from '@angular/common'
+import { Component, inject } from '@angular/core'
 import { MatButton } from '@angular/material/button'
 import { MatDivider } from '@angular/material/divider'
 import {
@@ -20,7 +20,6 @@ import { SideBarService } from '@services/side-bar.service'
 @Component({
   selector: 'app-sidebar',
   templateUrl: 'sidebar.component.html',
-  standalone: true,
   imports: [
     BalanceTableComponent,
     DatePipe,
@@ -33,17 +32,12 @@ import { SideBarService } from '@services/side-bar.service'
     MatExpansionPanelHeader,
     MatExpansionPanelTitle,
     MatIcon,
-    NgIf,
     RevenueTableComponent,
     RouterLink,
   ],
 })
 export class SidebarComponent {
-  constructor(
-    public financeService: FinanceService,
-    public dailyService: DailyService,
-    public sideBarService: SideBarService,
-  ) {
-    // Inject services
-  }
+  financeService = inject(FinanceService)
+  dailyService = inject(DailyService)
+  sideBarService = inject(SideBarService)
 }

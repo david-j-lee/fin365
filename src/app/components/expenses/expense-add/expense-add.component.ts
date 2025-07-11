@@ -1,6 +1,5 @@
 import { CdkScrollable } from '@angular/cdk/scrolling'
-import { NgFor, NgIf } from '@angular/common'
-import { Component, OnInit } from '@angular/core'
+import { Component, OnInit, inject } from '@angular/core'
 import { FormsModule, NgForm } from '@angular/forms'
 import { MatButton } from '@angular/material/button'
 import { MatCheckbox } from '@angular/material/checkbox'
@@ -37,7 +36,6 @@ import { FinanceService } from '@services/finance.service'
 @Component({
   selector: 'app-expense-add-dialog',
   templateUrl: 'expense-add.component.html',
-  standalone: true,
   imports: [
     CdkScrollable,
     FormsModule,
@@ -58,25 +56,19 @@ import { FinanceService } from '@services/finance.service'
     MatOption,
     MatSelect,
     MatSuffix,
-    NgFor,
-    NgIf,
     SpinnerComponent,
   ],
 })
 export class ExpenseAddDialogComponent implements OnInit {
-  errors: string = ''
-  isSubmitting: boolean = false
+  financeService = inject(FinanceService)
+  private dalExpenseService = inject(DalExpenseService)
+  private matSnackBar = inject(MatSnackBar)
+  matDialogRef = inject<MatDialogRef<ExpenseAddDialogComponent>>(MatDialogRef)
+
+  errors = ''
+  isSubmitting = false
 
   myExpense: ExpenseAdd | undefined
-
-  constructor(
-    public financeService: FinanceService,
-    private dalExpenseService: DalExpenseService,
-    private matSnackBar: MatSnackBar,
-    public matDialogRef: MatDialogRef<ExpenseAddDialogComponent>,
-  ) {
-    // Inject
-  }
 
   ngOnInit() {
     this.myExpense = {
@@ -125,15 +117,11 @@ export class ExpenseAddDialogComponent implements OnInit {
   standalone: true,
 })
 export class ExpenseAddComponent implements OnInit {
-  matDialogRef: MatDialogRef<ExpenseAddDialogComponent> | null = null
+  matDialog = inject(MatDialog)
+  private router = inject(Router)
+  private financeService = inject(FinanceService)
 
-  constructor(
-    public matDialog: MatDialog,
-    private router: Router,
-    private financeService: FinanceService,
-  ) {
-    // Inject
-  }
+  matDialogRef: MatDialogRef<ExpenseAddDialogComponent> | null = null
 
   ngOnInit() {
     setTimeout(() => {

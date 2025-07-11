@@ -1,17 +1,20 @@
 <mat-list>
-  <mat-list-item
-    *ngFor="let balance of financeService.selectedBudget?.balances"
-  >
-    <div class="d-flex align-items-center">
-      <span matListItemTitle class="fill-space text-ellipsis pe-1">
-        <a
-          class="pointer"
-          matLine
-          [routerLink]="['./balance', balance.id, 'edit']"
-          >{{ balance.description }}</a
-        >
-      </span>
-      <div matListItemLine>$ {{ balance.amount }}</div>
-    </div>
-  </mat-list-item>
+  @for (
+    balance of financeService.selectedBudget?.balances | sortBy: 'description';
+    track balance
+  ) {
+    <mat-list-item>
+      <div class="d-flex align-items-center">
+        <span matListItemTitle class="fill-space text-ellipsis pe-1">
+          <a
+            class="pointer"
+            matLine
+            [routerLink]="['./balance', balance.id, 'edit']"
+            >{{ balance.description }}</a
+          >
+        </span>
+        <div matListItemLine>$ {{ balance.amount }}</div>
+      </div>
+    </mat-list-item>
+  }
 </mat-list>

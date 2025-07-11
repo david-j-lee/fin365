@@ -1,11 +1,14 @@
 import { DailyService } from './daily.service'
 import { FinanceService } from './finance.service'
-import { Injectable } from '@angular/core'
+import { Injectable, inject } from '@angular/core'
 import { Day } from '@interfaces/daily/day.interface'
 import moment from 'moment'
 
 @Injectable()
 export class CalendarService {
+  private financeService = inject(FinanceService)
+  private dailyService = inject(DailyService)
+
   days: Day[] = []
 
   hasPrev = false
@@ -19,13 +22,6 @@ export class CalendarService {
   currentYear = 0
   minYear = 0
   maxYear = 0
-
-  constructor(
-    private financeService: FinanceService,
-    private dailyService: DailyService,
-  ) {
-    // Inject services
-  }
 
   setFirstMonth() {
     if (

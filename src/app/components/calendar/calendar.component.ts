@@ -1,5 +1,5 @@
-import { DatePipe, DecimalPipe, NgClass, NgFor, NgIf } from '@angular/common'
-import { Component } from '@angular/core'
+import { DatePipe, DecimalPipe, NgClass } from '@angular/common'
+import { Component, inject } from '@angular/core'
 import { MatIconButton } from '@angular/material/button'
 import { MatIcon } from '@angular/material/icon'
 import { MatTooltip } from '@angular/material/tooltip'
@@ -10,22 +10,10 @@ import moment, { Moment } from 'moment'
   selector: 'app-calendar',
   templateUrl: 'calendar.component.html',
   styleUrls: ['calendar.component.scss'],
-  standalone: true,
-  imports: [
-    DatePipe,
-    DecimalPipe,
-    MatIcon,
-    MatIconButton,
-    MatTooltip,
-    NgClass,
-    NgFor,
-    NgIf,
-  ],
+  imports: [DatePipe, DecimalPipe, MatIcon, MatIconButton, MatTooltip, NgClass],
 })
 export class CalendarComponent {
-  today: Moment = moment()
+  calendarService = inject(CalendarService)
 
-  constructor(public calendarService: CalendarService) {
-    // Inject
-  }
+  today: Moment = moment()
 }

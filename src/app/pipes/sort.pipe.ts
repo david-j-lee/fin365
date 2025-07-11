@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Pipe, PipeTransform } from '@angular/core'
 
 @Pipe({
@@ -7,14 +6,24 @@ import { Pipe, PipeTransform } from '@angular/core'
   standalone: true,
 })
 export class SortByPipe implements PipeTransform {
-  transform(items: any[] | null | undefined, prop: string): any {
+  transform<T extends object>(
+    items: T[] | null | undefined,
+    prop: keyof T,
+  ): T[] {
     if (!items) {
       return []
     }
-    return items.sort((a, b) => {
-      if (a[prop] < b[prop]) {
+    return [...items].sort((a, b) => {
+      const aValue = a[prop]
+      const bValue = b[prop]
+
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        return aValue.localeCompare(bValue)
+      }
+
+      if (aValue < bValue) {
         return -1
-      } else if (a[prop] > b[prop]) {
+      } else if (aValue > bValue) {
         return 1
       }
       return 0

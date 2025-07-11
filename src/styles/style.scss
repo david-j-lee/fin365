@@ -1,5 +1,5 @@
-@import '../../node_modules/bootstrap/dist/css/bootstrap.min.css';
-@import 'themes';
+@use '../../node_modules/bootstrap/dist/css/bootstrap.min.css';
+@use 'themes';
 
 ::-webkit-scrollbar {
   width: 5px;

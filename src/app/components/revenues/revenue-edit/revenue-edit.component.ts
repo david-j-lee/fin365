@@ -1,6 +1,5 @@
 import { CdkScrollable } from '@angular/cdk/scrolling'
-import { NgFor, NgIf } from '@angular/common'
-import { Component, Inject, OnInit } from '@angular/core'
+import { Component, OnInit, inject } from '@angular/core'
 import { FormsModule, NgForm } from '@angular/forms'
 import { MatButton } from '@angular/material/button'
 import { MatCheckbox } from '@angular/material/checkbox'
@@ -40,7 +39,6 @@ import { FinanceService } from '@services/finance.service'
 @Component({
   selector: 'app-revenue-edit-dialog',
   templateUrl: 'revenue-edit.component.html',
-  standalone: true,
   imports: [
     CdkScrollable,
     FormsModule,
@@ -61,31 +59,29 @@ import { FinanceService } from '@services/finance.service'
     MatOption,
     MatSelect,
     MatSuffix,
-    NgFor,
-    NgIf,
     SpinnerComponent,
   ],
 })
 export class RevenueEditDialogComponent implements OnInit {
-  errors: string = ''
-  isSubmitting: boolean = false
+  financeService = inject(FinanceService)
+  private router = inject(Router)
+  private dalRevenueService = inject(DalRevenueService)
+  private matSnackBar = inject(MatSnackBar)
+  matDialogRef = inject<MatDialogRef<RevenueEditDialogComponent> | null>(
+    MatDialogRef<RevenueEditDialogComponent>,
+  )
+  data = inject<{
+    id: string
+  }>(MAT_DIALOG_DATA)
+
+  errors = ''
+  isSubmitting = false
 
   oldRevenue: Revenue | undefined
   newRevenue: RevenueAdd | undefined
 
   navigateToDelete = false
   deleteModal: MatDialogRef<RevenueDeleteComponent> | null = null
-
-  constructor(
-    public financeService: FinanceService,
-    private router: Router,
-    private dalRevenueService: DalRevenueService,
-    private matSnackBar: MatSnackBar,
-    public matDialogRef: MatDialogRef<RevenueEditDialogComponent> | null,
-    @Inject(MAT_DIALOG_DATA) public data: { id: string },
-  ) {
-    // Inject services
-  }
 
   ngOnInit() {
     this.setAfterClosed()
@@ -189,14 +185,10 @@ export class RevenueEditDialogComponent implements OnInit {
   standalone: true,
 })
 export class RevenueEditComponent implements OnInit {
-  matDialogRef: MatDialogRef<RevenueEditDialogComponent> | null = null
+  matDialog = inject(MatDialog)
+  private activatedRoute = inject(ActivatedRoute)
 
-  constructor(
-    public matDialog: MatDialog,
-    private activatedRoute: ActivatedRoute,
-  ) {
-    // Inject services
-  }
+  matDialogRef: MatDialogRef<RevenueEditDialogComponent> | null = null
 
   ngOnInit() {
     if (this.activatedRoute.parent) {
