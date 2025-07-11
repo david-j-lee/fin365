@@ -1,6 +1,4 @@
 import { Component } from '@angular/core'
-import { MatIconButton } from '@angular/material/button'
-import { MatIcon } from '@angular/material/icon'
 import { MatList, MatListItem } from '@angular/material/list'
 import { RouterLink } from '@angular/router'
 import { FinanceService } from '@services/finance.service'
@@ -8,7 +6,7 @@ import { FinanceService } from '@services/finance.service'
 @Component({
   selector: 'app-balance-table',
   templateUrl: 'balance-table.component.html',
-  imports: [MatList, MatListItem, MatIconButton, RouterLink, MatIcon],
+  imports: [MatList, MatListItem, RouterLink],
 })
 export class BalanceTableComponent {
   constructor(public financeService: FinanceService) {
