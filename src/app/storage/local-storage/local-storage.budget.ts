@@ -1,9 +1,8 @@
-import { Balance } from '@interfaces/balances/balance.interface'
 import { BudgetAdd } from '@interfaces/budgets/budget-add.interface'
 import { BudgetEdit } from '@interfaces/budgets/budget-edit.interface'
 import { Budget } from '@interfaces/budgets/budget.interface'
-import { Expense } from '@interfaces/expenses/expense.interface'
-import { Revenue } from '@interfaces/revenues/revenue.interface'
+import { RepeatableRule } from '@interfaces/rules/repeatable-rule.interface'
+import { Rule } from '@interfaces/rules/rule.interface'
 import { Snapshot } from '@interfaces/snapshots/snapshot.interface'
 import { localStorageService } from '@storage/local-storage/local-storage-utilities'
 import { getRansomStringFromObject } from '@utilities/string-utilities'
@@ -70,19 +69,19 @@ export const LocalStorageBudgetService = {
       delete budgets[id]
       localStorageService.setObject('budgets', budgets)
 
-      const balances = localStorageService.getObject<Balance>('balances')
+      const balances = localStorageService.getObject<Rule>('balances')
       const filteredBalances = Object.fromEntries(
         Object.entries(balances).filter(([, value]) => value.budgetId !== id),
       )
       localStorageService.setObject('balances', filteredBalances)
 
-      const revenues = localStorageService.getObject<Revenue>('revenues')
+      const revenues = localStorageService.getObject<RepeatableRule>('revenues')
       const filteredRevenues = Object.fromEntries(
         Object.entries(revenues).filter(([, value]) => value.budgetId !== id),
       )
       localStorageService.setObject('revenues', filteredRevenues)
 
-      const expenses = localStorageService.getObject<Expense>('expenses')
+      const expenses = localStorageService.getObject<RepeatableRule>('expenses')
       const filteredExpenses = Object.fromEntries(
         Object.entries(expenses).filter(([, value]) => value.budgetId !== id),
       )

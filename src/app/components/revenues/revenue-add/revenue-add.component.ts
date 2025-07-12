@@ -29,8 +29,8 @@ import { MatSelect } from '@angular/material/select'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { Router } from '@angular/router'
 import { SpinnerComponent } from '@components/spinner/spinner.component'
-import { RevenueAdd } from '@interfaces/revenues/revenue-add.interface'
-import { DalRevenueService } from '@services/dal/dal.revenue.service'
+import { RepeatableRuleAdd } from '@interfaces/rules/repeatable-rule-add.interface'
+import { DalRepeatableRuleService } from '@services/dal/dal.repeatable-rule.service'
 import { FinanceService } from '@services/finance.service'
 
 @Component({
@@ -61,17 +61,18 @@ import { FinanceService } from '@services/finance.service'
 })
 export class RevenueAddDialogComponent implements OnInit {
   financeService = inject(FinanceService)
-  private dalRevenueService = inject(DalRevenueService)
+  private dalRevenueService = inject(DalRepeatableRuleService)
   private matSnackBar = inject(MatSnackBar)
   matDialogRef = inject<MatDialogRef<RevenueAddDialogComponent>>(MatDialogRef)
 
   errors = ''
   isSubmitting = false
 
-  myRevenue: RevenueAdd | undefined
+  myRevenue: RepeatableRuleAdd | undefined
 
   ngOnInit() {
     this.myRevenue = {
+      type: 'revenue',
       budgetId: this.financeService.budget?.id ?? '',
       description: '',
       amount: 0,
@@ -95,7 +96,7 @@ export class RevenueAddDialogComponent implements OnInit {
       this.isSubmitting = true
       this.errors = ''
       value.budgetId = this.financeService.budget?.id
-      this.dalRevenueService.add(value).subscribe({
+      this.dalRevenueService.add('revenues', value).subscribe({
         next: () => {
           this.matDialogRef.close()
           this.matSnackBar.open('Saved', 'Dismiss', { duration: 2000 })

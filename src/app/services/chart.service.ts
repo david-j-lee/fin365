@@ -1,10 +1,10 @@
-import { DailyService } from './daily.service'
 import { FinanceService } from './finance.service'
 import { Injectable, inject } from '@angular/core'
 import { ChartBalance } from '@interfaces/charts/chart-balance.interface'
 import { ChartBudget } from '@interfaces/charts/chart-budget.interface'
 import { ChartExpense } from '@interfaces/charts/chart-expense.interface'
 import { ChartRevenue } from '@interfaces/charts/chart-revenue.interface'
+import { getRuleTotal } from '@utilities/rule-utilities'
 
 const pieOptions = {
   animation: { duration: 0 },
@@ -75,7 +75,6 @@ const colorPalettes = {
 @Injectable()
 export class ChartService {
   private financeService = inject(FinanceService)
-  private dailyService = inject(DailyService)
 
   chartBalance: ChartBalance = {
     chartType: 'doughnut',
@@ -192,7 +191,7 @@ export class ChartService {
       const data: number[] = []
       const labels: string[] = []
       this.financeService.budget.revenues.forEach((revenue) => {
-        revenue.yearlyAmount = this.dailyService.getTotalRevenue(revenue)
+        revenue.yearlyAmount = getRuleTotal(revenue)
         data.push(revenue.yearlyAmount)
         labels.push(revenue.description)
         total += revenue.yearlyAmount
@@ -219,7 +218,7 @@ export class ChartService {
       const data: number[] = []
       const labels: string[] = []
       this.financeService.budget.expenses.forEach((expense) => {
-        expense.yearlyAmount = this.dailyService.getTotalExpense(expense)
+        expense.yearlyAmount = getRuleTotal(expense)
         data.push(expense.yearlyAmount)
         labels.push(expense.description)
         total += expense.yearlyAmount
@@ -251,8 +250,8 @@ export class ChartService {
       this.financeService.budget.days.forEach((day) => {
         labels.push(day.date.format('M/D'))
         datasets[0].data.push(day.balance)
-        datasets[1].data.push(day.totalRevenue)
-        datasets[2].data.push(-day.totalExpense)
+        datasets[1].data.push(day.total.revenue)
+        datasets[2].data.push(-day.total.expense)
       })
 
       this.chartBudget.data = {

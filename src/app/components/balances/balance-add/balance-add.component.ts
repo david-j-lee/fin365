@@ -16,8 +16,8 @@ import { MatInput } from '@angular/material/input'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { Router } from '@angular/router'
 import { SpinnerComponent } from '@components/spinner/spinner.component'
-import { BalanceAdd } from '@interfaces/balances/balance-add.interface'
-import { DalBalanceService } from '@services/dal/dal.balance.service'
+import { RuleAdd } from '@interfaces/rules/rule-add.interface'
+import { DalRuleService } from '@services/dal/dal.rule.service'
 import { FinanceService } from '@services/finance.service'
 
 @Component({
@@ -41,13 +41,13 @@ import { FinanceService } from '@services/finance.service'
 })
 export class BalanceAddDialogComponent implements OnInit {
   financeService = inject(FinanceService)
-  private dalBalanceService = inject(DalBalanceService)
+  private dalBalanceService = inject(DalRuleService)
   private matSnackBar = inject(MatSnackBar)
   matDialogRef = inject<MatDialogRef<BalanceAddDialogComponent>>(MatDialogRef)
 
   errors = ''
   isSubmitting = false
-  myBalance: BalanceAdd | undefined
+  myBalance: RuleAdd | undefined
 
   ngOnInit() {
     const budgetId = this.financeService.budget?.id
@@ -57,6 +57,7 @@ export class BalanceAddDialogComponent implements OnInit {
     }
 
     this.myBalance = {
+      type: 'balance',
       budgetId,
       description: '',
       amount: 0,
@@ -69,7 +70,7 @@ export class BalanceAddDialogComponent implements OnInit {
       this.isSubmitting = true
       this.errors = ''
       value.budgetId = this.financeService.budget.id
-      this.dalBalanceService.add(value).subscribe({
+      this.dalBalanceService.add('balances', value).subscribe({
         next: () => {
           this.matDialogRef.close()
           this.matSnackBar.open('Saved', 'Dismiss', { duration: 2000 })

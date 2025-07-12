@@ -1,32 +1,34 @@
 import { Injectable, inject } from '@angular/core'
-import { BalanceAdd } from '@interfaces/balances/balance-add.interface'
-import { BalanceEdit } from '@interfaces/balances/balance-edit.interface'
-import { Balance } from '@interfaces/balances/balance.interface'
+import { RuleAdd } from '@interfaces/rules/rule-add.interface'
+import { RuleEdit } from '@interfaces/rules/rule-edit.interface'
+import { Rule } from '@interfaces/rules/rule.interface'
 import { ChartService } from '@services/chart.service'
-import { DailyService } from '@services/daily.service'
 import { FinanceService } from '@services/finance.service'
-import { LocalStorageBalanceService } from '@storage/local-storage/local-storage.balance'
+import { Table } from '@storage/local-storage/local-storage-utilities'
+import { LocalStorageRuleService } from '@storage/local-storage/local-storage.rule'
 import { Observable } from 'rxjs'
 import { map } from 'rxjs/operators'
 
-const SERVICE = 'localStorageBalanceService'
+const SERVICE = 'localStorageRuleService'
 
 @Injectable()
-export class DalBalanceService {
-  private localStorageBalanceService = LocalStorageBalanceService
+export class DalRuleService {
+  private localStorageRuleService = LocalStorageRuleService
 
   private financeService = inject(FinanceService)
-  private dailyService = inject(DailyService)
   private chartService = inject(ChartService)
 
-  getAll(budgetId: string): Observable<Balance[]> {
-    return this[SERVICE].getAll(budgetId).pipe(map((result) => result))
+  getAll(table: Table, budgetId: string): Observable<Rule[]> {
+    return this[SERVICE].getAll(table, budgetId).pipe(
+      map((result) => result.map((item) => ({ ...item, type: 'balance' }))),
+    )
   }
 
-  add(value: BalanceAdd): Observable<Balance> {
-    return this[SERVICE].add(value).pipe(
+  add(table: Table, value: RuleAdd): Observable<Rule> {
+    return this[SERVICE].add(table, value).pipe(
       map((result) => {
-        const newBalance: Balance = {
+        const newBalance: Rule = {
+          type: 'balance',
           id: result,
           description: value.description,
           amount: value.amount,
@@ -37,7 +39,7 @@ export class DalBalanceService {
           this.financeService.budget.balances.push(newBalance)
         }
 
-        this.dailyService.generateBalance(newBalance)
+        this.financeService.addRule(newBalance)
         this.chartService.setChartBalance()
         this.chartService.setChartBudget()
 
@@ -46,16 +48,18 @@ export class DalBalanceService {
     )
   }
 
-  update(oldBalance: Balance, newBalance: BalanceEdit): Observable<Balance> {
+  update(
+    table: Table,
+    oldBalance: Rule,
+    newBalance: RuleEdit,
+  ): Observable<Rule> {
     newBalance.id = oldBalance.id
-    return this[SERVICE].update(newBalance).pipe(
+    return this[SERVICE].update(table, newBalance).pipe(
       map(() => {
         oldBalance.description = newBalance.description
         oldBalance.amount = newBalance.amount
 
-        this.dailyService.deleteBalance(oldBalance)
-        this.dailyService.generateBalance(oldBalance)
-        this.dailyService.setRunningTotals()
+        this.financeService.updateRule(oldBalance)
         this.chartService.setChartBalance()
         this.chartService.setChartBudget()
 
@@ -64,8 +68,8 @@ export class DalBalanceService {
     )
   }
 
-  delete(id: string): Observable<boolean> {
-    return this[SERVICE].delete(id).pipe(
+  delete(table: Table, id: string): Observable<boolean> {
+    return this[SERVICE].delete(table, id).pipe(
       map(() => {
         if (this.financeService.budget && this.financeService.budget.balances) {
           const deletedBalance = this.financeService.budget.balances.find(
@@ -77,8 +81,7 @@ export class DalBalanceService {
               1,
             )
 
-            this.dailyService.deleteBalance(deletedBalance)
-            this.dailyService.setRunningTotals()
+            this.financeService.deleteRule(deletedBalance)
             this.chartService.setChartBalance()
             this.chartService.setChartBudget()
 

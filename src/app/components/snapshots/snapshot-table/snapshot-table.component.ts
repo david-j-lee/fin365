@@ -37,7 +37,6 @@ import { Router } from '@angular/router'
 import { SpinnerComponent } from '@components/spinner/spinner.component'
 import { SnapshotAdd } from '@interfaces/snapshots/snapshot-add.interface'
 import { SnapshotBalanceAdd } from '@interfaces/snapshots/snapshot-balance-add.interface'
-import { DailyService } from '@services/daily.service'
 import { DalSnapshotService } from '@services/dal/dal.snapshot.service'
 import { FinanceService } from '@services/finance.service'
 import { getRansomStringFromObject } from '@utilities/string-utilities'
@@ -80,14 +79,13 @@ import moment from 'moment'
 })
 export class SnapshotTableDialogComponent implements OnInit {
   private financeService = inject(FinanceService)
-  private dailyService = inject(DailyService)
   private dalSnapshotService = inject(DalSnapshotService)
   private matSnackBar = inject(MatSnackBar)
   matDialogRef =
     inject<MatDialogRef<SnapshotTableDialogComponent>>(MatDialogRef)
 
   mostRecentSnapshotDate = this.financeService.getMostRecentSnapshotDate()
-  estimatedTotalBalance = this.dailyService.getBalanceForGivenDay(
+  estimatedTotalBalance = this.financeService.getBalanceOn(
     this.mostRecentSnapshotDate?.format('MM/DD/YYYY') ?? '',
   )
   displayColumns = ['description', 'amount', 'delete']
@@ -124,7 +122,7 @@ export class SnapshotTableDialogComponent implements OnInit {
   }
 
   onDatePickerChange() {
-    this.estimatedTotalBalance = this.dailyService.getBalanceForGivenDay(
+    this.estimatedTotalBalance = this.financeService.getBalanceOn(
       this.addSnapshot.date.format('MM/DD/YYYY'),
     )
   }

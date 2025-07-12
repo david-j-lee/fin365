@@ -5,7 +5,6 @@ import { Budget } from '@interfaces/budgets/budget.interface'
 import { Snapshot } from '@interfaces/snapshots/snapshot.interface'
 import { CalendarService } from '@services/calendar.service'
 import { ChartService } from '@services/chart.service'
-import { DailyService } from '@services/daily.service'
 import { FinanceService } from '@services/finance.service'
 import { LocalStorageBudgetService } from '@storage/local-storage/local-storage.budget'
 import moment from 'moment'
@@ -20,7 +19,6 @@ export class DalBudgetService {
 
   private financeService = inject(FinanceService)
   private chartService = inject(ChartService)
-  private dailyService = inject(DailyService)
   private calendarService = inject(CalendarService)
 
   getAll(): Observable<Budget[]> {
@@ -54,7 +52,7 @@ export class DalBudgetService {
         }
         this.financeService.budgets?.push(newBudget)
         this.financeService.selectBudget(newBudget)
-        this.dailyService.generateDailyBudget()
+        this.financeService.generateBudget()
         this.chartService.setChartBalance()
         this.chartService.setChartRevenue()
         this.chartService.setChartExpense()

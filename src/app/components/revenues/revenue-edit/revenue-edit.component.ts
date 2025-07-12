@@ -31,9 +31,9 @@ import { MatSnackBar } from '@angular/material/snack-bar'
 import { ActivatedRoute, Router } from '@angular/router'
 import { RevenueDeleteComponent } from '@components/revenues/revenue-delete/revenue-delete.component'
 import { SpinnerComponent } from '@components/spinner/spinner.component'
-import { RevenueAdd } from '@interfaces/revenues/revenue-add.interface'
-import { Revenue } from '@interfaces/revenues/revenue.interface'
-import { DalRevenueService } from '@services/dal/dal.revenue.service'
+import { RepeatableRuleAdd } from '@interfaces/rules/repeatable-rule-add.interface'
+import { RepeatableRule } from '@interfaces/rules/repeatable-rule.interface'
+import { DalRepeatableRuleService } from '@services/dal/dal.repeatable-rule.service'
 import { FinanceService } from '@services/finance.service'
 
 @Component({
@@ -65,7 +65,7 @@ import { FinanceService } from '@services/finance.service'
 export class RevenueEditDialogComponent implements OnInit {
   financeService = inject(FinanceService)
   private router = inject(Router)
-  private dalRevenueService = inject(DalRevenueService)
+  private dalRevenueService = inject(DalRepeatableRuleService)
   private matSnackBar = inject(MatSnackBar)
   matDialogRef = inject<MatDialogRef<RevenueEditDialogComponent> | null>(
     MatDialogRef<RevenueEditDialogComponent>,
@@ -77,8 +77,8 @@ export class RevenueEditDialogComponent implements OnInit {
   errors = ''
   isSubmitting = false
 
-  oldRevenue: Revenue | undefined
-  newRevenue: RevenueAdd | undefined
+  oldRevenue: RepeatableRule | undefined
+  newRevenue: RepeatableRuleAdd | undefined
 
   navigateToDelete = false
   deleteModal: MatDialogRef<RevenueDeleteComponent> | null = null
@@ -90,7 +90,7 @@ export class RevenueEditDialogComponent implements OnInit {
       this.getData()
     } else if (this.financeService.budget) {
       this.dalRevenueService
-        .getAll(this.financeService.budget.id)
+        .getAll('revenues', this.financeService.budget.id)
         .subscribe((result) => {
           if (result) {
             this.getData()
@@ -136,6 +136,7 @@ export class RevenueEditDialogComponent implements OnInit {
     }
     this.oldRevenue = revenue
     this.newRevenue = {
+      type: 'revenue',
       budgetId: this.oldRevenue.budgetId,
       description: this.oldRevenue.description,
       amount: this.oldRevenue.amount,
@@ -163,18 +164,20 @@ export class RevenueEditDialogComponent implements OnInit {
     if (valid && this.oldRevenue) {
       this.isSubmitting = true
       this.errors = ''
-      this.dalRevenueService.update(this.oldRevenue, value).subscribe({
-        next: () => {
-          this.matDialogRef?.close()
-          this.matSnackBar.open('Saved', 'Dismiss', { duration: 2000 })
-        },
-        error: (errors) => {
-          this.errors = errors
-        },
-        complete: () => {
-          this.isSubmitting = false
-        },
-      })
+      this.dalRevenueService
+        .update('revenues', this.oldRevenue, value)
+        .subscribe({
+          next: () => {
+            this.matDialogRef?.close()
+            this.matSnackBar.open('Saved', 'Dismiss', { duration: 2000 })
+          },
+          error: (errors) => {
+            this.errors = errors
+          },
+          complete: () => {
+            this.isSubmitting = false
+          },
+        })
     }
   }
 }

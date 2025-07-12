@@ -1,12 +1,11 @@
 import { Injectable, inject } from '@angular/core'
-import { Balance } from '@interfaces/balances/balance.interface'
+import { Rule } from '@interfaces/rules/rule.interface'
 import { SnapshotAddAll } from '@interfaces/snapshots/snapshot-add-all.interface'
 import { SnapshotAdd } from '@interfaces/snapshots/snapshot-add.interface'
 import { SnapshotBalanceAdd } from '@interfaces/snapshots/snapshot-balance-add.interface'
 import { Snapshot } from '@interfaces/snapshots/snapshot.interface'
 import { CalendarService } from '@services/calendar.service'
 import { ChartService } from '@services/chart.service'
-import { DailyService } from '@services/daily.service'
 import { FinanceService } from '@services/finance.service'
 import { LocalStorageSnapshotService } from '@storage/local-storage/local-storage.snapshot'
 import moment from 'moment'
@@ -20,7 +19,6 @@ export class DalSnapshotService {
   private localStorageSnapshotService = LocalStorageSnapshotService
 
   private financeService = inject(FinanceService)
-  private dailyService = inject(DailyService)
   private chartService = inject(ChartService)
   private calendarService = inject(CalendarService)
 
@@ -38,7 +36,7 @@ export class DalSnapshotService {
     // Calculate balances
     const newAddSnapshot: SnapshotAdd = {
       ...addSnapshot,
-      estimatedBalance: this.dailyService.getBalanceForGivenDay(
+      estimatedBalance: this.financeService.getBalanceOn(
         addSnapshot.date.format('L'),
       ),
       actualBalance: filteredBalances.reduce(
@@ -69,14 +67,15 @@ export class DalSnapshotService {
 
         // Update balances in local data
         let newBalanceIndex = 0
-        const newBalances: Balance[] = []
+        const newBalances: Rule[] = []
         filteredBalances.forEach((balance) => {
           let balanceId = ''
           if (!balance.id) {
             balanceId = result.balanceIds[newBalanceIndex]
             newBalanceIndex += 1
           }
-          const newBalance: Balance = {
+          const newBalance: Rule = {
+            type: 'balance',
             id: balanceId,
             description: balance.description,
             amount: balance.amount,
@@ -91,7 +90,7 @@ export class DalSnapshotService {
           this.financeService.budget.balances = newBalances
         }
 
-        this.dailyService.generateDailyBudget()
+        this.financeService.generateBudget()
         this.chartService.setChartBalance()
         this.chartService.setChartExpense()
         this.chartService.setChartRevenue()

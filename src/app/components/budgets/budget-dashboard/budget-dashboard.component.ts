@@ -11,13 +11,12 @@ import { SidebarComponent } from '@components/sidebar/sidebar.component'
 import { Budget } from '@interfaces/budgets/budget.interface'
 import { CalendarService } from '@services/calendar.service'
 import { ChartService } from '@services/chart.service'
-import { DailyService } from '@services/daily.service'
-import { DalBalanceService } from '@services/dal/dal.balance.service'
-import { DalExpenseService } from '@services/dal/dal.expense.service'
-import { DalRevenueService } from '@services/dal/dal.revenue.service'
+import { DalRepeatableRuleService } from '@services/dal/dal.repeatable-rule.service'
+import { DalRuleService } from '@services/dal/dal.rule.service'
 import { DalSnapshotService } from '@services/dal/dal.snapshot.service'
 import { FinanceService } from '@services/finance.service'
 import { SideBarService } from '@services/side-bar.service'
+import { isRepeatableRuleArray } from '@utilities/rule-utilities'
 import moment from 'moment'
 
 @Component({
@@ -42,10 +41,8 @@ export class BudgetDashboardComponent implements OnInit, OnDestroy {
   financeService = inject(FinanceService)
   private router = inject(Router)
   private activatedRoute = inject(ActivatedRoute)
-  private dailyService = inject(DailyService)
-  private dalBalanceService = inject(DalBalanceService)
-  private dalExpenseService = inject(DalExpenseService)
-  private dalRevenueService = inject(DalRevenueService)
+  private dalRuleService = inject(DalRuleService)
+  private dalRepeatableRuleService = inject(DalRepeatableRuleService)
   private dalSnapshotService = inject(DalSnapshotService)
   private chartService = inject(ChartService)
   private sideBarService = inject(SideBarService)
@@ -98,7 +95,7 @@ export class BudgetDashboardComponent implements OnInit, OnDestroy {
       this.getSnapshots(budget)
     }
 
-    this.dailyService.generateDailyBudget()
+    this.financeService.generateBudget()
     this.chartService.setChartBalance()
     this.chartService.setChartRevenue()
     this.chartService.setChartExpense()
@@ -107,7 +104,7 @@ export class BudgetDashboardComponent implements OnInit, OnDestroy {
   }
 
   private getBalances(budget: Budget) {
-    this.dalBalanceService.getAll(budget.id).subscribe({
+    this.dalRuleService.getAll('balances', budget.id).subscribe({
       next: (result) => {
         if (result) {
           budget.balances = result
@@ -122,9 +119,9 @@ export class BudgetDashboardComponent implements OnInit, OnDestroy {
   }
 
   private getExpenses(budget: Budget) {
-    this.dalExpenseService.getAll(budget.id).subscribe({
+    this.dalRepeatableRuleService.getAll('expenses', budget.id).subscribe({
       next: (result) => {
-        if (result) {
+        if (result && isRepeatableRuleArray(result)) {
           const rawItems = result
           for (const item of rawItems) {
             item.startDate =
@@ -143,7 +140,7 @@ export class BudgetDashboardComponent implements OnInit, OnDestroy {
   }
 
   private getRevenues(budget: Budget) {
-    this.dalRevenueService.getAll(budget.id).subscribe({
+    this.dalRepeatableRuleService.getAll('revenues', budget.id).subscribe({
       next: (result) => {
         if (result) {
           const rawItems = result
@@ -199,7 +196,7 @@ export class BudgetDashboardComponent implements OnInit, OnDestroy {
       budget.isRevenuesLoaded &&
       budget.isSnapshotsLoaded
     ) {
-      this.dailyService.generateDailyBudget()
+      this.financeService.generateBudget()
       this.chartService.setChartBalance()
       this.chartService.setChartExpense()
       this.chartService.setChartRevenue()

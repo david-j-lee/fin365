@@ -18,9 +18,9 @@ import { MatSnackBar } from '@angular/material/snack-bar'
 import { ActivatedRoute, Router } from '@angular/router'
 import { BalanceDeleteComponent } from '@components/balances/balance-delete/balance-delete.component'
 import { SpinnerComponent } from '@components/spinner/spinner.component'
-import { BalanceAdd } from '@interfaces/balances/balance-add.interface'
-import { Balance } from '@interfaces/balances/balance.interface'
-import { DalBalanceService } from '@services/dal/dal.balance.service'
+import { RuleAdd } from '@interfaces/rules/rule-add.interface'
+import { Rule } from '@interfaces/rules/rule.interface'
+import { DalRuleService } from '@services/dal/dal.rule.service'
 import { FinanceService } from '@services/finance.service'
 
 @Component({
@@ -45,7 +45,7 @@ import { FinanceService } from '@services/finance.service'
 export class BalanceEditDialogComponent implements OnInit {
   private router = inject(Router)
   private financeService = inject(FinanceService)
-  private dalBalanceService = inject(DalBalanceService)
+  private dalBalanceService = inject(DalRuleService)
   private matSnackBar = inject(MatSnackBar)
   matDialogRef = inject<MatDialogRef<BalanceEditDialogComponent> | null>(
     MatDialogRef<BalanceEditDialogComponent>,
@@ -57,8 +57,8 @@ export class BalanceEditDialogComponent implements OnInit {
   errors = ''
   isSubmitting = false
 
-  oldBalance: Balance | undefined
-  newBalance: BalanceAdd | undefined
+  oldBalance: Rule | undefined
+  newBalance: RuleAdd | undefined
 
   navigateToDelete = false
   deleteModal: MatDialogRef<BalanceDeleteComponent> | null = null
@@ -70,7 +70,7 @@ export class BalanceEditDialogComponent implements OnInit {
       this.getData()
     } else if (this.financeService.budget) {
       this.dalBalanceService
-        .getAll(this.financeService.budget.id)
+        .getAll('balances', this.financeService.budget.id)
         .subscribe((result) => {
           if (result) {
             this.getData()
@@ -109,6 +109,7 @@ export class BalanceEditDialogComponent implements OnInit {
     this.oldBalance = oldBalance
     if (this.oldBalance) {
       this.newBalance = {
+        type: 'balance',
         description: this.oldBalance.description,
         amount: this.oldBalance.amount,
         budgetId: this.oldBalance.budgetId,
@@ -126,18 +127,20 @@ export class BalanceEditDialogComponent implements OnInit {
     if (valid && this.oldBalance) {
       this.isSubmitting = true
       this.errors = ''
-      this.dalBalanceService.update(this.oldBalance, value).subscribe({
-        next: () => {
-          this.matDialogRef?.close()
-          this.matSnackBar.open('Saved', 'Dismiss', { duration: 2000 })
-        },
-        error: (errors) => {
-          this.errors = errors
-        },
-        complete: () => {
-          this.isSubmitting = false
-        },
-      })
+      this.dalBalanceService
+        .update('balances', this.oldBalance, value)
+        .subscribe({
+          next: () => {
+            this.matDialogRef?.close()
+            this.matSnackBar.open('Saved', 'Dismiss', { duration: 2000 })
+          },
+          error: (errors) => {
+            this.errors = errors
+          },
+          complete: () => {
+            this.isSubmitting = false
+          },
+        })
     }
   }
 }

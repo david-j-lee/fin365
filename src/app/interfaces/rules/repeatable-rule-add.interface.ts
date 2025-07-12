@@ -1,16 +1,12 @@
+import { RuleAdd } from './rule-add.interface'
 import { Moment } from 'moment'
 
-export interface RevenueEdit {
-  id: string
-
-  description: string
-  amount: number
-
+export interface RepeatableRuleAdd extends RuleAdd {
   isForever: boolean
   frequency: string
 
-  startDate: Moment | null
-  endDate: Moment | null
+  startDate?: Moment | null
+  endDate?: Moment | null
 
   repeatMon: boolean
   repeatTue: boolean

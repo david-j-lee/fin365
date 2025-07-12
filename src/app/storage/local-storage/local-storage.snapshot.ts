@@ -1,5 +1,5 @@
-import { Balance } from '@interfaces/balances/balance.interface'
 import { Budget } from '@interfaces/budgets/budget.interface'
+import { Rule } from '@interfaces/rules/rule.interface'
 import { SnapshotAddAll } from '@interfaces/snapshots/snapshot-add-all.interface'
 import { Snapshot } from '@interfaces/snapshots/snapshot.interface'
 import { localStorageService } from '@storage/local-storage/local-storage-utilities'
@@ -38,15 +38,19 @@ export const LocalStorageSnapshotService = {
     localStorageService.setObject('snapshots', snapshots)
 
     // Remove and add new balances
-    const balances = localStorageService.getObject<Balance>('balances')
+    const balances = localStorageService.getObject<Rule>('balances')
     const filteredBalances = Object.fromEntries(
       Object.entries(balances).filter(
         ([, balance]) => balance.budgetId !== value.budgetId,
       ),
     )
 
-    value.snapshotBalances.forEach((balance) => {
-      filteredBalances[balance.id] = { ...balance, budgetId: value.budgetId }
+    value.snapshotBalances.forEach((snapshotBalance) => {
+      filteredBalances[snapshotBalance.id] = {
+        ...snapshotBalance,
+        type: 'balance',
+        budgetId: value.budgetId,
+      }
     })
 
     localStorageService.setObject('balances', filteredBalances)

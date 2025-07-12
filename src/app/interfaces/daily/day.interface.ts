@@ -1,6 +1,5 @@
-import { DailyBalance } from '@interfaces/daily/daily-balance.interface'
-import { DailyExpense } from '@interfaces/daily/daily-expense.interface'
-import { DailyRevenue } from '@interfaces/daily/daily-revenue.interface'
+import { DailyItem } from './daily-item.interface'
+import { RuleType } from '@interfaces/rules/rule.interface'
 import { Moment } from 'moment'
 
 export interface Day {
@@ -8,12 +7,7 @@ export interface Day {
   month: number
   year: number
 
-  dailyBalances: DailyBalance[]
-  dailyRevenues: DailyRevenue[]
-  dailyExpenses: DailyExpense[]
-
-  totalBalance: number
-  totalRevenue: number
-  totalExpense: number
+  daily: Record<RuleType, DailyItem[]>
+  total: Record<RuleType, number>
   balance: number
 }

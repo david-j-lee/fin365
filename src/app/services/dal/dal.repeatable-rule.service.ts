@@ -1,32 +1,36 @@
 import { Injectable, inject } from '@angular/core'
-import { RevenueAdd } from '@interfaces/revenues/revenue-add.interface'
-import { RevenueEdit } from '@interfaces/revenues/revenue-edit.interface'
-import { Revenue } from '@interfaces/revenues/revenue.interface'
+import { RepeatableRuleAdd } from '@interfaces/rules/repeatable-rule-add.interface'
+import { RepeatableRuleEdit } from '@interfaces/rules/repeatable-rule-edit.interface'
+import { RepeatableRule } from '@interfaces/rules/repeatable-rule.interface'
 import { ChartService } from '@services/chart.service'
-import { DailyService } from '@services/daily.service'
 import { FinanceService } from '@services/finance.service'
-import { LocalStorageRevenueService } from '@storage/local-storage/local-storage.revenue'
+import { Table } from '@storage/local-storage/local-storage-utilities'
+import { LocalStorageRepeatableRuleService } from '@storage/local-storage/local-storage.repeatable-rule'
 import { Observable } from 'rxjs'
 import { map } from 'rxjs/operators'
 
-const SERVICE = 'localStorageRevenueService'
+const SERVICE = 'localStorageRepeatableRuleService'
 
 @Injectable()
-export class DalRevenueService {
-  private localStorageRevenueService = LocalStorageRevenueService
+export class DalRepeatableRuleService {
+  private localStorageRepeatableRuleService = LocalStorageRepeatableRuleService
 
   private financeService = inject(FinanceService)
-  private dailyService = inject(DailyService)
   private chartService = inject(ChartService)
 
-  getAll(budgetId: string): Observable<Revenue[]> {
-    return this[SERVICE].getAll(budgetId).pipe(map((result) => result))
+  getAll(table: Table, budgetId: string): Observable<RepeatableRule[]> {
+    return this[SERVICE].getAll(table, budgetId).pipe(
+      map((result) =>
+        result.map((item) => ({ ...item, type: 'revenue' }) as RepeatableRule),
+      ),
+    )
   }
 
-  add(value: RevenueAdd): Observable<Revenue> {
-    return this[SERVICE].add(value).pipe(
+  add(table: Table, value: RepeatableRuleAdd): Observable<RepeatableRule> {
+    return this[SERVICE].add(table, value).pipe(
       map((result) => {
-        const newRevenue: Revenue = {
+        const newRevenue: RepeatableRule = {
+          type: 'revenue',
           id: result,
           budgetId: value.budgetId,
           description: value.description,
@@ -43,7 +47,7 @@ export class DalRevenueService {
           repeatSat: value.repeatSat,
           repeatSun: value.repeatSun,
           yearlyAmount: 0,
-          dailyRevenues: [],
+          daily: [],
         }
 
         if (this.financeService.budget?.revenues) {
@@ -51,9 +55,7 @@ export class DalRevenueService {
         }
 
         // Update daily data and charts
-        this.dailyService.generateRevenue(newRevenue)
-        newRevenue.yearlyAmount = this.dailyService.getTotalRevenue(newRevenue)
-        this.dailyService.setRunningTotals()
+        this.financeService.addRule(newRevenue)
         this.chartService.setChartRevenue()
         this.chartService.setChartBudget()
 
@@ -62,9 +64,13 @@ export class DalRevenueService {
     )
   }
 
-  update(oldRevenue: Revenue, newRevenue: RevenueEdit): Observable<Revenue> {
+  update(
+    table: Table,
+    oldRevenue: RepeatableRule,
+    newRevenue: RepeatableRuleEdit,
+  ): Observable<RepeatableRule> {
     newRevenue.id = oldRevenue.id
-    return this[SERVICE].update(newRevenue).pipe(
+    return this[SERVICE].update(table, newRevenue).pipe(
       map(() => {
         oldRevenue.description = newRevenue.description
         oldRevenue.amount = newRevenue.amount
@@ -80,10 +86,7 @@ export class DalRevenueService {
         oldRevenue.repeatSat = newRevenue.repeatSat
         oldRevenue.repeatSun = newRevenue.repeatSun
 
-        this.dailyService.deleteRevenue(oldRevenue)
-        this.dailyService.generateRevenue(oldRevenue)
-        oldRevenue.yearlyAmount = this.dailyService.getTotalRevenue(oldRevenue)
-        this.dailyService.setRunningTotals()
+        this.financeService.updateRule(oldRevenue)
         this.chartService.setChartRevenue()
         this.chartService.setChartBudget()
 
@@ -92,8 +95,8 @@ export class DalRevenueService {
     )
   }
 
-  delete(id: string): Observable<boolean> {
-    return this[SERVICE].delete(id).pipe(
+  delete(table: Table, id: string): Observable<boolean> {
+    return this[SERVICE].delete(table, id).pipe(
       map(() => {
         if (this.financeService.budget && this.financeService.budget.revenues) {
           const deletedRevenue = this.financeService.budget.revenues.find(
@@ -105,8 +108,7 @@ export class DalRevenueService {
               1,
             )
 
-            this.dailyService.deleteRevenue(deletedRevenue)
-            this.dailyService.setRunningTotals()
+            this.financeService.deleteRule(deletedRevenue)
             this.chartService.setChartRevenue()
             this.chartService.setChartBudget()
 

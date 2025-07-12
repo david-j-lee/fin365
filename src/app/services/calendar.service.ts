@@ -80,13 +80,20 @@ export class CalendarService {
               date: firstDate.clone().add(i, 'days'),
               month: firstDate.clone().add(i, 'days').month(),
               year: firstDate.clone().add(i, 'days').year(),
-              dailyBalances: [],
-              dailyRevenues: [],
-              dailyExpenses: [],
-              totalBalance: 0,
-              totalRevenue: 0,
-              totalExpense: 0,
+
               balance: lastBalance,
+              daily: {
+                balance: [],
+                revenue: [],
+                expense: [],
+                savings: [],
+              },
+              total: {
+                balance: 0,
+                revenue: 0,
+                expense: 0,
+                savings: 0,
+              },
             }
             this.days.push(emptyDate)
           }

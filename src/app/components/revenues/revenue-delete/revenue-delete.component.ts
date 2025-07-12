@@ -14,8 +14,8 @@ import { MatIcon } from '@angular/material/icon'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { ActivatedRoute, Router } from '@angular/router'
 import { SpinnerComponent } from '@components/spinner/spinner.component'
-import { Revenue } from '@interfaces/revenues/revenue.interface'
-import { DalRevenueService } from '@services/dal/dal.revenue.service'
+import { RepeatableRule } from '@interfaces/rules/repeatable-rule.interface'
+import { DalRepeatableRuleService } from '@services/dal/dal.repeatable-rule.service'
 import { FinanceService } from '@services/finance.service'
 
 @Component({
@@ -34,7 +34,7 @@ import { FinanceService } from '@services/finance.service'
 })
 export class RevenueDeleteDialogComponent implements OnInit {
   private financeService = inject(FinanceService)
-  private dalRevenueService = inject(DalRevenueService)
+  private dalRevenueService = inject(DalRepeatableRuleService)
   matDialog = inject(MatDialog)
   private matSnackBar = inject(MatSnackBar)
   matDialogRef =
@@ -46,14 +46,14 @@ export class RevenueDeleteDialogComponent implements OnInit {
   errors = ''
   isSubmitting = false
 
-  deleteRevenue: Revenue | undefined
+  deleteRevenue: RepeatableRule | undefined
 
   ngOnInit() {
     if (this.financeService.budget?.revenues) {
       this.getData()
     } else if (this.financeService.budget) {
       this.dalRevenueService
-        .getAll(this.financeService.budget.id)
+        .getAll('revenues', this.financeService.budget.id)
         .subscribe((result) => {
           if (result) {
             this.getData()
@@ -73,18 +73,20 @@ export class RevenueDeleteDialogComponent implements OnInit {
   delete() {
     if (this.deleteRevenue) {
       this.isSubmitting = true
-      this.dalRevenueService.delete(this.deleteRevenue.id).subscribe({
-        next: () => {
-          this.matDialogRef.close()
-          this.matSnackBar.open('Deleted', 'Dismiss', { duration: 2000 })
-        },
-        error: (errors) => {
-          this.errors = errors
-        },
-        complete: () => {
-          this.isSubmitting = false
-        },
-      })
+      this.dalRevenueService
+        .delete('revenues', this.deleteRevenue.id)
+        .subscribe({
+          next: () => {
+            this.matDialogRef.close()
+            this.matSnackBar.open('Deleted', 'Dismiss', { duration: 2000 })
+          },
+          error: (errors) => {
+            this.errors = errors
+          },
+          complete: () => {
+            this.isSubmitting = false
+          },
+        })
     }
   }
 }

@@ -13,7 +13,6 @@ import { RouterLink } from '@angular/router'
 import { BalanceTableComponent } from '@components/balances/balance-table/balance-table.component'
 import { ExpenseTableComponent } from '@components/expenses/expense-table/expense-table.component'
 import { RevenueTableComponent } from '@components/revenues/revenue-table/revenue-table.component'
-import { DailyService } from '@services/daily.service'
 import { FinanceService } from '@services/finance.service'
 import { SideBarService } from '@services/side-bar.service'
 
@@ -38,6 +37,5 @@ import { SideBarService } from '@services/side-bar.service'
 })
 export class SidebarComponent {
   financeService = inject(FinanceService)
-  dailyService = inject(DailyService)
   sideBarService = inject(SideBarService)
 }

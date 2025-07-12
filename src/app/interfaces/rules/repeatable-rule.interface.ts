@@ -1,16 +1,12 @@
+import { Rule } from './rule.interface'
 import { Moment } from 'moment'
 
-export interface ExpenseEdit {
-  id: string
-
-  description: string
-  amount: number
-
+export interface RepeatableRule extends Rule {
   isForever: boolean
   frequency: string
 
-  startDate: Moment | null
-  endDate: Moment | null
+  startDate?: Moment | null
+  endDate?: Moment | null
 
   repeatMon: boolean
   repeatTue: boolean

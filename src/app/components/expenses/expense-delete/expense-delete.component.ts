@@ -14,8 +14,8 @@ import { MatIcon } from '@angular/material/icon'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { ActivatedRoute, Router } from '@angular/router'
 import { SpinnerComponent } from '@components/spinner/spinner.component'
-import { Expense } from '@interfaces/expenses/expense.interface'
-import { DalExpenseService } from '@services/dal/dal.expense.service'
+import { RepeatableRule } from '@interfaces/rules/repeatable-rule.interface'
+import { DalRepeatableRuleService } from '@services/dal/dal.repeatable-rule.service'
 import { FinanceService } from '@services/finance.service'
 
 @Component({
@@ -34,7 +34,7 @@ import { FinanceService } from '@services/finance.service'
 })
 export class ExpenseDeleteDialogComponent implements OnInit {
   private financeService = inject(FinanceService)
-  private dalExpenseService = inject(DalExpenseService)
+  private dalExpenseService = inject(DalRepeatableRuleService)
   matDialog = inject(MatDialog)
   private matSnackBar = inject(MatSnackBar)
   matDialogRef =
@@ -46,14 +46,14 @@ export class ExpenseDeleteDialogComponent implements OnInit {
   errors = ''
   isSubmitting = false
 
-  deleteExpense: Expense | undefined
+  deleteExpense: RepeatableRule | undefined
 
   ngOnInit() {
     if (this.financeService.budget?.expenses) {
       this.getData()
     } else if (this.financeService.budget) {
       this.dalExpenseService
-        .getAll(this.financeService.budget.id)
+        .getAll('expenses', this.financeService.budget.id)
         .subscribe(() => {
           this.getData()
         })
@@ -71,18 +71,20 @@ export class ExpenseDeleteDialogComponent implements OnInit {
   delete() {
     if (this.deleteExpense) {
       this.isSubmitting = true
-      this.dalExpenseService.delete(this.deleteExpense.id).subscribe({
-        next: () => {
-          this.matDialogRef.close()
-          this.matSnackBar.open('Deleted', 'Dismiss', { duration: 2000 })
-        },
-        error: (errors) => {
-          this.errors = errors
-        },
-        complete: () => {
-          this.isSubmitting = false
-        },
-      })
+      this.dalExpenseService
+        .delete('expenses', this.deleteExpense.id)
+        .subscribe({
+          next: () => {
+            this.matDialogRef.close()
+            this.matSnackBar.open('Deleted', 'Dismiss', { duration: 2000 })
+          },
+          error: (errors) => {
+            this.errors = errors
+          },
+          complete: () => {
+            this.isSubmitting = false
+          },
+        })
     }
   }
 }

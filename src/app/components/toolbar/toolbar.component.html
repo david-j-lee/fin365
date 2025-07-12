@@ -48,9 +48,7 @@
       <a
         mat-menu-item
         [routerLink]="['/', subItem.id]"
-        [ngClass]="
-          subItem.id === financeService.budget?.id ? 'selected' : ''
-        "
+        [ngClass]="subItem.id === financeService.budget?.id ? 'selected' : ''"
       >
         {{ subItem.name }}
       </a>
@@ -76,9 +74,7 @@
       <a
         mat-menu-item
         [routerLink]="['/', subItem.id]"
-        [ngClass]="
-          subItem.id === financeService.budget?.id ? 'selected' : ''
-        "
+        [ngClass]="subItem.id === financeService.budget?.id ? 'selected' : ''"
       >
         {{ subItem.name }}
       </a>

@@ -31,9 +31,9 @@ import { MatSnackBar } from '@angular/material/snack-bar'
 import { ActivatedRoute, Router } from '@angular/router'
 import { ExpenseDeleteComponent } from '@components/expenses/expense-delete/expense-delete.component'
 import { SpinnerComponent } from '@components/spinner/spinner.component'
-import { ExpenseAdd } from '@interfaces/expenses/expense-add.interface'
-import { Expense } from '@interfaces/expenses/expense.interface'
-import { DalExpenseService } from '@services/dal/dal.expense.service'
+import { RepeatableRuleAdd } from '@interfaces/rules/repeatable-rule-add.interface'
+import { RepeatableRule } from '@interfaces/rules/repeatable-rule.interface'
+import { DalRepeatableRuleService } from '@services/dal/dal.repeatable-rule.service'
 import { FinanceService } from '@services/finance.service'
 
 @Component({
@@ -65,7 +65,7 @@ import { FinanceService } from '@services/finance.service'
 export class ExpenseEditDialogComponent implements OnInit {
   financeService = inject(FinanceService)
   private router = inject(Router)
-  private dalExpenseService = inject(DalExpenseService)
+  private dalExpenseService = inject(DalRepeatableRuleService)
   private matSnackBar = inject(MatSnackBar)
   matDialogRef = inject<MatDialogRef<ExpenseEditDialogComponent> | null>(
     MatDialogRef<ExpenseEditDialogComponent>,
@@ -77,8 +77,8 @@ export class ExpenseEditDialogComponent implements OnInit {
   errors = ''
   isSubmitting = false
 
-  oldExpense: Expense | undefined
-  newExpense: ExpenseAdd | undefined
+  oldExpense: RepeatableRule | undefined
+  newExpense: RepeatableRuleAdd | undefined
 
   navigateToDelete = false
   deleteModal: MatDialogRef<ExpenseDeleteComponent> | null = null
@@ -90,7 +90,7 @@ export class ExpenseEditDialogComponent implements OnInit {
       this.getData()
     } else if (this.financeService.budget) {
       this.dalExpenseService
-        .getAll(this.financeService.budget.id)
+        .getAll('expenses', this.financeService.budget.id)
         .subscribe((result) => {
           if (result) {
             this.getData()
@@ -129,6 +129,7 @@ export class ExpenseEditDialogComponent implements OnInit {
     this.oldExpense = expense
     if (this.oldExpense) {
       this.newExpense = {
+        type: 'expense',
         budgetId: this.oldExpense.budgetId,
         description: this.oldExpense.description,
         amount: this.oldExpense.amount,
@@ -157,18 +158,20 @@ export class ExpenseEditDialogComponent implements OnInit {
     if (valid && this.oldExpense) {
       this.isSubmitting = true
       this.errors = ''
-      this.dalExpenseService.update(this.oldExpense, value).subscribe({
-        next: () => {
-          this.matDialogRef?.close()
-          this.matSnackBar.open('Saved', 'Dismiss', { duration: 2000 })
-        },
-        error: (errors) => {
-          this.errors = errors
-        },
-        complete: () => {
-          this.isSubmitting = false
-        },
-      })
+      this.dalExpenseService
+        .update('expenses', this.oldExpense, value)
+        .subscribe({
+          next: () => {
+            this.matDialogRef?.close()
+            this.matSnackBar.open('Saved', 'Dismiss', { duration: 2000 })
+          },
+          error: (errors) => {
+            this.errors = errors
+          },
+          complete: () => {
+            this.isSubmitting = false
+          },
+        })
     }
   }
 }

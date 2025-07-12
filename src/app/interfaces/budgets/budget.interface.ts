@@ -1,7 +1,6 @@
-import { Balance } from '@interfaces/balances/balance.interface'
 import { Day } from '@interfaces/daily/day.interface'
-import { Expense } from '@interfaces/expenses/expense.interface'
-import { Revenue } from '@interfaces/revenues/revenue.interface'
+import { RepeatableRule } from '@interfaces/rules/repeatable-rule.interface'
+import { Rule } from '@interfaces/rules/rule.interface'
 import { Snapshot } from '@interfaces/snapshots/snapshot.interface'
 import { Moment } from 'moment'
 
@@ -16,9 +15,9 @@ export interface Budget {
   isExpensesLoaded: boolean
   isSnapshotsLoaded: boolean
 
-  balances: Balance[]
-  revenues: Revenue[]
-  expenses: Expense[]
+  balances: Rule[]
+  revenues: RepeatableRule[]
+  expenses: RepeatableRule[]
 
   snapshots: Snapshot[]
 
