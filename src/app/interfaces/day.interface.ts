@@ -1,5 +1,5 @@
 import { DailyItem } from './daily-item.interface'
-import { RuleType } from '@interfaces/rules/rule.interface'
+import { RuleType } from '@interfaces/rule.interface'
 import { Moment } from 'moment'
 
 export interface Day {

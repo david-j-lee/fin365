@@ -29,8 +29,7 @@ import { MatSelect } from '@angular/material/select'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { Router } from '@angular/router'
 import { SpinnerComponent } from '@components/spinner/spinner.component'
-import { RepeatableRuleAdd } from '@interfaces/rules/repeatable-rule-add.interface'
-import { DalRepeatableRuleService } from '@services/dal/dal.repeatable-rule.service'
+import { RuleRepeatableAdd } from '@interfaces/rule-repeatable-add.interface'
 import { FinanceService } from '@services/finance.service'
 
 @Component({
@@ -61,14 +60,13 @@ import { FinanceService } from '@services/finance.service'
 })
 export class ExpenseAddDialogComponent implements OnInit {
   financeService = inject(FinanceService)
-  private dalExpenseService = inject(DalRepeatableRuleService)
-  private matSnackBar = inject(MatSnackBar)
   matDialogRef = inject<MatDialogRef<ExpenseAddDialogComponent>>(MatDialogRef)
+  private matSnackBar = inject(MatSnackBar)
 
   errors = ''
   isSubmitting = false
 
-  myExpense: RepeatableRuleAdd | undefined
+  myExpense: RuleRepeatableAdd | undefined
 
   ngOnInit() {
     this.myExpense = {
@@ -90,24 +88,23 @@ export class ExpenseAddDialogComponent implements OnInit {
     }
   }
 
-  create(form: NgForm) {
+  async create(form: NgForm) {
     const { value, valid } = form
-    if (valid) {
-      this.isSubmitting = true
-      this.errors = ''
-      value.budgetId = this.financeService.budget?.id
-      this.dalExpenseService.add('expenses', value).subscribe({
-        next: () => {
-          this.matDialogRef.close()
-          this.matSnackBar.open('Saved', 'Dismiss', { duration: 2000 })
-        },
-        error: (errors) => {
-          this.errors = errors
-        },
-        complete: () => {
-          this.isSubmitting = false
-        },
-      })
+    if (!valid) {
+      return
+    }
+    this.isSubmitting = true
+    this.errors = ''
+    value.budgetId = this.financeService.budget?.id
+    try {
+      await this.financeService.addRule({ ...this.myExpense, ...value })
+      this.matDialogRef.close()
+      this.matSnackBar.open('Saved', 'Dismiss', { duration: 2000 })
+    } catch (error) {
+      this.errors = error as string
+      console.error(error)
+    } finally {
+      this.isSubmitting = false
     }
   }
 }

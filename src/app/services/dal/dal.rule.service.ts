@@ -1,13 +1,8 @@
-import { Injectable, inject } from '@angular/core'
-import { RuleAdd } from '@interfaces/rules/rule-add.interface'
-import { RuleEdit } from '@interfaces/rules/rule-edit.interface'
-import { Rule } from '@interfaces/rules/rule.interface'
-import { ChartService } from '@services/chart.service'
-import { FinanceService } from '@services/finance.service'
-import { Table } from '@storage/local-storage/local-storage-utilities'
-import { LocalStorageRuleService } from '@storage/local-storage/local-storage.rule'
-import { Observable } from 'rxjs'
-import { map } from 'rxjs/operators'
+import { Injectable } from '@angular/core'
+import { LocalStorageRuleService } from '@data/local-storage/local-storage.rule'
+import { RuleAdd } from '@interfaces/rule-add.interface'
+import { RuleEdit as ruleEdit } from '@interfaces/rule-edit.interface'
+import { Rule, RuleType, RulesMetadata } from '@interfaces/rule.interface'
 
 const SERVICE = 'localStorageRuleService'
 
@@ -15,81 +10,31 @@ const SERVICE = 'localStorageRuleService'
 export class DalRuleService {
   private localStorageRuleService = LocalStorageRuleService
 
-  private financeService = inject(FinanceService)
-  private chartService = inject(ChartService)
-
-  getAll(table: Table, budgetId: string): Observable<Rule[]> {
-    return this[SERVICE].getAll(table, budgetId).pipe(
-      map((result) => result.map((item) => ({ ...item, type: 'balance' }))),
-    )
+  async getAll(ruleType: RuleType, budgetId: string): Promise<Rule[]> {
+    const data = await this[SERVICE].getAll(RulesMetadata[ruleType], budgetId)
+    return data.map((item) => ({ ...item, type: ruleType }))
   }
 
-  add(table: Table, value: RuleAdd): Observable<Rule> {
-    return this[SERVICE].add(table, value).pipe(
-      map((result) => {
-        const newBalance: Rule = {
-          type: 'balance',
-          id: result,
-          description: value.description,
-          amount: value.amount,
-          budgetId: value.budgetId,
-        }
-
-        if (this.financeService.budget?.balances) {
-          this.financeService.budget.balances.push(newBalance)
-        }
-
-        this.financeService.addRule(newBalance)
-        this.chartService.setChartBalance()
-        this.chartService.setChartBudget()
-
-        return newBalance
-      }),
-    )
+  async add(ruleAdd: RuleAdd): Promise<Rule> {
+    return await this[SERVICE].add(RulesMetadata[ruleAdd.type], ruleAdd)
   }
 
-  update(
-    table: Table,
-    oldBalance: Rule,
-    newBalance: RuleEdit,
-  ): Observable<Rule> {
-    newBalance.id = oldBalance.id
-    return this[SERVICE].update(table, newBalance).pipe(
-      map(() => {
-        oldBalance.description = newBalance.description
-        oldBalance.amount = newBalance.amount
-
-        this.financeService.updateRule(oldBalance)
-        this.chartService.setChartBalance()
-        this.chartService.setChartBudget()
-
-        return oldBalance
-      }),
+  async update(ruleOriginal: Rule, ruleEdit: ruleEdit): Promise<Rule | null> {
+    ruleEdit.id = ruleOriginal.id
+    const updatedRule = await this[SERVICE].update(
+      RulesMetadata[ruleOriginal.type],
+      ruleEdit,
     )
+    if (!updatedRule) {
+      return null
+    }
+    return {
+      ...ruleOriginal,
+      ...updatedRule,
+    }
   }
 
-  delete(table: Table, id: string): Observable<boolean> {
-    return this[SERVICE].delete(table, id).pipe(
-      map(() => {
-        if (this.financeService.budget && this.financeService.budget.balances) {
-          const deletedBalance = this.financeService.budget.balances.find(
-            (data) => data.id === id,
-          )
-          if (deletedBalance) {
-            this.financeService.budget.balances.splice(
-              this.financeService.budget.balances.indexOf(deletedBalance),
-              1,
-            )
-
-            this.financeService.deleteRule(deletedBalance)
-            this.chartService.setChartBalance()
-            this.chartService.setChartBudget()
-
-            return true
-          }
-        }
-        return false
-      }),
-    )
+  async delete(rule: Rule): Promise<boolean> {
+    return await this[SERVICE].delete(RulesMetadata[rule.type], rule.id)
   }
 }

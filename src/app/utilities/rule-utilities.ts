@@ -1,21 +1,31 @@
-import { DailyItem } from '@interfaces/daily/daily-item.interface'
-import { RepeatableRule } from '@interfaces/rules/repeatable-rule.interface'
-import { Rule } from '@interfaces/rules/rule.interface'
+import { DailyItem } from '@interfaces/daily-item.interface'
+import { RuleAdd } from '@interfaces/rule-add.interface'
+import { RuleEdit } from '@interfaces/rule-edit.interface'
+import { RuleRepeatableAdd } from '@interfaces/rule-repeatable-add.interface'
+import { RuleRepeatableEdit } from '@interfaces/rule-repeatable-edit.interface'
+import { RuleRepeatable } from '@interfaces/rule-repeatable.interface'
+import { Rule } from '@interfaces/rule.interface'
 import { Moment } from 'moment'
 
-export function isRepeatableRule(
-  rule: Rule | RepeatableRule,
-): rule is RepeatableRule {
+export function isRuleRepeatable(
+  rule:
+    | Rule
+    | RuleAdd
+    | RuleEdit
+    | RuleRepeatable
+    | RuleRepeatableAdd
+    | RuleRepeatableEdit,
+): rule is RuleRepeatable {
   return 'frequency' in rule
 }
 
-export function isRepeatableRuleArray(
+export function isRuleRepeatableArray(
   rules: Rule[],
-): rules is RepeatableRule[] {
-  return rules.every(isRepeatableRule)
+): rules is RuleRepeatable[] {
+  return rules.every(isRuleRepeatable)
 }
 
-export function getRuleRepeatDays(item: RepeatableRule): number[] {
+export function getRuleRepeatDays(item: RuleRepeatable): number[] {
   const repeatDays: number[] = []
   if (item.repeatSun) {
     repeatDays.push(0)

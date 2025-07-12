@@ -14,8 +14,7 @@ import { MatIcon } from '@angular/material/icon'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { ActivatedRoute, Router } from '@angular/router'
 import { SpinnerComponent } from '@components/spinner/spinner.component'
-import { RepeatableRule } from '@interfaces/rules/repeatable-rule.interface'
-import { DalRepeatableRuleService } from '@services/dal/dal.repeatable-rule.service'
+import { RuleRepeatable } from '@interfaces/rule-repeatable.interface'
 import { FinanceService } from '@services/finance.service'
 
 @Component({
@@ -33,58 +32,39 @@ import { FinanceService } from '@services/finance.service'
   ],
 })
 export class ExpenseDeleteDialogComponent implements OnInit {
-  private financeService = inject(FinanceService)
-  private dalExpenseService = inject(DalRepeatableRuleService)
   matDialog = inject(MatDialog)
-  private matSnackBar = inject(MatSnackBar)
   matDialogRef =
     inject<MatDialogRef<ExpenseDeleteDialogComponent>>(MatDialogRef)
   data = inject<{
     id: string
   }>(MAT_DIALOG_DATA)
+  private financeService = inject(FinanceService)
+  private matSnackBar = inject(MatSnackBar)
 
   errors = ''
   isSubmitting = false
 
-  deleteExpense: RepeatableRule | undefined
+  deleteExpense: RuleRepeatable | undefined
 
   ngOnInit() {
-    if (this.financeService.budget?.expenses) {
-      this.getData()
-    } else if (this.financeService.budget) {
-      this.dalExpenseService
-        .getAll('expenses', this.financeService.budget.id)
-        .subscribe(() => {
-          this.getData()
-        })
-    }
-  }
-
-  getData() {
-    // Get Balance
-    const expenseToDelete = this.financeService.budget?.expenses?.find(
+    this.deleteExpense = this.financeService.budget?.expenses?.find(
       (expense) => expense.id === this.data.id,
     )
-    this.deleteExpense = expenseToDelete
   }
 
-  delete() {
-    if (this.deleteExpense) {
-      this.isSubmitting = true
-      this.dalExpenseService
-        .delete('expenses', this.deleteExpense.id)
-        .subscribe({
-          next: () => {
-            this.matDialogRef.close()
-            this.matSnackBar.open('Deleted', 'Dismiss', { duration: 2000 })
-          },
-          error: (errors) => {
-            this.errors = errors
-          },
-          complete: () => {
-            this.isSubmitting = false
-          },
-        })
+  async delete() {
+    if (!this.deleteExpense) {
+      return
+    }
+    this.isSubmitting = true
+    try {
+      await this.financeService.deleteRule(this.deleteExpense)
+      this.matDialogRef.close()
+      this.matSnackBar.open('Deleted', 'Dismiss', { duration: 2000 })
+    } catch (error) {
+      this.errors = error as string
+    } finally {
+      this.isSubmitting = false
     }
   }
 }

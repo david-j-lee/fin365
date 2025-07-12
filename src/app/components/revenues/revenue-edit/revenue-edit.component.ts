@@ -31,9 +31,8 @@ import { MatSnackBar } from '@angular/material/snack-bar'
 import { ActivatedRoute, Router } from '@angular/router'
 import { RevenueDeleteComponent } from '@components/revenues/revenue-delete/revenue-delete.component'
 import { SpinnerComponent } from '@components/spinner/spinner.component'
-import { RepeatableRuleAdd } from '@interfaces/rules/repeatable-rule-add.interface'
-import { RepeatableRule } from '@interfaces/rules/repeatable-rule.interface'
-import { DalRepeatableRuleService } from '@services/dal/dal.repeatable-rule.service'
+import { RuleRepeatableAdd } from '@interfaces/rule-repeatable-add.interface'
+import { RuleRepeatable } from '@interfaces/rule-repeatable.interface'
 import { FinanceService } from '@services/finance.service'
 
 @Component({
@@ -65,7 +64,6 @@ import { FinanceService } from '@services/finance.service'
 export class RevenueEditDialogComponent implements OnInit {
   financeService = inject(FinanceService)
   private router = inject(Router)
-  private dalRevenueService = inject(DalRepeatableRuleService)
   private matSnackBar = inject(MatSnackBar)
   matDialogRef = inject<MatDialogRef<RevenueEditDialogComponent> | null>(
     MatDialogRef<RevenueEditDialogComponent>,
@@ -77,25 +75,35 @@ export class RevenueEditDialogComponent implements OnInit {
   errors = ''
   isSubmitting = false
 
-  oldRevenue: RepeatableRule | undefined
-  newRevenue: RepeatableRuleAdd | undefined
+  oldRevenue: RuleRepeatable | undefined
+  newRevenue: RuleRepeatableAdd | undefined
 
   navigateToDelete = false
   deleteModal: MatDialogRef<RevenueDeleteComponent> | null = null
 
   ngOnInit() {
     this.setAfterClosed()
-    // Get Balance
-    if (this.financeService.budget?.revenues) {
-      this.getData()
-    } else if (this.financeService.budget) {
-      this.dalRevenueService
-        .getAll('revenues', this.financeService.budget.id)
-        .subscribe((result) => {
-          if (result) {
-            this.getData()
-          }
-        })
+    this.oldRevenue = this.financeService.budget?.revenues?.find(
+      (budgetRevenue) => budgetRevenue.id === this.data.id,
+    )
+    if (this.oldRevenue) {
+      this.newRevenue = {
+        type: 'revenue',
+        budgetId: this.oldRevenue.budgetId,
+        description: this.oldRevenue.description,
+        amount: this.oldRevenue.amount,
+        isForever: this.oldRevenue.isForever,
+        frequency: this.oldRevenue.frequency,
+        startDate: this.oldRevenue.startDate,
+        endDate: this.oldRevenue.endDate,
+        repeatMon: this.oldRevenue.repeatMon,
+        repeatTue: this.oldRevenue.repeatTue,
+        repeatWed: this.oldRevenue.repeatWed,
+        repeatThu: this.oldRevenue.repeatThu,
+        repeatFri: this.oldRevenue.repeatFri,
+        repeatSat: this.oldRevenue.repeatSat,
+        repeatSun: this.oldRevenue.repeatSun,
+      }
     }
   }
 
@@ -126,58 +134,29 @@ export class RevenueEditDialogComponent implements OnInit {
     }
   }
 
-  getData() {
-    // Get Revenue
-    const revenue = this.financeService.budget?.revenues?.find(
-      (budgetRevenue) => budgetRevenue.id === this.data.id,
-    )
-    if (!revenue) {
-      return
-    }
-    this.oldRevenue = revenue
-    this.newRevenue = {
-      type: 'revenue',
-      budgetId: this.oldRevenue.budgetId,
-      description: this.oldRevenue.description,
-      amount: this.oldRevenue.amount,
-      isForever: this.oldRevenue.isForever,
-      frequency: this.oldRevenue.frequency,
-      startDate: this.oldRevenue.startDate,
-      endDate: this.oldRevenue.endDate,
-      repeatMon: this.oldRevenue.repeatMon,
-      repeatTue: this.oldRevenue.repeatTue,
-      repeatWed: this.oldRevenue.repeatWed,
-      repeatThu: this.oldRevenue.repeatThu,
-      repeatFri: this.oldRevenue.repeatFri,
-      repeatSat: this.oldRevenue.repeatSat,
-      repeatSun: this.oldRevenue.repeatSun,
-    }
-  }
-
   requestDelete() {
     this.navigateToDelete = true
     this.matDialogRef?.close()
   }
 
-  edit(form: NgForm) {
+  async edit(form: NgForm) {
     const { value, valid } = form
-    if (valid && this.oldRevenue) {
-      this.isSubmitting = true
-      this.errors = ''
-      this.dalRevenueService
-        .update('revenues', this.oldRevenue, value)
-        .subscribe({
-          next: () => {
-            this.matDialogRef?.close()
-            this.matSnackBar.open('Saved', 'Dismiss', { duration: 2000 })
-          },
-          error: (errors) => {
-            this.errors = errors
-          },
-          complete: () => {
-            this.isSubmitting = false
-          },
-        })
+    if (!valid || !this.oldRevenue) {
+      return
+    }
+    this.isSubmitting = true
+    this.errors = ''
+    try {
+      await this.financeService.editRule(this.oldRevenue, {
+        ...this.newRevenue,
+        ...value,
+      })
+      this.matDialogRef?.close()
+      this.matSnackBar.open('Saved', 'Dismiss', { duration: 2000 })
+    } catch (error) {
+      this.errors = error as string
+    } finally {
+      this.isSubmitting = false
     }
   }
 }

@@ -1,16 +1,11 @@
-import { Injectable, inject } from '@angular/core'
-import { Rule } from '@interfaces/rules/rule.interface'
-import { SnapshotAddAll } from '@interfaces/snapshots/snapshot-add-all.interface'
-import { SnapshotAdd } from '@interfaces/snapshots/snapshot-add.interface'
-import { SnapshotBalanceAdd } from '@interfaces/snapshots/snapshot-balance-add.interface'
-import { Snapshot } from '@interfaces/snapshots/snapshot.interface'
-import { CalendarService } from '@services/calendar.service'
-import { ChartService } from '@services/chart.service'
-import { FinanceService } from '@services/finance.service'
-import { LocalStorageSnapshotService } from '@storage/local-storage/local-storage.snapshot'
+import { Injectable } from '@angular/core'
+import { LocalStorageSnapshotService } from '@data/local-storage/local-storage.snapshot'
+import { Rule } from '@interfaces/rule.interface'
+import { SnapshotAddAll } from '@interfaces/snapshot-add-all.interface'
+import { SnapshotAdd } from '@interfaces/snapshot-add.interface'
+import { SnapshotBalanceAdd } from '@interfaces/snapshot-balance-add.interface'
+import { Snapshot } from '@interfaces/snapshot.interface'
 import moment from 'moment'
-import { Observable } from 'rxjs'
-import { map } from 'rxjs/operators'
 
 const SERVICE = 'localStorageSnapshotService'
 
@@ -18,27 +13,30 @@ const SERVICE = 'localStorageSnapshotService'
 export class DalSnapshotService {
   private localStorageSnapshotService = LocalStorageSnapshotService
 
-  private financeService = inject(FinanceService)
-  private chartService = inject(ChartService)
-  private calendarService = inject(CalendarService)
-
-  getAll(budgetId: string) {
-    return this[SERVICE].getAll(budgetId).pipe(map((result) => result))
+  async getAll(budgetId: string): Promise<Snapshot[]> {
+    const data = await this[SERVICE].getAll(budgetId)
+    return data.map((record) => {
+      const mappedRecord: Snapshot = {
+        ...record,
+        date: moment(record.date),
+        balanceDifference: record.actualBalance - record.estimatedBalance,
+      }
+      return mappedRecord
+    })
   }
 
-  save(
+  async save(
     addSnapshot: SnapshotAdd,
     balances: SnapshotBalanceAdd[],
-  ): Observable<Snapshot> {
+    estimatedBalance: number,
+  ): Promise<[Snapshot, Rule[]]> {
     const { budgetId } = addSnapshot
     const filteredBalances = balances.filter((balance) => balance.id)
 
     // Calculate balances
     const newAddSnapshot: SnapshotAdd = {
       ...addSnapshot,
-      estimatedBalance: this.financeService.getBalanceOn(
-        addSnapshot.date.format('L'),
-      ),
+      estimatedBalance,
       actualBalance: filteredBalances.reduce(
         (sum, item) => sum + item.amount,
         0,
@@ -52,53 +50,38 @@ export class DalSnapshotService {
       snapshotBalances: filteredBalances,
     }
 
-    return this[SERVICE].save(snapshotAddAll).pipe(
-      map((result) => {
-        // Add snapshot to local data
-        const snapshot: Snapshot = {
-          id: result.snapshotId,
-          date: moment(addSnapshot.date),
-          estimatedBalance: newAddSnapshot.estimatedBalance,
-          actualBalance: newAddSnapshot.actualBalance,
-          balanceDifference:
-            newAddSnapshot.actualBalance - newAddSnapshot.estimatedBalance,
-          budgetId,
-        }
+    const result = await this[SERVICE].save(snapshotAddAll)
 
-        // Update balances in local data
-        let newBalanceIndex = 0
-        const newBalances: Rule[] = []
-        filteredBalances.forEach((balance) => {
-          let balanceId = ''
-          if (!balance.id) {
-            balanceId = result.balanceIds[newBalanceIndex]
-            newBalanceIndex += 1
-          }
-          const newBalance: Rule = {
-            type: 'balance',
-            id: balanceId,
-            description: balance.description,
-            amount: balance.amount,
-            budgetId,
-          }
-          newBalances.push(newBalance)
-        })
+    // Add snapshot to local data
+    const snapshot: Snapshot = {
+      id: result.snapshot.id,
+      date: moment(addSnapshot.date),
+      estimatedBalance: newAddSnapshot.estimatedBalance,
+      actualBalance: newAddSnapshot.actualBalance,
+      balanceDifference:
+        newAddSnapshot.actualBalance - newAddSnapshot.estimatedBalance,
+      budgetId,
+    }
 
-        if (this.financeService.budget) {
-          this.financeService.budget.startDate = snapshot.date
-          this.financeService.budget.snapshots?.unshift(snapshot)
-          this.financeService.budget.balances = newBalances
-        }
+    // Update balances in local data
+    let newBalanceIndex = 0
+    const newBalances: Rule[] = []
 
-        this.financeService.generateBudget()
-        this.chartService.setChartBalance()
-        this.chartService.setChartExpense()
-        this.chartService.setChartRevenue()
-        this.chartService.setChartBudget()
-        this.calendarService.setFirstMonth()
+    for (const balance of result.balances) {
+      let balanceId = ''
+      if (!balance.id) {
+        balanceId = result.balances[newBalanceIndex].id
+        newBalanceIndex += 1
+      }
+      newBalances.push({
+        type: 'balance',
+        id: balanceId,
+        description: balance.description,
+        amount: balance.amount,
+        budgetId,
+      })
+    }
 
-        return snapshot
-      }),
-    )
+    return [snapshot, newBalances]
   }
 }

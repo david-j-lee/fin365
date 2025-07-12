@@ -16,8 +16,7 @@ import { MatInput } from '@angular/material/input'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { Router } from '@angular/router'
 import { SpinnerComponent } from '@components/spinner/spinner.component'
-import { RuleAdd } from '@interfaces/rules/rule-add.interface'
-import { DalRuleService } from '@services/dal/dal.rule.service'
+import { RuleAdd } from '@interfaces/rule-add.interface'
 import { FinanceService } from '@services/finance.service'
 
 @Component({
@@ -41,7 +40,6 @@ import { FinanceService } from '@services/finance.service'
 })
 export class BalanceAddDialogComponent implements OnInit {
   financeService = inject(FinanceService)
-  private dalBalanceService = inject(DalRuleService)
   private matSnackBar = inject(MatSnackBar)
   matDialogRef = inject<MatDialogRef<BalanceAddDialogComponent>>(MatDialogRef)
 
@@ -64,24 +62,27 @@ export class BalanceAddDialogComponent implements OnInit {
     }
   }
 
-  create(form: NgForm) {
+  async create(form: NgForm) {
     const { value, valid } = form
-    if (valid && this.financeService.budget) {
-      this.isSubmitting = true
-      this.errors = ''
-      value.budgetId = this.financeService.budget.id
-      this.dalBalanceService.add('balances', value).subscribe({
-        next: () => {
-          this.matDialogRef.close()
-          this.matSnackBar.open('Saved', 'Dismiss', { duration: 2000 })
-        },
-        error: (errors) => {
-          this.errors = errors
-        },
-        complete: () => {
-          this.isSubmitting = false
-        },
+
+    if (!valid) {
+      return
+    }
+
+    this.isSubmitting = true
+    this.errors = ''
+
+    try {
+      await this.financeService.addRule({
+        ...this.myBalance,
+        ...value,
       })
+      this.matDialogRef.close()
+      this.matSnackBar.open('Saved', 'Dismiss', { duration: 2000 })
+    } catch (error) {
+      this.errors = error as string
+    } finally {
+      this.isSubmitting = false
     }
   }
 }

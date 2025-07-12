@@ -31,8 +31,7 @@ import { MatInput } from '@angular/material/input'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { Router } from '@angular/router'
 import { SpinnerComponent } from '@components/spinner/spinner.component'
-import { BudgetAdd } from '@interfaces/budgets/budget-add.interface'
-import { DalBudgetService } from '@services/dal/dal.budget.service'
+import { BudgetAdd } from '@interfaces/budget-add.interface'
 import { FinanceService } from '@services/finance.service'
 import moment from 'moment'
 
@@ -62,7 +61,7 @@ import moment from 'moment'
 })
 export class BudgetAddDialogComponent implements OnInit {
   matDialogRef = inject<MatDialogRef<BudgetAddDialogComponent>>(MatDialogRef)
-  private dalBudgetService = inject(DalBudgetService)
+  private financeService = inject(FinanceService)
   private matSnackBar = inject(MatSnackBar)
 
   errors = ''
@@ -74,23 +73,21 @@ export class BudgetAddDialogComponent implements OnInit {
     this.myBudget = { name: '', startDate: moment() }
   }
 
-  create(form: NgForm) {
+  async create(form: NgForm) {
     const { value, valid } = form
-    if (valid) {
-      this.isSubmitting = true
-      this.errors = ''
-      this.dalBudgetService.add(value).subscribe({
-        next: () => {
-          this.matDialogRef.close()
-          this.matSnackBar.open('Saved', 'Dismiss', { duration: 2000 })
-        },
-        error: (errors) => {
-          this.errors = errors
-        },
-        complete: () => {
-          this.isSubmitting = false
-        },
-      })
+    if (!valid) {
+      return
+    }
+    this.isSubmitting = true
+    this.errors = ''
+    try {
+      await this.financeService.addBudget(value)
+      this.matDialogRef.close()
+      this.matSnackBar.open('Saved', 'Dismiss', { duration: 2000 })
+    } catch (error) {
+      this.errors = error as string
+    } finally {
+      this.isSubmitting = false
     }
   }
 }

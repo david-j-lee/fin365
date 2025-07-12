@@ -14,8 +14,7 @@ import { MatIcon } from '@angular/material/icon'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { ActivatedRoute, Router } from '@angular/router'
 import { SpinnerComponent } from '@components/spinner/spinner.component'
-import { RepeatableRule } from '@interfaces/rules/repeatable-rule.interface'
-import { DalRepeatableRuleService } from '@services/dal/dal.repeatable-rule.service'
+import { RuleRepeatable } from '@interfaces/rule-repeatable.interface'
 import { FinanceService } from '@services/finance.service'
 
 @Component({
@@ -34,7 +33,6 @@ import { FinanceService } from '@services/finance.service'
 })
 export class RevenueDeleteDialogComponent implements OnInit {
   private financeService = inject(FinanceService)
-  private dalRevenueService = inject(DalRepeatableRuleService)
   matDialog = inject(MatDialog)
   private matSnackBar = inject(MatSnackBar)
   matDialogRef =
@@ -46,47 +44,27 @@ export class RevenueDeleteDialogComponent implements OnInit {
   errors = ''
   isSubmitting = false
 
-  deleteRevenue: RepeatableRule | undefined
+  deleteRevenue: RuleRepeatable | undefined
 
   ngOnInit() {
-    if (this.financeService.budget?.revenues) {
-      this.getData()
-    } else if (this.financeService.budget) {
-      this.dalRevenueService
-        .getAll('revenues', this.financeService.budget.id)
-        .subscribe((result) => {
-          if (result) {
-            this.getData()
-          }
-        })
-    }
-  }
-
-  getData() {
-    // Get Balance
-    const revenue = this.financeService.budget?.revenues?.find(
+    this.deleteRevenue = this.financeService.budget?.revenues?.find(
       (budgetRevenue) => budgetRevenue.id === this.data.id,
     )
-    this.deleteRevenue = revenue
   }
 
-  delete() {
-    if (this.deleteRevenue) {
-      this.isSubmitting = true
-      this.dalRevenueService
-        .delete('revenues', this.deleteRevenue.id)
-        .subscribe({
-          next: () => {
-            this.matDialogRef.close()
-            this.matSnackBar.open('Deleted', 'Dismiss', { duration: 2000 })
-          },
-          error: (errors) => {
-            this.errors = errors
-          },
-          complete: () => {
-            this.isSubmitting = false
-          },
-        })
+  async delete() {
+    if (!this.deleteRevenue) {
+      return
+    }
+    this.isSubmitting = true
+    try {
+      await this.financeService.deleteRule(this.deleteRevenue)
+      this.matDialogRef.close()
+      this.matSnackBar.open('Deleted', 'Dismiss', { duration: 2000 })
+    } catch (error) {
+      this.errors = error as string
+    } finally {
+      this.isSubmitting = false
     }
   }
 }

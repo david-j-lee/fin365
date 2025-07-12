@@ -18,9 +18,8 @@ import { MatSnackBar } from '@angular/material/snack-bar'
 import { Router } from '@angular/router'
 import { BudgetDeleteComponent } from '@components/budgets/budget-delete/budget-delete.component'
 import { SpinnerComponent } from '@components/spinner/spinner.component'
-import { BudgetEdit } from '@interfaces/budgets/budget-edit.interface'
-import { Budget } from '@interfaces/budgets/budget.interface'
-import { DalBudgetService } from '@services/dal/dal.budget.service'
+import { BudgetEdit } from '@interfaces/budget-edit.interface'
+import { Budget } from '@interfaces/budget.interface'
 import { FinanceService } from '@services/finance.service'
 
 @Component({
@@ -46,7 +45,6 @@ import { FinanceService } from '@services/finance.service'
 export class BudgetEditDialogComponent implements OnInit {
   private router = inject(Router)
   private financeService = inject(FinanceService)
-  private dalBudgetService = inject(DalBudgetService)
   private matSnackBar = inject(MatSnackBar)
   matDialogRef = inject<MatDialogRef<BudgetEditDialogComponent> | null>(
     MatDialogRef<BudgetEditDialogComponent>,
@@ -95,24 +93,24 @@ export class BudgetEditDialogComponent implements OnInit {
     this.matDialogRef?.close()
   }
 
-  edit(form: NgForm) {
+  async edit(form: NgForm) {
     const { value, valid } = form
-    if (valid && this.oldBudget) {
-      this.isSubmitting = true
-      this.errors = ''
-      value.id = this.oldBudget.id
-      this.dalBudgetService.update(this.oldBudget, value).subscribe({
-        next: () => {
-          this.matDialogRef?.close()
-          this.matSnackBar.open('Saved', 'Dismiss', { duration: 2000 })
-        },
-        error: (errors) => {
-          this.errors = errors
-        },
-        complete: () => {
-          this.isSubmitting = false
-        },
+    if (!valid || !this.oldBudget) {
+      return
+    }
+    this.isSubmitting = true
+    this.errors = ''
+    try {
+      await this.financeService.editBudget(this.oldBudget, {
+        ...this.newBudget,
+        ...value,
       })
+      this.matDialogRef?.close()
+      this.matSnackBar.open('Saved', 'Dismiss', { duration: 2000 })
+    } catch (error) {
+      this.errors = error as string
+    } finally {
+      this.isSubmitting = false
     }
   }
 }

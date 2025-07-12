@@ -11,7 +11,7 @@
       "@interfaces/*": ["src/app/interfaces/*"],
       "@pipes/*": ["src/app/pipes/*"],
       "@services/*": ["src/app/services/*"],
-      "@storage/*": ["src/app/storage/*"],
+      "@data/*": ["src/app/data/*"],
       "@utilities/*": ["src/app/utilities/*"]
     },
     "outDir": "./dist/out-tsc",

@@ -1,7 +1,7 @@
 import { RuleEdit } from './rule-edit.interface'
 import { Moment } from 'moment'
 
-export interface RepeatableRuleEdit extends RuleEdit {
+export interface RuleRepeatableEdit extends RuleEdit {
   isForever: boolean
   frequency: string
 

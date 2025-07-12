@@ -31,9 +31,8 @@ import { MatSnackBar } from '@angular/material/snack-bar'
 import { ActivatedRoute, Router } from '@angular/router'
 import { ExpenseDeleteComponent } from '@components/expenses/expense-delete/expense-delete.component'
 import { SpinnerComponent } from '@components/spinner/spinner.component'
-import { RepeatableRuleAdd } from '@interfaces/rules/repeatable-rule-add.interface'
-import { RepeatableRule } from '@interfaces/rules/repeatable-rule.interface'
-import { DalRepeatableRuleService } from '@services/dal/dal.repeatable-rule.service'
+import { RuleRepeatableAdd } from '@interfaces/rule-repeatable-add.interface'
+import { RuleRepeatable } from '@interfaces/rule-repeatable.interface'
 import { FinanceService } from '@services/finance.service'
 
 @Component({
@@ -65,7 +64,6 @@ import { FinanceService } from '@services/finance.service'
 export class ExpenseEditDialogComponent implements OnInit {
   financeService = inject(FinanceService)
   private router = inject(Router)
-  private dalExpenseService = inject(DalRepeatableRuleService)
   private matSnackBar = inject(MatSnackBar)
   matDialogRef = inject<MatDialogRef<ExpenseEditDialogComponent> | null>(
     MatDialogRef<ExpenseEditDialogComponent>,
@@ -77,8 +75,8 @@ export class ExpenseEditDialogComponent implements OnInit {
   errors = ''
   isSubmitting = false
 
-  oldExpense: RepeatableRule | undefined
-  newExpense: RepeatableRuleAdd | undefined
+  oldExpense: RuleRepeatable | undefined
+  newExpense: RuleRepeatableAdd | undefined
 
   navigateToDelete = false
   deleteModal: MatDialogRef<ExpenseDeleteComponent> | null = null
@@ -86,16 +84,27 @@ export class ExpenseEditDialogComponent implements OnInit {
   ngOnInit() {
     this.setAfterClosed()
     // Get Balance
-    if (this.financeService.budget?.expenses) {
-      this.getData()
-    } else if (this.financeService.budget) {
-      this.dalExpenseService
-        .getAll('expenses', this.financeService.budget.id)
-        .subscribe((result) => {
-          if (result) {
-            this.getData()
-          }
-        })
+    this.oldExpense = this.financeService.budget?.expenses?.find(
+      (budgetExpense) => budgetExpense.id === this.data.id,
+    )
+    if (this.oldExpense) {
+      this.newExpense = {
+        type: 'expense',
+        budgetId: this.oldExpense.budgetId,
+        description: this.oldExpense.description,
+        amount: this.oldExpense.amount,
+        isForever: this.oldExpense.isForever,
+        frequency: this.oldExpense.frequency,
+        startDate: this.oldExpense.startDate,
+        endDate: this.oldExpense.endDate,
+        repeatMon: this.oldExpense.repeatMon,
+        repeatTue: this.oldExpense.repeatTue,
+        repeatWed: this.oldExpense.repeatWed,
+        repeatThu: this.oldExpense.repeatThu,
+        repeatFri: this.oldExpense.repeatFri,
+        repeatSat: this.oldExpense.repeatSat,
+        repeatSun: this.oldExpense.repeatSun,
+      }
     }
   }
 
@@ -121,57 +130,29 @@ export class ExpenseEditDialogComponent implements OnInit {
     })
   }
 
-  getData() {
-    // Get Balance
-    const expense = this.financeService.budget?.expenses?.find(
-      (budgetExpense) => budgetExpense.id === this.data.id,
-    )
-    this.oldExpense = expense
-    if (this.oldExpense) {
-      this.newExpense = {
-        type: 'expense',
-        budgetId: this.oldExpense.budgetId,
-        description: this.oldExpense.description,
-        amount: this.oldExpense.amount,
-        isForever: this.oldExpense.isForever,
-        frequency: this.oldExpense.frequency,
-        startDate: this.oldExpense.startDate,
-        endDate: this.oldExpense.endDate,
-        repeatMon: this.oldExpense.repeatMon,
-        repeatTue: this.oldExpense.repeatTue,
-        repeatWed: this.oldExpense.repeatWed,
-        repeatThu: this.oldExpense.repeatThu,
-        repeatFri: this.oldExpense.repeatFri,
-        repeatSat: this.oldExpense.repeatSat,
-        repeatSun: this.oldExpense.repeatSun,
-      }
-    }
-  }
-
   requestDelete() {
     this.navigateToDelete = true
     this.matDialogRef?.close()
   }
 
-  edit(form: NgForm) {
+  async edit(form: NgForm) {
     const { value, valid } = form
-    if (valid && this.oldExpense) {
-      this.isSubmitting = true
-      this.errors = ''
-      this.dalExpenseService
-        .update('expenses', this.oldExpense, value)
-        .subscribe({
-          next: () => {
-            this.matDialogRef?.close()
-            this.matSnackBar.open('Saved', 'Dismiss', { duration: 2000 })
-          },
-          error: (errors) => {
-            this.errors = errors
-          },
-          complete: () => {
-            this.isSubmitting = false
-          },
-        })
+    if (!valid || !this.oldExpense) {
+      return
+    }
+    this.isSubmitting = true
+    this.errors = ''
+    try {
+      await this.financeService.editRule(this.oldExpense, {
+        ...this.newExpense,
+        ...value,
+      })
+      this.matDialogRef?.close()
+      this.matSnackBar.open('Saved', 'Dismiss', { duration: 2000 })
+    } catch (error) {
+      this.errors = error as string
+    } finally {
+      this.isSubmitting = false
     }
   }
 }

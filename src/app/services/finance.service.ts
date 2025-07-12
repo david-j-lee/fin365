@@ -1,14 +1,27 @@
-import { Injectable } from '@angular/core'
-import { Budget } from '@interfaces/budgets/budget.interface'
-import { Day } from '@interfaces/daily/day.interface'
-import { Event } from '@interfaces/events/event.interface'
-import { RepeatableRule } from '@interfaces/rules/repeatable-rule.interface'
-import { Rule, RuleType } from '@interfaces/rules/rule.interface'
+import { DalBudgetService } from './dal/dal.budget.service'
+import { DalRuleRepeatableService } from './dal/dal.rule-repeatable.service'
+import { DalRuleService } from './dal/dal.rule.service'
+import { DalSnapshotService } from './dal/dal.snapshot.service'
+import { Injectable, inject } from '@angular/core'
+import { BudgetAdd } from '@interfaces/budget-add.interface'
+import { BudgetEdit } from '@interfaces/budget-edit.interface'
+import { Budget } from '@interfaces/budget.interface'
+import { Day } from '@interfaces/day.interface'
+import { Event } from '@interfaces/event.interface'
+import { RuleAdd } from '@interfaces/rule-add.interface'
+import { RuleEdit } from '@interfaces/rule-edit.interface'
+import { RuleRepeatableAdd } from '@interfaces/rule-repeatable-add.interface'
+import { RuleRepeatableEdit } from '@interfaces/rule-repeatable-edit.interface'
+import { RuleRepeatable } from '@interfaces/rule-repeatable.interface'
+import { Rule, RuleType, RulesMetadata } from '@interfaces/rule.interface'
+import { SnapshotAdd } from '@interfaces/snapshot-add.interface'
+import { SnapshotBalanceAdd } from '@interfaces/snapshot-balance-add.interface'
 import {
   addDailyItem,
   getRuleRange,
   getRuleRepeatDays,
   getRuleTotal,
+  isRuleRepeatable,
 } from '@utilities/rule-utilities'
 import moment from 'moment'
 import { Moment } from 'moment'
@@ -16,6 +29,11 @@ import { Subject } from 'rxjs'
 
 @Injectable({ providedIn: 'root' })
 export class FinanceService {
+  private dalBudgetService = inject(DalBudgetService)
+  private dalRuleService = inject(DalRuleService)
+  private dalRuleRepeatableService = inject(DalRuleRepeatableService)
+  private dalSnapshotService = inject(DalSnapshotService)
+
   events = new Subject<Event>()
 
   budgets: Budget[] | null = null
@@ -28,10 +46,6 @@ export class FinanceService {
   numberOfDays = 365
   frequencies = ['Once', 'Daily', 'Weekly', 'Bi-Weekly', 'Monthly', 'Yearly']
 
-  selectBudget(budget: Budget | null) {
-    this.budget = budget
-  }
-
   getFirstDate() {
     return this.budget?.days ? this.budget?.days[0]?.date : null
   }
@@ -40,7 +54,6 @@ export class FinanceService {
     if (!this.budget?.snapshots || this.budget.snapshots.length === 0) {
       return null
     }
-
     return this.budget.snapshots[0].date
   }
 
@@ -48,42 +61,76 @@ export class FinanceService {
     if (!this.budget || !this.budget.days) {
       return 0
     }
-
     const day = this.budget.days.find(
       (budgetDay) => budgetDay.date.format('MM/DD/YYYY') === date,
     )
-
     return day?.balance ?? 0
   }
 
-  addRule(rule: Rule) {
-    this.generateDataForRule(rule)
-    this.updateRunningTotals()
-    this.events.next({ event: 'add', rule: rule })
+  async loadBudgets() {
+    this.budgets = await this.dalBudgetService.getAll()
+    this.isLoaded = true
   }
 
-  updateRule(rule: Rule) {
-    this.deleteRule(rule)
-    this.generateDataForRule(rule)
-    this.updateRunningTotals()
-    this.events.next({ event: 'update', rule: rule })
+  async addBudget(budgetAdd: BudgetAdd) {
+    // Request the data
+    const [budget, snapshot] = await this.dalBudgetService.add(budgetAdd)
+
+    // Load the data
+    this.budgets?.push(budget)
+    this.selectBudget(budget)
+    if (this.budget?.snapshots) {
+      this.budget.snapshots.push(snapshot)
+    }
+    this.generateBudget()
+
+    // Send out the add budget event
+    this.events.next({ resource: 'budget', event: 'add', budget })
   }
 
-  deleteRule(rule: Rule) {
-    rule.daily = []
+  async selectBudget(budget: Budget | null) {
+    this.budget = budget
 
-    this.budget?.days?.forEach((day) => {
-      day.daily[rule.type] = day.daily[rule.type].filter(
-        (dailyRevenue) => dailyRevenue.rule !== rule,
-      )
-      day.total[rule.type] = day.daily[rule.type].reduce(
-        (sum, item) => sum + item.amount,
-        0,
-      )
-    })
+    if (!budget) {
+      return
+    }
 
-    this.updateRunningTotals()
-    this.events.next({ event: 'delete', rule: rule })
+    if (!budget.isBalancesLoaded) {
+      await this.getBalances(budget)
+    }
+    if (!budget.isExpensesLoaded) {
+      await this.getExpenses(budget)
+    }
+    if (!budget.isRevenuesLoaded) {
+      await this.getRevenues(budget)
+    }
+    if (!budget.isSnapshotsLoaded) {
+      await this.getSnapshots(budget)
+    }
+
+    this.generateBudget()
+
+    this.events.next({ resource: 'budget', event: 'select', budget })
+  }
+
+  async editBudget(budgetOriginal: Budget, budgetEdit: BudgetEdit) {
+    return await this.dalBudgetService.update(budgetOriginal, budgetEdit)
+  }
+
+  async deleteBudget(budget: Budget) {
+    if (!this.budgets) {
+      return false
+    }
+    const result = await this.dalBudgetService.delete(budget.id)
+    if (!result) {
+      return false
+    }
+    const deletedBudget = this.budgets.find((data) => data.id === budget.id)
+    if (!deletedBudget) {
+      return false
+    }
+    this.budgets.splice(this.budgets.indexOf(deletedBudget), 1)
+    return true
   }
 
   generateBudget() {
@@ -102,6 +149,109 @@ export class FinanceService {
     this.updateRunningTotals()
   }
 
+  async snapshot(addSnapshot: SnapshotAdd, balances: SnapshotBalanceAdd[]) {
+    if (!this.budget) {
+      return
+    }
+    const [snapshot, newBalances] = await this.dalSnapshotService.save(
+      addSnapshot,
+      balances,
+      this.getBalanceOn(addSnapshot.date.format('L')),
+    )
+    this.budget.startDate = snapshot.date
+    this.budget.snapshots?.unshift(snapshot)
+    this.budget.balances = newBalances
+    this.generateBudget()
+  }
+
+  async addRule(ruleAdd: RuleAdd | RuleRepeatableAdd) {
+    if (!this.budget) {
+      return
+    }
+
+    // Send request to update the data
+    let rule: Rule | RuleRepeatable | null = null
+    if (isRuleRepeatable(ruleAdd)) {
+      rule = await this.dalRuleRepeatableService.add(ruleAdd)
+    } else {
+      rule = await this.dalRuleService.add(ruleAdd)
+    }
+
+    // Update service state
+    const budgetFieldKey = RulesMetadata[ruleAdd.type].budgetFieldKey
+    const budgetField = this.budget[budgetFieldKey] as Rule[]
+    budgetField.push(rule)
+    this.generateDataForRule(rule)
+    this.updateRunningTotals()
+
+    // Send out event of the new rule
+    this.events.next({ resource: rule.type, event: 'add', rule })
+  }
+
+  async editRule(
+    ruleOriginal: Rule | RuleRepeatable,
+    ruleEdit: RuleEdit | RuleRepeatableEdit,
+  ) {
+    if (!this.budget) {
+      return
+    }
+
+    // Send request to update the data
+    let rule: Rule | RuleRepeatable | null = null
+    if (isRuleRepeatable(ruleOriginal) && isRuleRepeatable(ruleEdit)) {
+      rule = await this.dalRuleRepeatableService.update(ruleOriginal, ruleEdit)
+    } else {
+      rule = await this.dalRuleService.update(ruleOriginal, ruleEdit)
+    }
+
+    if (rule == null) {
+      // TODO: Better error handling
+      return
+    }
+
+    // Update service state
+    this.resetRuleCalculatedData(rule)
+    this.generateDataForRule(rule)
+    this.updateRunningTotals()
+
+    // Send out events for the rule update
+    this.events.next({ resource: rule.type, event: 'update', rule })
+  }
+
+  async deleteRule(rule: Rule) {
+    if (!this.budget) {
+      return
+    }
+
+    // Send request to delete
+    let result = false
+    if (isRuleRepeatable(rule)) {
+      result = await this.dalRuleRepeatableService.delete(rule)
+    } else {
+      result = await this.dalRuleService.delete(rule)
+    }
+
+    if (!result) {
+      // TODO: better error handling
+      return
+    }
+
+    // Update service state
+    const metadata = RulesMetadata[rule.type]
+    const budgetField = this.budget[metadata.budgetFieldKey] as Rule[]
+    const deletedRecord = budgetField.find((data) => data.id === rule.id)
+
+    if (!deletedRecord) {
+      return
+    }
+
+    budgetField.splice(budgetField.indexOf(deletedRecord), 1)
+    this.resetRuleCalculatedData(rule)
+
+    // Send out delete event
+    this.events.next({ resource: rule.type, event: 'delete', rule })
+  }
+
   private resetDailyData() {
     this.budget?.balances?.forEach((balance) => {
       balance.daily = []
@@ -112,6 +262,22 @@ export class FinanceService {
     this.budget?.revenues?.forEach((revenue) => {
       revenue.daily = []
     })
+  }
+
+  private resetRuleCalculatedData(rule: Rule) {
+    rule.daily = []
+
+    this.budget?.days?.forEach((day) => {
+      day.daily[rule.type] = day.daily[rule.type].filter(
+        (dailyRevenue) => dailyRevenue.rule !== rule,
+      )
+      day.total[rule.type] = day.daily[rule.type].reduce(
+        (sum, item) => sum + item.amount,
+        0,
+      )
+    })
+
+    this.updateRunningTotals()
   }
 
   private updateRunningTotals() {
@@ -129,6 +295,69 @@ export class FinanceService {
       if (day.date.format('L') === moment().format('L')) {
         this.todaysEstimatedBalance = day.balance
       }
+    }
+  }
+
+  private async getBalances(budget: Budget) {
+    try {
+      const result = await this.dalRuleService.getAll('balance', budget.id)
+      budget.balances = result
+      budget.isBalancesLoaded = true
+    } catch (error) {
+      budget.balances = []
+      console.error(error)
+    }
+  }
+
+  private async getExpenses(budget: Budget) {
+    try {
+      const result = await this.dalRuleRepeatableService.getAll(
+        'expense',
+        budget.id,
+      )
+      budget.expenses = result
+      budget.isExpensesLoaded = true
+    } catch (error) {
+      budget.expenses = []
+      console.error(error)
+    }
+  }
+
+  private async getRevenues(budget: Budget) {
+    try {
+      const result = await this.dalRuleRepeatableService.getAll(
+        'revenue',
+        budget.id,
+      )
+      budget.revenues = result
+      budget.isRevenuesLoaded = true
+    } catch (error) {
+      budget.revenues = []
+      console.error(error)
+    }
+  }
+
+  private async getSnapshots(budget: Budget) {
+    try {
+      const result = await this.dalSnapshotService.getAll(budget.id)
+      budget.snapshots = result
+        .map((snapshot) => ({
+          ...snapshot,
+          date: moment(snapshot.date),
+          balanceDifference: snapshot.actualBalance - snapshot.estimatedBalance,
+        }))
+        .sort((a, b) => {
+          const valueA = a.date ? a.date.toISOString() : ''
+          const valueB = b.date ? b.date.toISOString() : ''
+          return valueB.localeCompare(valueA)
+        })
+      if (budget.snapshots && budget.snapshots[0]) {
+        budget.startDate = budget.snapshots[0].date
+      }
+      budget.isSnapshotsLoaded = true
+    } catch (error) {
+      budget.snapshots = []
+      console.error(error)
     }
   }
 
@@ -163,7 +392,7 @@ export class FinanceService {
     }
   }
 
-  private generateDataForRule(rule: Rule | RepeatableRule) {
+  private generateDataForRule(rule: Rule | RuleRepeatable) {
     if ('frequency' in rule) {
       switch (rule.frequency) {
         case 'Once':
@@ -199,7 +428,7 @@ export class FinanceService {
 
   private generateDataForRules(type: RuleType) {
     const key = `${type}s` as keyof Budget
-    const records = this.budget?.[key] as RepeatableRule[] | undefined
+    const records = this.budget?.[key] as RuleRepeatable[] | undefined
 
     if (!records) {
       return
@@ -210,7 +439,7 @@ export class FinanceService {
     })
   }
 
-  private generateRuleOnce(rule: Rule | RepeatableRule) {
+  private generateRuleOnce(rule: Rule | RuleRepeatable) {
     if (!this.budget) {
       return
     }
@@ -234,7 +463,7 @@ export class FinanceService {
     })
   }
 
-  private generateRuleDaily(rule: RepeatableRule) {
+  private generateRuleDaily(rule: RuleRepeatable) {
     if (!this.budget?.days) {
       return
     }
@@ -271,7 +500,7 @@ export class FinanceService {
     }
   }
 
-  private generateRuleWeeks(rule: RepeatableRule, byWeeks: number) {
+  private generateRuleWeeks(rule: RuleRepeatable, byWeeks: number) {
     if (!this.budget?.days) {
       return
     }
@@ -309,7 +538,7 @@ export class FinanceService {
     }
   }
 
-  private generateRuleMonths(rule: RepeatableRule, numMonths: number) {
+  private generateRuleMonths(rule: RuleRepeatable, numMonths: number) {
     if (!this.budget?.days) {
       return
     }

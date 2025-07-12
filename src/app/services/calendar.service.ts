@@ -1,6 +1,6 @@
 import { FinanceService } from './finance.service'
 import { Injectable, inject } from '@angular/core'
-import { Day } from '@interfaces/daily/day.interface'
+import { Day } from '@interfaces/day.interface'
 import moment from 'moment'
 
 @Injectable()
@@ -20,6 +20,14 @@ export class CalendarService {
   currentYear = 0
   minYear = 0
   maxYear = 0
+
+  constructor() {
+    this.financeService.events.subscribe((event) => {
+      if (event.resource === 'budget') {
+        this.setFirstMonth()
+      }
+    })
+  }
 
   setFirstMonth() {
     if (

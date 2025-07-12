@@ -1,12 +1,11 @@
-import { Rule } from './rule.interface'
-import { Moment } from 'moment'
+import { RuleEntity } from './rule.entity'
 
-export interface RepeatableRule extends Rule {
+export interface RuleRepeatableEntity extends RuleEntity {
   isForever: boolean
   frequency: string
 
-  startDate?: Moment | null
-  endDate?: Moment | null
+  startDate?: string | null
+  endDate?: string | null
 
   repeatMon: boolean
   repeatTue: boolean

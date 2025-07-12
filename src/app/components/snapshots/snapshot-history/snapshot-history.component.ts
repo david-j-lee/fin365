@@ -25,7 +25,7 @@ import {
   MatTableDataSource,
 } from '@angular/material/table'
 import { Router } from '@angular/router'
-import { Snapshot } from '@interfaces/snapshots/snapshot.interface'
+import { Snapshot } from '@interfaces/snapshot.interface'
 import { FinanceService } from '@services/finance.service'
 
 @Component({

@@ -10,10 +10,10 @@ import {
   MatDialogTitle,
 } from '@angular/material/dialog'
 import { MatIcon } from '@angular/material/icon'
+import { MatSnackBar } from '@angular/material/snack-bar'
 import { Router } from '@angular/router'
 import { SpinnerComponent } from '@components/spinner/spinner.component'
-import { Budget } from '@interfaces/budgets/budget.interface'
-import { DalBudgetService } from '@services/dal/dal.budget.service'
+import { Budget } from '@interfaces/budget.interface'
 import { FinanceService } from '@services/finance.service'
 
 @Component({
@@ -31,13 +31,13 @@ import { FinanceService } from '@services/finance.service'
   ],
 })
 export class BudgetDeleteDialogComponent implements OnInit {
-  private router = inject(Router)
-  private financeService = inject(FinanceService)
-  private dalBudgetService = inject(DalBudgetService)
   matDialog = inject(MatDialog)
   matDialogRef = inject<MatDialogRef<BudgetDeleteDialogComponent> | null>(
     MatDialogRef<BudgetDeleteDialogComponent>,
   )
+  private router = inject(Router)
+  private financeService = inject(FinanceService)
+  private matSnackBar = inject(MatSnackBar)
 
   errors = ''
   isSubmitting = false
@@ -73,20 +73,20 @@ export class BudgetDeleteDialogComponent implements OnInit {
     }
   }
 
-  delete() {
-    if (this.deleteBudget) {
-      this.isSubmitting = true
-      this.dalBudgetService.delete(this.deleteBudget.id).subscribe({
-        next: () => {
-          this.matDialogRef?.close()
-        },
-        error: (errors) => {
-          this.errors = errors
-        },
-        complete: () => {
-          this.isSubmitting = false
-        },
-      })
+  async delete() {
+    if (!this.deleteBudget) {
+      return
+    }
+    this.isSubmitting = true
+    try {
+      await this.financeService.deleteBudget(this.deleteBudget)
+      this.matDialogRef?.close()
+      this.matSnackBar.open('Deleted', 'Dismiss', { duration: 2000 })
+    } catch (error) {
+      this.errors = error as string
+      console.error(error)
+    } finally {
+      this.isSubmitting = false
     }
   }
 }

@@ -6,7 +6,7 @@ import { provideRouter } from '@angular/router'
 import { CalendarService } from '@services/calendar.service'
 import { ChartService } from '@services/chart.service'
 import { DalBudgetService } from '@services/dal/dal.budget.service'
-import { DalRepeatableRuleService } from '@services/dal/dal.repeatable-rule.service'
+import { DalRuleRepeatableService } from '@services/dal/dal.rule-repeatable.service'
 import { DalRuleService } from '@services/dal/dal.rule.service'
 import { DalSnapshotService } from '@services/dal/dal.snapshot.service'
 import { FinanceService } from '@services/finance.service'
@@ -24,7 +24,7 @@ export const appConfig: ApplicationConfig = {
     { provide: CalendarService },
     { provide: ChartService },
     { provide: DalRuleService },
-    { provide: DalRepeatableRuleService },
+    { provide: DalRuleRepeatableService },
     { provide: DalBudgetService },
     { provide: DalSnapshotService },
     { provide: FinanceService },

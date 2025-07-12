@@ -1,9 +1,9 @@
 import { FinanceService } from './finance.service'
 import { Injectable, inject } from '@angular/core'
-import { ChartBalance } from '@interfaces/charts/chart-balance.interface'
-import { ChartBudget } from '@interfaces/charts/chart-budget.interface'
-import { ChartExpense } from '@interfaces/charts/chart-expense.interface'
-import { ChartRevenue } from '@interfaces/charts/chart-revenue.interface'
+import { ChartBalance } from '@interfaces/chart-balance.interface'
+import { ChartBudget } from '@interfaces/chart-budget.interface'
+import { ChartExpense } from '@interfaces/chart-expense.interface'
+import { ChartRevenue } from '@interfaces/chart-revenue.interface'
 import { getRuleTotal } from '@utilities/rule-utilities'
 
 const pieOptions = {
@@ -156,6 +156,21 @@ export class ChartService {
         },
       ],
     },
+  }
+
+  constructor() {
+    this.financeService.events.subscribe((event) => {
+      if (event.resource === 'budget' || event.resource === 'balance') {
+        this.setChartBalance()
+      }
+      if (event.resource === 'budget' || event.resource === 'revenue') {
+        this.setChartRevenue()
+      }
+      if (event.resource === 'budget' || event.resource === 'expense') {
+        this.setChartExpense()
+      }
+      this.setChartBudget()
+    })
   }
 
   setChartBalance() {

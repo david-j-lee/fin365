@@ -35,9 +35,8 @@ import {
 } from '@angular/material/table'
 import { Router } from '@angular/router'
 import { SpinnerComponent } from '@components/spinner/spinner.component'
-import { SnapshotAdd } from '@interfaces/snapshots/snapshot-add.interface'
-import { SnapshotBalanceAdd } from '@interfaces/snapshots/snapshot-balance-add.interface'
-import { DalSnapshotService } from '@services/dal/dal.snapshot.service'
+import { SnapshotAdd } from '@interfaces/snapshot-add.interface'
+import { SnapshotBalanceAdd } from '@interfaces/snapshot-balance-add.interface'
 import { FinanceService } from '@services/finance.service'
 import { getRansomStringFromObject } from '@utilities/string-utilities'
 import moment from 'moment'
@@ -79,7 +78,6 @@ import moment from 'moment'
 })
 export class SnapshotTableDialogComponent implements OnInit {
   private financeService = inject(FinanceService)
-  private dalSnapshotService = inject(DalSnapshotService)
   private matSnackBar = inject(MatSnackBar)
   matDialogRef =
     inject<MatDialogRef<SnapshotTableDialogComponent>>(MatDialogRef)
@@ -127,23 +125,21 @@ export class SnapshotTableDialogComponent implements OnInit {
     )
   }
 
-  update() {
+  async update() {
     const budgetId = this.financeService.budget?.id
-    if (budgetId && this.addSnapshot) {
-      this.isSubmitting = true
-      this.addSnapshot.budgetId = budgetId
-      this.dalSnapshotService.save(this.addSnapshot, this.balances).subscribe({
-        next: () => {
-          this.matDialogRef.close()
-          this.matSnackBar.open('Saved', 'Dismiss', { duration: 2000 })
-        },
-        error: (error) => {
-          console.error(error)
-        },
-        complete: () => {
-          this.isSubmitting = false
-        },
-      })
+    if (!budgetId || !this.addSnapshot) {
+      return
+    }
+    this.isSubmitting = true
+    this.addSnapshot.budgetId = budgetId
+    try {
+      await this.financeService.snapshot(this.addSnapshot, this.balances)
+      this.matDialogRef.close()
+      this.matSnackBar.open('Saved', 'Dismiss', { duration: 2000 })
+    } catch (error) {
+      console.error(error)
+    } finally {
+      this.isSubmitting = false
     }
   }
 

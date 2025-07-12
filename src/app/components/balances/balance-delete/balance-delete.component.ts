@@ -14,8 +14,7 @@ import { MatIcon } from '@angular/material/icon'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { ActivatedRoute, Router } from '@angular/router'
 import { SpinnerComponent } from '@components/spinner/spinner.component'
-import { Rule } from '@interfaces/rules/rule.interface'
-import { DalRuleService } from '@services/dal/dal.rule.service'
+import { Rule } from '@interfaces/rule.interface'
 import { FinanceService } from '@services/finance.service'
 
 @Component({
@@ -34,7 +33,6 @@ import { FinanceService } from '@services/finance.service'
 })
 export class BalanceDeleteDialogComponent implements OnInit {
   private financeService = inject(FinanceService)
-  private dalBalanceService = inject(DalRuleService)
   matDialog = inject(MatDialog)
   private matSnackBar = inject(MatSnackBar)
   matDialogRef =
@@ -49,43 +47,27 @@ export class BalanceDeleteDialogComponent implements OnInit {
   deleteBalance: Rule | undefined
 
   ngOnInit() {
-    if (this.financeService.budget?.balances) {
-      this.getData()
-    } else if (this.financeService.budget) {
-      this.dalBalanceService
-        .getAll('balances', this.financeService.budget.id)
-        .subscribe((result) => {
-          if (result) {
-            this.getData()
-          }
-        })
-    }
-  }
-
-  getData() {
-    const balanceToDelete = this.financeService.budget?.balances?.find(
+    this.deleteBalance = this.financeService.budget?.balances?.find(
       (balance) => balance.id === this.data.id,
     )
-    this.deleteBalance = balanceToDelete
   }
 
-  delete() {
-    if (this.deleteBalance) {
-      this.isSubmitting = true
-      this.dalBalanceService
-        .delete('balances', this.deleteBalance.id)
-        .subscribe({
-          next: () => {
-            this.matDialogRef.close()
-            this.matSnackBar.open('Deleted', 'Dismiss', { duration: 2000 })
-          },
-          error: (errors) => {
-            this.errors = errors
-          },
-          complete: () => {
-            this.isSubmitting = false
-          },
-        })
+  async delete() {
+    if (!this.deleteBalance) {
+      return
+    }
+
+    this.isSubmitting = true
+
+    try {
+      await this.financeService.deleteRule(this.deleteBalance)
+      this.matDialogRef.close()
+      this.matSnackBar.open('Deleted', 'Dismiss', { duration: 2000 })
+    } catch (error) {
+      this.errors = error as string
+      console.error(error)
+    } finally {
+      this.isSubmitting = false
     }
   }
 }
