@@ -1,5 +1,5 @@
 import { CdkScrollable } from '@angular/cdk/scrolling'
-import { Component, OnInit, inject } from '@angular/core'
+import { AfterViewInit, Component, OnInit, inject } from '@angular/core'
 import { FormsModule, NgForm } from '@angular/forms'
 import { MatButton } from '@angular/material/button'
 import { MatCheckbox } from '@angular/material/checkbox'
@@ -42,11 +42,11 @@ import { FinanceService } from '@services/finance.service'
     SpinnerComponent,
   ],
 })
-export class BudgetEditDialogComponent implements OnInit {
+export class BudgetEditDialogComponent implements OnInit, AfterViewInit {
   private router = inject(Router)
   private financeService = inject(FinanceService)
   private matSnackBar = inject(MatSnackBar)
-  matDialogRef = inject<MatDialogRef<BudgetEditDialogComponent> | null>(
+  private matDialogRef = inject<MatDialogRef<BudgetEditDialogComponent> | null>(
     MatDialogRef<BudgetEditDialogComponent>,
   )
 
@@ -60,7 +60,6 @@ export class BudgetEditDialogComponent implements OnInit {
   deleteModal: MatDialogRef<BudgetDeleteComponent> | null = null
 
   ngOnInit() {
-    this.setAfterClosed()
     this.oldBudget = this.financeService.budget
     if (this.oldBudget) {
       this.newBudget = {
@@ -71,7 +70,7 @@ export class BudgetEditDialogComponent implements OnInit {
     }
   }
 
-  setAfterClosed() {
+  ngAfterViewInit() {
     this.matDialogRef?.afterClosed().subscribe(() => {
       this.matDialogRef = null
       // Need to check for navigation with forward button
@@ -120,14 +119,12 @@ export class BudgetEditDialogComponent implements OnInit {
   template: '',
   standalone: true,
 })
-export class BudgetEditComponent implements OnInit {
-  matDialog = inject(MatDialog)
+export class BudgetEditComponent implements AfterViewInit {
+  private matDialog = inject(MatDialog)
 
   matDialogRef: MatDialogRef<BudgetEditDialogComponent> | null = null
 
-  ngOnInit() {
-    setTimeout(() => {
-      this.matDialogRef = this.matDialog.open(BudgetEditDialogComponent)
-    })
+  ngAfterViewInit() {
+    this.matDialogRef = this.matDialog.open(BudgetEditDialogComponent)
   }
 }

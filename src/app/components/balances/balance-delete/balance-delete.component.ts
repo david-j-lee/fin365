@@ -36,9 +36,7 @@ export class BalanceDeleteDialogComponent implements OnInit {
   private matSnackBar = inject(MatSnackBar)
   private matDialogRef =
     inject<MatDialogRef<BalanceDeleteDialogComponent>>(MatDialogRef)
-  data = inject<{
-    id: string
-  }>(MAT_DIALOG_DATA)
+  private data = inject<{ id: string }>(MAT_DIALOG_DATA)
 
   errors = ''
   isSubmitting = false
@@ -54,9 +52,8 @@ export class BalanceDeleteDialogComponent implements OnInit {
     if (!this.deleteBalance) {
       return
     }
-
     this.isSubmitting = true
-
+    this.errors = ''
     try {
       await this.financeService.deleteRule(this.deleteBalance)
       this.matDialogRef.close()
@@ -76,9 +73,9 @@ export class BalanceDeleteDialogComponent implements OnInit {
   standalone: true,
 })
 export class BalanceDeleteComponent implements AfterViewInit {
-  matDialog = inject(MatDialog)
   private router = inject(Router)
   private activatedRoute = inject(ActivatedRoute)
+  private matDialog = inject(MatDialog)
 
   matDialogRef: MatDialogRef<BalanceDeleteDialogComponent> | null = null
 

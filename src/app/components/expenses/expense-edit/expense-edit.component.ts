@@ -1,5 +1,5 @@
 import { CdkScrollable } from '@angular/cdk/scrolling'
-import { Component, OnInit, inject } from '@angular/core'
+import { AfterViewInit, Component, OnInit, inject } from '@angular/core'
 import { FormsModule, NgForm } from '@angular/forms'
 import { MatButton } from '@angular/material/button'
 import { MatCheckbox } from '@angular/material/checkbox'
@@ -61,16 +61,15 @@ import { FinanceService } from '@services/finance.service'
     SpinnerComponent,
   ],
 })
-export class ExpenseEditDialogComponent implements OnInit {
+export class ExpenseEditDialogComponent implements OnInit, AfterViewInit {
   financeService = inject(FinanceService)
   private router = inject(Router)
   private matSnackBar = inject(MatSnackBar)
-  matDialogRef = inject<MatDialogRef<ExpenseEditDialogComponent> | null>(
-    MatDialogRef<ExpenseEditDialogComponent>,
-  )
-  data = inject<{
-    id: string
-  }>(MAT_DIALOG_DATA)
+  private matDialogRef =
+    inject<MatDialogRef<ExpenseEditDialogComponent> | null>(
+      MatDialogRef<ExpenseEditDialogComponent>,
+    )
+  private data = inject<{ id: string }>(MAT_DIALOG_DATA)
 
   errors = ''
   isSubmitting = false
@@ -82,8 +81,6 @@ export class ExpenseEditDialogComponent implements OnInit {
   deleteModal: MatDialogRef<ExpenseDeleteComponent> | null = null
 
   ngOnInit() {
-    this.setAfterClosed()
-    // Get Balance
     this.oldExpense = this.financeService.budget?.expenses?.find(
       (budgetExpense) => budgetExpense.id === this.data.id,
     )
@@ -108,7 +105,7 @@ export class ExpenseEditDialogComponent implements OnInit {
     }
   }
 
-  setAfterClosed() {
+  ngAfterViewInit() {
     this.matDialogRef?.afterClosed().subscribe(() => {
       this.matDialogRef = null
       // Need to check for navigation with forward button
@@ -163,19 +160,15 @@ export class ExpenseEditDialogComponent implements OnInit {
   standalone: true,
 })
 export class ExpenseEditComponent implements OnInit {
-  matDialog = inject(MatDialog)
   private activatedRoute = inject(ActivatedRoute)
+  private matDialog = inject(MatDialog)
 
   matDialogRef: MatDialogRef<ExpenseEditDialogComponent> | null = null
 
   ngOnInit() {
-    this.activatedRoute.parent?.params.subscribe(() => {
-      this.activatedRoute.params.subscribe((params) => {
-        setTimeout(() => {
-          this.matDialogRef = this.matDialog.open(ExpenseEditDialogComponent, {
-            data: { id: params['id'] },
-          })
-        })
+    this.activatedRoute.params.subscribe((params) => {
+      this.matDialogRef = this.matDialog.open(ExpenseEditDialogComponent, {
+        data: { id: params['id'] },
       })
     })
   }

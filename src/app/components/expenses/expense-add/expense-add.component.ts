@@ -1,5 +1,5 @@
 import { CdkScrollable } from '@angular/cdk/scrolling'
-import { Component, OnInit, inject } from '@angular/core'
+import { AfterViewInit, Component, OnInit, inject } from '@angular/core'
 import { FormsModule, NgForm } from '@angular/forms'
 import { MatButton } from '@angular/material/button'
 import { MatCheckbox } from '@angular/material/checkbox'
@@ -60,12 +60,12 @@ import { FinanceService } from '@services/finance.service'
 })
 export class ExpenseAddDialogComponent implements OnInit {
   financeService = inject(FinanceService)
-  matDialogRef = inject<MatDialogRef<ExpenseAddDialogComponent>>(MatDialogRef)
+  private matDialogRef =
+    inject<MatDialogRef<ExpenseAddDialogComponent>>(MatDialogRef)
   private matSnackBar = inject(MatSnackBar)
 
   errors = ''
   isSubmitting = false
-
   myExpense: RuleRepeatableAdd | undefined
 
   ngOnInit() {
@@ -114,20 +114,18 @@ export class ExpenseAddDialogComponent implements OnInit {
   template: '',
   standalone: true,
 })
-export class ExpenseAddComponent implements OnInit {
-  matDialog = inject(MatDialog)
+export class ExpenseAddComponent implements AfterViewInit {
   private router = inject(Router)
   private financeService = inject(FinanceService)
+  private matDialog = inject(MatDialog)
 
   matDialogRef: MatDialogRef<ExpenseAddDialogComponent> | null = null
 
-  ngOnInit() {
-    setTimeout(() => {
-      this.matDialogRef = this.matDialog.open(ExpenseAddDialogComponent)
-      this.matDialogRef.afterClosed().subscribe(() => {
-        this.matDialogRef = null
-        this.router.navigate(['/', this.financeService.budget?.id])
-      })
+  ngAfterViewInit() {
+    this.matDialogRef = this.matDialog.open(ExpenseAddDialogComponent)
+    this.matDialogRef.afterClosed().subscribe(() => {
+      this.matDialogRef = null
+      this.router.navigate(['/', this.financeService.budget?.id])
     })
   }
 }

@@ -1,6 +1,6 @@
 import { CdkScrollable } from '@angular/cdk/scrolling'
 import { DatePipe } from '@angular/common'
-import { Component, OnInit, inject } from '@angular/core'
+import { AfterViewInit, Component, OnInit, inject } from '@angular/core'
 import { MatButton } from '@angular/material/button'
 import {
   MatDialog,
@@ -55,8 +55,6 @@ import { FinanceService } from '@services/finance.service'
 })
 export class SnapshotHistoryDialogComponent implements OnInit {
   financeService = inject(FinanceService)
-  matDialogRef =
-    inject<MatDialogRef<SnapshotHistoryDialogComponent>>(MatDialogRef)
 
   displayColumns = [
     'date',
@@ -78,20 +76,18 @@ export class SnapshotHistoryDialogComponent implements OnInit {
   template: '',
   standalone: true,
 })
-export class SnapshotHistoryComponent implements OnInit {
-  matDialog = inject(MatDialog)
+export class SnapshotHistoryComponent implements AfterViewInit {
   private router = inject(Router)
   private financeService = inject(FinanceService)
+  private matDialog = inject(MatDialog)
 
   matDialogRef: MatDialogRef<SnapshotHistoryDialogComponent> | null = null
 
-  ngOnInit() {
-    setTimeout(() => {
-      this.matDialogRef = this.matDialog.open(SnapshotHistoryDialogComponent)
-      this.matDialogRef.afterClosed().subscribe(() => {
-        this.matDialogRef = null
-        this.router.navigate(['/', this.financeService.budget?.id])
-      })
+  ngAfterViewInit() {
+    this.matDialogRef = this.matDialog.open(SnapshotHistoryDialogComponent)
+    this.matDialogRef.afterClosed().subscribe(() => {
+      this.matDialogRef = null
+      this.router.navigate(['/', this.financeService.budget?.id])
     })
   }
 }

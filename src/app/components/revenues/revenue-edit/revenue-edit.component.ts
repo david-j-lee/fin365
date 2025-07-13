@@ -1,5 +1,5 @@
 import { CdkScrollable } from '@angular/cdk/scrolling'
-import { Component, OnInit, inject } from '@angular/core'
+import { AfterViewInit, Component, OnInit, inject } from '@angular/core'
 import { FormsModule, NgForm } from '@angular/forms'
 import { MatButton } from '@angular/material/button'
 import { MatCheckbox } from '@angular/material/checkbox'
@@ -61,16 +61,15 @@ import { FinanceService } from '@services/finance.service'
     SpinnerComponent,
   ],
 })
-export class RevenueEditDialogComponent implements OnInit {
+export class RevenueEditDialogComponent implements OnInit, AfterViewInit {
   financeService = inject(FinanceService)
   private router = inject(Router)
   private matSnackBar = inject(MatSnackBar)
-  matDialogRef = inject<MatDialogRef<RevenueEditDialogComponent> | null>(
-    MatDialogRef<RevenueEditDialogComponent>,
-  )
-  data = inject<{
-    id: string
-  }>(MAT_DIALOG_DATA)
+  private matDialogRef =
+    inject<MatDialogRef<RevenueEditDialogComponent> | null>(
+      MatDialogRef<RevenueEditDialogComponent>,
+    )
+  private data = inject<{ id: string }>(MAT_DIALOG_DATA)
 
   errors = ''
   isSubmitting = false
@@ -82,7 +81,6 @@ export class RevenueEditDialogComponent implements OnInit {
   deleteModal: MatDialogRef<RevenueDeleteComponent> | null = null
 
   ngOnInit() {
-    this.setAfterClosed()
     this.oldRevenue = this.financeService.budget?.revenues?.find(
       (budgetRevenue) => budgetRevenue.id === this.data.id,
     )
@@ -107,31 +105,29 @@ export class RevenueEditDialogComponent implements OnInit {
     }
   }
 
-  setAfterClosed() {
-    if (this.matDialogRef) {
-      this.matDialogRef.afterClosed().subscribe(() => {
-        this.matDialogRef = null
-        // Need to check for navigation with forward button
-        const action =
-          this.router.url.split('/')[this.router.url.split('/').length - 1]
+  ngAfterViewInit() {
+    this.matDialogRef?.afterClosed().subscribe(() => {
+      this.matDialogRef = null
+      // Need to check for navigation with forward button
+      const action =
+        this.router.url.split('/')[this.router.url.split('/').length - 1]
 
-        if (action === 'delete') {
-          return
-        }
+      if (action === 'delete') {
+        return
+      }
 
-        if (this.navigateToDelete) {
-          this.router.navigate([
-            './',
-            this.financeService.budget?.id,
-            'revenue',
-            this.oldRevenue?.id,
-            'delete',
-          ])
-        } else {
-          this.router.navigate(['/', this.financeService.budget?.id])
-        }
-      })
-    }
+      if (this.navigateToDelete) {
+        this.router.navigate([
+          './',
+          this.financeService.budget?.id,
+          'revenue',
+          this.oldRevenue?.id,
+          'delete',
+        ])
+      } else {
+        this.router.navigate(['/', this.financeService.budget?.id])
+      }
+    })
   }
 
   requestDelete() {
@@ -166,26 +162,17 @@ export class RevenueEditDialogComponent implements OnInit {
   template: '',
   standalone: true,
 })
-export class RevenueEditComponent implements OnInit {
-  matDialog = inject(MatDialog)
+export class RevenueEditComponent implements AfterViewInit {
   private activatedRoute = inject(ActivatedRoute)
+  private matDialog = inject(MatDialog)
 
   matDialogRef: MatDialogRef<RevenueEditDialogComponent> | null = null
 
-  ngOnInit() {
-    if (this.activatedRoute.parent) {
-      this.activatedRoute.parent.params.subscribe(() => {
-        this.activatedRoute.params.subscribe((params) => {
-          setTimeout(() => {
-            this.matDialogRef = this.matDialog.open(
-              RevenueEditDialogComponent,
-              {
-                data: { id: params['id'] },
-              },
-            )
-          })
-        })
+  ngAfterViewInit() {
+    this.activatedRoute.params.subscribe((params) => {
+      this.matDialogRef = this.matDialog.open(RevenueEditDialogComponent, {
+        data: { id: params['id'] },
       })
-    }
+    })
   }
 }

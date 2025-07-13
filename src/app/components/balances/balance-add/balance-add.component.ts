@@ -50,29 +50,23 @@ export class BalanceAddDialogComponent implements OnInit {
 
   ngOnInit() {
     const budgetId = this.financeService.budget?.id
-
-    if (!budgetId) {
-      return
-    }
-
-    this.myBalance = {
-      type: 'balance',
-      budgetId,
-      description: '',
-      amount: 0,
+    if (budgetId) {
+      this.myBalance = {
+        type: 'balance',
+        budgetId,
+        description: '',
+        amount: 0,
+      }
     }
   }
 
   async create(form: NgForm) {
     const { value, valid } = form
-
     if (!valid) {
       return
     }
-
     this.isSubmitting = true
     this.errors = ''
-
     try {
       await this.financeService.addRule({
         ...this.myBalance,

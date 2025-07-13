@@ -45,12 +45,11 @@ export class BalanceEditDialogComponent implements OnInit {
   private router = inject(Router)
   private financeService = inject(FinanceService)
   private matSnackBar = inject(MatSnackBar)
-  matDialogRef = inject<MatDialogRef<BalanceEditDialogComponent> | null>(
-    MatDialogRef<BalanceEditDialogComponent>,
-  )
-  data = inject<{
-    id: string
-  }>(MAT_DIALOG_DATA)
+  private matDialogRef =
+    inject<MatDialogRef<BalanceEditDialogComponent> | null>(
+      MatDialogRef<BalanceEditDialogComponent>,
+    )
+  private data = inject<{ id: string }>(MAT_DIALOG_DATA)
 
   errors = ''
   isSubmitting = false
@@ -134,8 +133,8 @@ export class BalanceEditDialogComponent implements OnInit {
   standalone: true,
 })
 export class BalanceEditComponent implements AfterViewInit {
-  matDialog = inject(MatDialog)
   private activatedRoute = inject(ActivatedRoute)
+  private matDialog = inject(MatDialog)
 
   matDialogRef: MatDialogRef<BalanceEditDialogComponent> | null = null
 

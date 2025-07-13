@@ -1,5 +1,5 @@
 import { CdkScrollable } from '@angular/cdk/scrolling'
-import { Component, OnInit, inject } from '@angular/core'
+import { AfterViewInit, Component, OnInit, inject } from '@angular/core'
 import { MatButton } from '@angular/material/button'
 import {
   MAT_DIALOG_DATA,
@@ -33,17 +33,13 @@ import { FinanceService } from '@services/finance.service'
 })
 export class RevenueDeleteDialogComponent implements OnInit {
   private financeService = inject(FinanceService)
-  matDialog = inject(MatDialog)
   private matSnackBar = inject(MatSnackBar)
-  matDialogRef =
+  private matDialogRef =
     inject<MatDialogRef<RevenueDeleteDialogComponent>>(MatDialogRef)
-  data = inject<{
-    id: string
-  }>(MAT_DIALOG_DATA)
+  private data = inject<{ id: string }>(MAT_DIALOG_DATA)
 
   errors = ''
   isSubmitting = false
-
   deleteRevenue: RuleRepeatable | undefined
 
   ngOnInit() {
@@ -57,6 +53,7 @@ export class RevenueDeleteDialogComponent implements OnInit {
       return
     }
     this.isSubmitting = true
+    this.errors = ''
     try {
       await this.financeService.deleteRule(this.deleteRevenue)
       this.matDialogRef.close()
@@ -74,36 +71,24 @@ export class RevenueDeleteDialogComponent implements OnInit {
   template: '',
   standalone: true,
 })
-export class RevenueDeleteComponent implements OnInit {
-  matDialog = inject(MatDialog)
+export class RevenueDeleteComponent implements AfterViewInit {
   private router = inject(Router)
   private activatedRoute = inject(ActivatedRoute)
+  private matDialog = inject(MatDialog)
 
   matDialogRef: MatDialogRef<RevenueDeleteDialogComponent> | null = null
 
-  ngOnInit() {
-    if (this.activatedRoute.parent) {
-      this.activatedRoute.parent.params.subscribe((parentParams) => {
-        this.activatedRoute.params.subscribe((params) => {
-          setTimeout(() => {
-            this.matDialogRef = this.matDialog.open(
-              RevenueDeleteDialogComponent,
-              { data: { id: params['id'] } },
-            )
-            this.matDialogRef.afterClosed().subscribe(() => {
-              this.matDialogRef = null
-              // Need to check action for navigation with back button
-              const action =
-                this.router.url.split('/')[
-                  this.router.url.split('/').length - 1
-                ]
-              if (action !== 'edit') {
-                this.router.navigate(['/', parentParams['budgetId']])
-              }
-            })
-          })
+  ngAfterViewInit() {
+    this.activatedRoute.parent?.params.subscribe((parentParams) => {
+      this.activatedRoute.params.subscribe((params) => {
+        this.matDialogRef = this.matDialog.open(RevenueDeleteDialogComponent, {
+          data: { id: params['id'] },
+        })
+        this.matDialogRef.afterClosed().subscribe(() => {
+          this.matDialogRef = null
+          this.router.navigate(['/', parentParams['budgetId']])
         })
       })
-    }
+    })
   }
 }

@@ -14,12 +14,12 @@ export const LocalStorageBudgetService = {
     )
   },
   async add(
-    value: BudgetAdd,
+    budgetAdd: BudgetAdd,
   ): Promise<{ budget: BudgetEntity; snapshot: SnapshotEntity }> {
     const budgets = localStorageService.getObject<BudgetEntity>('budgets')
     const budget: BudgetEntity = {
-      ...value,
-      startDate: value.startDate.toString(),
+      ...budgetAdd,
+      startDate: budgetAdd.startDate.toString(),
       id: getRansomStringFromObject(budgets),
       isActive: true,
     }
@@ -32,7 +32,7 @@ export const LocalStorageBudgetService = {
     const snapshots = localStorageService.getObject<SnapshotEntity>('snapshots')
     const snapshot: SnapshotEntity = {
       id: getRansomStringFromObject(snapshots),
-      date: value.startDate.toString(),
+      date: budgetAdd.startDate.toString(),
       actualBalance: 0,
       estimatedBalance: 0,
       budgetId: budget.id,
@@ -42,14 +42,14 @@ export const LocalStorageBudgetService = {
 
     return Promise.resolve({ budget, snapshot })
   },
-  async update(value: BudgetEdit): Promise<BudgetEntity | null> {
+  async update(budgetEdit: BudgetEdit): Promise<BudgetEntity | null> {
     const budgets = localStorageService.getObject<BudgetEntity>('budgets')
-    const budget = budgets[value.id]
+    const budget = budgets[budgetEdit.id]
     if (!budget) {
       return Promise.resolve(null)
     }
-    budget.name = value.name
-    budget.isActive = value.isActive
+    budget.name = budgetEdit.name
+    budget.isActive = budgetEdit.isActive
     localStorageService.setObject('budgets', budgets)
     return Promise.resolve(budget)
   },

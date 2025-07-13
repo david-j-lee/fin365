@@ -1,5 +1,6 @@
 import { CdkScrollable } from '@angular/cdk/scrolling'
 import {
+  AfterViewInit,
   ChangeDetectionStrategy,
   Component,
   OnInit,
@@ -97,24 +98,22 @@ export class BudgetAddDialogComponent implements OnInit {
   template: '',
   standalone: true,
 })
-export class BudgetAddComponent implements OnInit {
-  matDialog = inject(MatDialog)
+export class BudgetAddComponent implements AfterViewInit {
   private router = inject(Router)
   private financeService = inject(FinanceService)
+  private matDialog = inject(MatDialog)
 
   matDialogRef: MatDialogRef<BudgetAddDialogComponent> | null = null
 
-  ngOnInit() {
-    setTimeout(() => {
-      this.matDialogRef = this.matDialog.open(BudgetAddDialogComponent)
-      this.matDialogRef.afterClosed().subscribe(() => {
-        this.matDialogRef = null
-        if (this.financeService.budget) {
-          this.router.navigate(['/', this.financeService.budget.id])
-        } else {
-          this.router.navigate(['/'])
-        }
-      })
+  ngAfterViewInit() {
+    this.matDialogRef = this.matDialog.open(BudgetAddDialogComponent)
+    this.matDialogRef.afterClosed().subscribe(() => {
+      this.matDialogRef = null
+      if (this.financeService.budget) {
+        this.router.navigate(['/', this.financeService.budget.id])
+      } else {
+        this.router.navigate(['/'])
+      }
     })
   }
 }

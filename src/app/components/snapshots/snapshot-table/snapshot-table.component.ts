@@ -1,6 +1,6 @@
 import { CdkScrollable } from '@angular/cdk/scrolling'
 import { CurrencyPipe } from '@angular/common'
-import { Component, OnInit, inject } from '@angular/core'
+import { AfterViewInit, Component, OnInit, inject } from '@angular/core'
 import { FormsModule } from '@angular/forms'
 import { MatButton, MatIconButton } from '@angular/material/button'
 import {
@@ -79,7 +79,7 @@ import moment from 'moment'
 export class SnapshotTableDialogComponent implements OnInit {
   private financeService = inject(FinanceService)
   private matSnackBar = inject(MatSnackBar)
-  matDialogRef =
+  private matDialogRef =
     inject<MatDialogRef<SnapshotTableDialogComponent>>(MatDialogRef)
 
   mostRecentSnapshotDate = this.financeService.getMostRecentSnapshotDate()
@@ -186,20 +186,18 @@ export class SnapshotTableDialogComponent implements OnInit {
   template: '',
   standalone: true,
 })
-export class SnapshotTableComponent implements OnInit {
-  matDialog = inject(MatDialog)
+export class SnapshotTableComponent implements AfterViewInit {
   private router = inject(Router)
   private financeService = inject(FinanceService)
+  private matDialog = inject(MatDialog)
 
   matDialogRef: MatDialogRef<SnapshotTableDialogComponent> | null = null
 
-  ngOnInit() {
-    setTimeout(() => {
-      this.matDialogRef = this.matDialog.open(SnapshotTableDialogComponent)
-      this.matDialogRef.afterClosed().subscribe(() => {
-        this.matDialogRef = null
-        this.router.navigate(['/', this.financeService.budget?.id])
-      })
+  ngAfterViewInit() {
+    this.matDialogRef = this.matDialog.open(SnapshotTableDialogComponent)
+    this.matDialogRef.afterClosed().subscribe(() => {
+      this.matDialogRef = null
+      this.router.navigate(['/', this.financeService.budget?.id])
     })
   }
 }
