@@ -1,3 +1,4 @@
+import { DecimalPipe } from '@angular/common'
 import { Component, inject } from '@angular/core'
 import { MatList, MatListItem } from '@angular/material/list'
 import { RouterLink } from '@angular/router'
@@ -7,7 +8,7 @@ import { FinanceService } from '@services/finance.service'
 @Component({
   selector: 'app-expense-table',
   templateUrl: 'expense-table.component.html',
-  imports: [MatList, MatListItem, RouterLink, SortByPipe],
+  imports: [MatList, MatListItem, RouterLink, SortByPipe, DecimalPipe],
 })
 export class ExpenseTableComponent {
   financeService = inject(FinanceService)

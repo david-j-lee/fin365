@@ -17,7 +17,9 @@
             >{{ expense.description }}</a
           >
         </div>
-        <div class="fill-space text-end">$ {{ expense.amount }}</div>
+        <div class="fill-space text-end">
+          $ {{ expense.amount | number: '1.0' }}
+        </div>
       </div>
     </mat-list-item>
   }
