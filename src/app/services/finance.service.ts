@@ -210,6 +210,11 @@ export class FinanceService {
     }
 
     // Update service state
+    const metadata = RulesMetadata[ruleOriginal.type]
+    const ruleArray = this.budget[metadata.budgetFieldKey] as Rule[]
+    ;(this.budget[metadata.budgetFieldKey] as Rule[]) = ruleArray.map(
+      (record) => (record.id === rule.id ? { ...record, ...rule } : record),
+    )
     this.resetRuleCalculatedData(rule)
     this.generateDataForRule(rule)
     this.updateRunningTotals()

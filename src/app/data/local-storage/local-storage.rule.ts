@@ -38,12 +38,13 @@ export const LocalStorageRuleService = {
     if (!rule) {
       return Promise.resolve(null)
     }
-    rules[ruleEdit.id] = {
+    const updatedRule = {
       ...rule,
       ...ruleEdit,
     }
+    rules[ruleEdit.id] = updatedRule
     localStorageService.setObject(ruleMetadata.tableName, rules)
-    return Promise.resolve(rule)
+    return Promise.resolve(updatedRule)
   },
   async delete(ruleMetadata: RuleMetadata, id: string): Promise<boolean> {
     const rules = localStorageService.getObject<RuleEntity>(
