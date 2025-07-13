@@ -22,46 +22,39 @@ export const LocalStorageRuleRepeatableService = {
   },
   async add(
     ruleMetadata: RuleMetadata,
-    value: RuleRepeatableAdd,
+    ruleAdd: RuleRepeatableAdd,
   ): Promise<RuleRepeatableEntity> {
     const rules = localStorageService.getObject<RuleRepeatableEntity>(
       ruleMetadata.tableName,
     )
     const rule = {
-      ...value,
+      ...ruleAdd,
       id: getRansomStringFromObject(rules),
-      startDate: value.startDate?.toString(),
-      endDate: value.endDate?.toString(),
+      startDate: ruleAdd.startDate?.toString(),
+      endDate: ruleAdd.endDate?.toString(),
     }
     rules[rule.id] = rule
     localStorageService.setObject(ruleMetadata.tableName, rules)
     return Promise.resolve(rule)
   },
   async update(
-    ruleInfo: RuleMetadata,
-    value: RuleRepeatableEdit,
+    ruleMetadata: RuleMetadata,
+    ruleEdit: RuleRepeatableEdit,
   ): Promise<RuleRepeatableEntity | null> {
     const rules = localStorageService.getObject<RuleRepeatableEntity>(
-      ruleInfo.tableName,
+      ruleMetadata.tableName,
     )
-    const rule = rules[value.id]
+    const rule = rules[ruleEdit.id]
     if (!rule) {
       return Promise.resolve(null)
     }
-    rule.description = value.description
-    rule.amount = value.amount
-    rule.isForever = value.isForever
-    rule.frequency = value.frequency
-    rule.startDate = value.startDate?.toString()
-    rule.endDate = value.endDate?.toString()
-    rule.repeatMon = value.repeatMon
-    rule.repeatTue = value.repeatTue
-    rule.repeatWed = value.repeatWed
-    rule.repeatThu = value.repeatThu
-    rule.repeatFri = value.repeatFri
-    rule.repeatSat = value.repeatSat
-    rule.repeatSun = value.repeatSun
-    localStorageService.setObject(ruleInfo.tableName, rules)
+    rules[ruleEdit.id] = {
+      ...rule,
+      ...ruleEdit,
+      startDate: ruleEdit.startDate?.toString(),
+      endDate: ruleEdit.endDate?.toString(),
+    }
+    localStorageService.setObject(ruleMetadata.tableName, rules)
     return Promise.resolve(rule)
   },
   async delete(ruleMetadata: RuleMetadata, id: string): Promise<boolean> {
@@ -72,6 +65,7 @@ export const LocalStorageRuleRepeatableService = {
       return Promise.resolve(false)
     }
     delete rules[id]
+    localStorageService.setObject(ruleMetadata.tableName, rules)
     return Promise.resolve(true)
   },
 }

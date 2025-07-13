@@ -70,7 +70,7 @@ export class ExpenseDeleteDialogComponent implements OnInit {
 }
 
 @Component({
-  selector: 'app-budget-add',
+  selector: 'app-expense-delete',
   template: '',
   standalone: true,
 })

@@ -7,44 +7,53 @@ import { getRansomStringFromObject } from '@utilities/string-utilities'
 
 export const LocalStorageRuleService = {
   async getAll(
-    ruleInfo: RuleMetadata,
+    ruleMetadata: RuleMetadata,
     budgetId: string,
   ): Promise<RuleEntity[]> {
     return Promise.resolve(
       Object.values(
-        localStorageService.getObject<RuleEntity>(ruleInfo.tableName),
+        localStorageService.getObject<RuleEntity>(ruleMetadata.tableName),
       )
         .filter((balance) => balance.budgetId === budgetId)
-        .map((rule) => ({ ...rule, type: ruleInfo.type })),
+        .map((rule) => ({ ...rule, type: ruleMetadata.type })),
     )
   },
-  async add(ruleInfo: RuleMetadata, value: RuleAdd): Promise<RuleEntity> {
-    const rules = localStorageService.getObject<RuleEntity>(ruleInfo.tableName)
-    const rule = { ...value, id: getRansomStringFromObject(rules) }
+  async add(ruleMetadata: RuleMetadata, ruleAdd: RuleAdd): Promise<RuleEntity> {
+    const rules = localStorageService.getObject<RuleEntity>(
+      ruleMetadata.tableName,
+    )
+    const rule = { ...ruleAdd, id: getRansomStringFromObject(rules) }
     rules[rule.id] = rule
-    localStorageService.setObject(ruleInfo.tableName, rules)
+    localStorageService.setObject(ruleMetadata.tableName, rules)
     return Promise.resolve(rule)
   },
   async update(
-    ruleInfo: RuleMetadata,
-    value: RuleEdit,
+    ruleMetadata: RuleMetadata,
+    ruleEdit: RuleEdit,
   ): Promise<RuleEntity | null> {
-    const rules = localStorageService.getObject<RuleEntity>(ruleInfo.tableName)
-    const rule = rules[value.id]
+    const rules = localStorageService.getObject<RuleEntity>(
+      ruleMetadata.tableName,
+    )
+    const rule = rules[ruleEdit.id]
     if (!rule) {
       return Promise.resolve(null)
     }
-    rule.description = value.description
-    rule.amount = value.amount
-    localStorageService.setObject(ruleInfo.tableName, rules)
+    rules[ruleEdit.id] = {
+      ...rule,
+      ...ruleEdit,
+    }
+    localStorageService.setObject(ruleMetadata.tableName, rules)
     return Promise.resolve(rule)
   },
-  async delete(ruleInfo: RuleMetadata, id: string): Promise<boolean> {
-    const rules = localStorageService.getObject<RuleEntity>(ruleInfo.tableName)
+  async delete(ruleMetadata: RuleMetadata, id: string): Promise<boolean> {
+    const rules = localStorageService.getObject<RuleEntity>(
+      ruleMetadata.tableName,
+    )
     if (!rules[id]) {
       return Promise.resolve(false)
     }
     delete rules[id]
+    localStorageService.setObject(ruleMetadata.tableName, rules)
     return Promise.resolve(true)
   },
 }

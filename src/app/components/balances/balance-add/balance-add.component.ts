@@ -1,5 +1,5 @@
 import { CdkScrollable } from '@angular/cdk/scrolling'
-import { Component, OnInit, inject } from '@angular/core'
+import { AfterViewInit, Component, OnInit, inject } from '@angular/core'
 import { FormsModule, NgForm } from '@angular/forms'
 import { MatButton } from '@angular/material/button'
 import {
@@ -39,9 +39,10 @@ import { FinanceService } from '@services/finance.service'
   ],
 })
 export class BalanceAddDialogComponent implements OnInit {
-  financeService = inject(FinanceService)
+  private financeService = inject(FinanceService)
   private matSnackBar = inject(MatSnackBar)
-  matDialogRef = inject<MatDialogRef<BalanceAddDialogComponent>>(MatDialogRef)
+  private matDialogRef =
+    inject<MatDialogRef<BalanceAddDialogComponent>>(MatDialogRef)
 
   errors = ''
   isSubmitting = false
@@ -92,20 +93,18 @@ export class BalanceAddDialogComponent implements OnInit {
   template: '',
   standalone: true,
 })
-export class BalanceAddComponent implements OnInit {
-  matDialog = inject(MatDialog)
+export class BalanceAddComponent implements AfterViewInit {
   private router = inject(Router)
   private financeService = inject(FinanceService)
+  private matDialog = inject(MatDialog)
 
   matDialogRef: MatDialogRef<BalanceAddDialogComponent> | null = null
 
-  ngOnInit() {
-    setTimeout(() => {
-      this.matDialogRef = this.matDialog.open(BalanceAddDialogComponent)
-      this.matDialogRef.afterClosed().subscribe(() => {
-        this.matDialogRef = null
-        this.router.navigate(['/', this.financeService.budget?.id])
-      })
+  ngAfterViewInit() {
+    this.matDialogRef = this.matDialog.open(BalanceAddDialogComponent)
+    this.matDialogRef.afterClosed().subscribe(() => {
+      this.matDialogRef = null
+      this.router.navigate(['/', this.financeService.budget?.id])
     })
   }
 }

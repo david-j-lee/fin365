@@ -13,17 +13,17 @@ export const LocalStorageSnapshotService = {
       ).filter((snapshot: SnapshotEntity) => snapshot.budgetId === budgetId),
     )
   },
-  async save(value: SnapshotAddAll): Promise<{
+  async save(snapshotAddAll: SnapshotAddAll): Promise<{
     snapshot: SnapshotEntity
     balances: RuleEntity[]
   }> {
     // Add a snapshot
     const snapshots = localStorageService.getObject<SnapshotEntity>('snapshots')
     const snapshot = {
-      ...value.snapshot,
+      ...snapshotAddAll.snapshot,
       id: getRansomStringFromObject(snapshots),
-      budgetId: value.budgetId,
-      date: value.snapshot.date.toString(),
+      budgetId: snapshotAddAll.budgetId,
+      date: snapshotAddAll.snapshot.date.toString(),
     }
     snapshots[snapshot.id] = snapshot
     localStorageService.setObject('snapshots', snapshots)
@@ -32,15 +32,15 @@ export const LocalStorageSnapshotService = {
     const balances = localStorageService.getObject<RuleEntity>('balances')
     const newBalances = Object.fromEntries(
       Object.entries(balances).filter(
-        ([, balance]) => balance.budgetId !== value.budgetId,
+        ([, balance]) => balance.budgetId !== snapshotAddAll.budgetId,
       ),
     )
     const snapshotBalances: RuleEntity[] = []
-    value.snapshotBalances.forEach((snapshotBalance) => {
+    snapshotAddAll.snapshotBalances.forEach((snapshotBalance) => {
       const balance: RuleEntity = {
         ...snapshotBalance,
         type: 'balance',
-        budgetId: value.budgetId,
+        budgetId: snapshotAddAll.budgetId,
       }
       newBalances[snapshotBalance.id] = balance
       snapshotBalances.push(balance)
@@ -49,7 +49,7 @@ export const LocalStorageSnapshotService = {
 
     // Update budget start date
     const budgets = localStorageService.getObject<BudgetEntity>('budgets')
-    const budget = budgets[value.budgetId ?? '']
+    const budget = budgets[snapshotAddAll.budgetId ?? '']
     if (budget) {
       budget.startDate = snapshots[snapshot.id].date
       localStorageService.setObject('budgets', budgets)
@@ -66,6 +66,7 @@ export const LocalStorageSnapshotService = {
       return Promise.resolve(false)
     }
     delete snapshots[id]
+    localStorageService.setObject('snapshots', snapshots)
     return Promise.resolve(true)
   },
 }

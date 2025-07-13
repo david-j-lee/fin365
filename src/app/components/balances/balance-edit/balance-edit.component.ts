@@ -1,5 +1,5 @@
 import { CdkScrollable } from '@angular/cdk/scrolling'
-import { Component, OnInit, inject } from '@angular/core'
+import { AfterViewInit, Component, OnInit, inject } from '@angular/core'
 import { FormsModule, NgForm } from '@angular/forms'
 import { MatButton } from '@angular/material/button'
 import {
@@ -133,20 +133,16 @@ export class BalanceEditDialogComponent implements OnInit {
   template: '',
   standalone: true,
 })
-export class BalanceEditComponent implements OnInit {
+export class BalanceEditComponent implements AfterViewInit {
   matDialog = inject(MatDialog)
   private activatedRoute = inject(ActivatedRoute)
 
   matDialogRef: MatDialogRef<BalanceEditDialogComponent> | null = null
 
-  ngOnInit() {
-    this.activatedRoute.parent?.params.subscribe(() => {
-      this.activatedRoute.params.subscribe((params) => {
-        setTimeout(() => {
-          this.matDialogRef = this.matDialog.open(BalanceEditDialogComponent, {
-            data: { id: params['id'] },
-          })
-        })
+  ngAfterViewInit() {
+    this.activatedRoute.params.subscribe((params) => {
+      this.matDialogRef = this.matDialog.open(BalanceEditDialogComponent, {
+        data: { id: params['id'] },
       })
     })
   }

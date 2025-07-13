@@ -1,5 +1,5 @@
 import { CdkScrollable } from '@angular/cdk/scrolling'
-import { Component, OnInit, inject } from '@angular/core'
+import { AfterViewInit, Component, OnInit, inject } from '@angular/core'
 import { MatButton } from '@angular/material/button'
 import {
   MAT_DIALOG_DATA,
@@ -33,9 +33,8 @@ import { FinanceService } from '@services/finance.service'
 })
 export class BalanceDeleteDialogComponent implements OnInit {
   private financeService = inject(FinanceService)
-  matDialog = inject(MatDialog)
   private matSnackBar = inject(MatSnackBar)
-  matDialogRef =
+  private matDialogRef =
     inject<MatDialogRef<BalanceDeleteDialogComponent>>(MatDialogRef)
   data = inject<{
     id: string
@@ -43,7 +42,6 @@ export class BalanceDeleteDialogComponent implements OnInit {
 
   errors = ''
   isSubmitting = false
-
   deleteBalance: Rule | undefined
 
   ngOnInit() {
@@ -77,30 +75,22 @@ export class BalanceDeleteDialogComponent implements OnInit {
   template: '',
   standalone: true,
 })
-export class BalanceDeleteComponent implements OnInit {
+export class BalanceDeleteComponent implements AfterViewInit {
   matDialog = inject(MatDialog)
   private router = inject(Router)
   private activatedRoute = inject(ActivatedRoute)
 
   matDialogRef: MatDialogRef<BalanceDeleteDialogComponent> | null = null
 
-  ngOnInit() {
+  ngAfterViewInit() {
     this.activatedRoute.parent?.params.subscribe((parentParams) => {
       this.activatedRoute.params.subscribe((params) => {
-        setTimeout(() => {
-          this.matDialogRef = this.matDialog.open(
-            BalanceDeleteDialogComponent,
-            { data: { id: params['id'] } },
-          )
-          this.matDialogRef.afterClosed().subscribe(() => {
-            this.matDialogRef = null
-            // Need to check action for navigation with back button
-            const action =
-              this.router.url.split('/')[this.router.url.split('/').length - 1]
-            if (action !== 'edit') {
-              this.router.navigate(['/', parentParams['budgetId']])
-            }
-          })
+        this.matDialogRef = this.matDialog.open(BalanceDeleteDialogComponent, {
+          data: { id: params['id'] },
+        })
+        this.matDialogRef.afterClosed().subscribe(() => {
+          this.matDialogRef = null
+          this.router.navigate(['/', parentParams['budgetId']])
         })
       })
     })
