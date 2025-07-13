@@ -2,7 +2,7 @@ import { routes } from './app.routes'
 import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core'
 import { provideMomentDateAdapter } from '@angular/material-moment-adapter'
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async'
-import { provideRouter } from '@angular/router'
+import { provideRouter, withRouterConfig } from '@angular/router'
 import { CalendarService } from '@services/calendar.service'
 import { ChartService } from '@services/chart.service'
 import { DalBudgetService } from '@services/dal/dal.budget.service'
@@ -17,7 +17,10 @@ import { provideCharts, withDefaultRegisterables } from 'ng2-charts'
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
-    provideRouter(routes),
+    provideRouter(
+      routes,
+      withRouterConfig({ paramsInheritanceStrategy: 'always' }),
+    ),
     provideMomentDateAdapter(),
     provideAnimationsAsync(),
     provideCharts(withDefaultRegisterables()),

@@ -80,15 +80,13 @@ export class BalanceDeleteComponent implements AfterViewInit {
   matDialogRef: MatDialogRef<BalanceDeleteDialogComponent> | null = null
 
   ngAfterViewInit() {
-    this.activatedRoute.parent?.params.subscribe((parentParams) => {
-      this.activatedRoute.params.subscribe((params) => {
-        this.matDialogRef = this.matDialog.open(BalanceDeleteDialogComponent, {
-          data: { id: params['id'] },
-        })
-        this.matDialogRef.afterClosed().subscribe(() => {
-          this.matDialogRef = null
-          this.router.navigate(['/', parentParams['budgetId']])
-        })
+    this.activatedRoute.params.subscribe((params) => {
+      this.matDialogRef = this.matDialog.open(BalanceDeleteDialogComponent, {
+        data: { id: params['id'] },
+      })
+      this.matDialogRef.afterClosed().subscribe(() => {
+        this.matDialogRef = null
+        this.router.navigate(['/', params['budgetId']])
       })
     })
   }

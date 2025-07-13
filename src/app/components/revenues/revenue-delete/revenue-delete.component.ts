@@ -79,15 +79,13 @@ export class RevenueDeleteComponent implements AfterViewInit {
   matDialogRef: MatDialogRef<RevenueDeleteDialogComponent> | null = null
 
   ngAfterViewInit() {
-    this.activatedRoute.parent?.params.subscribe((parentParams) => {
-      this.activatedRoute.params.subscribe((params) => {
-        this.matDialogRef = this.matDialog.open(RevenueDeleteDialogComponent, {
-          data: { id: params['id'] },
-        })
-        this.matDialogRef.afterClosed().subscribe(() => {
-          this.matDialogRef = null
-          this.router.navigate(['/', parentParams['budgetId']])
-        })
+    this.activatedRoute.params.subscribe((params) => {
+      this.matDialogRef = this.matDialog.open(RevenueDeleteDialogComponent, {
+        data: { id: params['id'] },
+      })
+      this.matDialogRef.afterClosed().subscribe(() => {
+        this.matDialogRef = null
+        this.router.navigate(['/', params['budgetId']])
       })
     })
   }
