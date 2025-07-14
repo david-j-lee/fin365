@@ -1,4 +1,3 @@
-import { Injectable } from '@angular/core'
 import { LocalStorageRuleRepeatableService } from '@data/local-storage/local-storage.rule-repeatable'
 import { RuleRepeatableAdd } from '@interfaces/rule-repeatable-add.interface'
 import { RuleRepeatableEdit } from '@interfaces/rule-repeatable-edit.interface'
@@ -8,8 +7,7 @@ import { parseISO } from 'date-fns'
 
 const SERVICE = 'localStorageRuleRepeatableService'
 
-@Injectable()
-export class DalRuleRepeatableService {
+export class RuleRepeatableAccess {
   private localStorageRuleRepeatableService = LocalStorageRuleRepeatableService
 
   async getAll(

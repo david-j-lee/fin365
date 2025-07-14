@@ -1,4 +1,3 @@
-import { Injectable } from '@angular/core'
 import { LocalStorageBudgetService } from '@data/local-storage/local-storage.budget'
 import { BudgetAdd } from '@interfaces/budget-add.interface'
 import { BudgetEdit } from '@interfaces/budget-edit.interface'
@@ -8,8 +7,7 @@ import { parseISO } from 'date-fns'
 
 const SERVICE = 'localStorageBudgetService'
 
-@Injectable()
-export class DalBudgetService {
+export class BudgetAccess {
   private localStorageBudgetService = LocalStorageBudgetService
 
   async getAll(): Promise<Budget[]> {

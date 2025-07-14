@@ -1,4 +1,3 @@
-import { Injectable } from '@angular/core'
 import { LocalStorageSnapshotService } from '@data/local-storage/local-storage.snapshot'
 import { Rule } from '@interfaces/rule.interface'
 import { SnapshotAddAll } from '@interfaces/snapshot-add-all.interface'
@@ -9,8 +8,7 @@ import { compareDesc, parseISO } from 'date-fns'
 
 const SERVICE = 'localStorageSnapshotService'
 
-@Injectable()
-export class DalSnapshotService {
+export class SnapshotAccess {
   private localStorageSnapshotService = LocalStorageSnapshotService
 
   async getAll(budgetId: string): Promise<Snapshot[]> {

@@ -1,8 +1,8 @@
-import { DalBudgetService } from './dal/dal.budget.service'
-import { DalRuleRepeatableService } from './dal/dal.rule-repeatable.service'
-import { DalRuleService } from './dal/dal.rule.service'
-import { DalSnapshotService } from './dal/dal.snapshot.service'
-import { Injectable, inject } from '@angular/core'
+import { Injectable } from '@angular/core'
+import { BudgetAccess } from '@data/access/budget.access'
+import { RuleRepeatableAccess } from '@data/access/rule-repeatable.access'
+import { RuleAccess } from '@data/access/rule.access'
+import { SnapshotAccess } from '@data/access/snapshot.access'
 import { BudgetAdd } from '@interfaces/budget-add.interface'
 import { BudgetEdit } from '@interfaces/budget-edit.interface'
 import { Budget } from '@interfaces/budget.interface'
@@ -37,10 +37,10 @@ import { Subject } from 'rxjs'
 
 @Injectable({ providedIn: 'root' })
 export class FinanceService {
-  private dalBudgetService = inject(DalBudgetService)
-  private dalRuleService = inject(DalRuleService)
-  private dalRuleRepeatableService = inject(DalRuleRepeatableService)
-  private dalSnapshotService = inject(DalSnapshotService)
+  private budgetAccess = new BudgetAccess()
+  private ruleAccess = new RuleAccess()
+  private ruleRepeatableAccess = new RuleRepeatableAccess()
+  private snapshotAccess = new SnapshotAccess()
 
   events = new Subject<Event>()
 
@@ -76,13 +76,13 @@ export class FinanceService {
   }
 
   async loadBudgets() {
-    this.budgets = await this.dalBudgetService.getAll()
+    this.budgets = await this.budgetAccess.getAll()
     this.isLoaded = true
   }
 
   async addBudget(budgetAdd: BudgetAdd) {
     // Request the data
-    const [budget, snapshot] = await this.dalBudgetService.add(budgetAdd)
+    const [budget, snapshot] = await this.budgetAccess.add(budgetAdd)
 
     // Load the data
     this.budgets?.push(budget)
@@ -122,14 +122,14 @@ export class FinanceService {
   }
 
   async editBudget(budgetOriginal: Budget, budgetEdit: BudgetEdit) {
-    return await this.dalBudgetService.update(budgetOriginal, budgetEdit)
+    return await this.budgetAccess.update(budgetOriginal, budgetEdit)
   }
 
   async deleteBudget(budget: Budget) {
     if (!this.budgets) {
       return false
     }
-    const result = await this.dalBudgetService.delete(budget.id)
+    const result = await this.budgetAccess.delete(budget.id)
     if (!result) {
       return false
     }
@@ -161,7 +161,7 @@ export class FinanceService {
     if (!this.budget) {
       return
     }
-    const [snapshot, newBalances] = await this.dalSnapshotService.save(
+    const [snapshot, newBalances] = await this.snapshotAccess.save(
       addSnapshot,
       balances,
       this.getBalanceOn(addSnapshot.date),
@@ -180,9 +180,9 @@ export class FinanceService {
     // Send request to update the data
     let rule: Rule | RuleRepeatable | null = null
     if (isRuleRepeatable(ruleAdd)) {
-      rule = await this.dalRuleRepeatableService.add(ruleAdd)
+      rule = await this.ruleRepeatableAccess.add(ruleAdd)
     } else {
-      rule = await this.dalRuleService.add(ruleAdd)
+      rule = await this.ruleAccess.add(ruleAdd)
     }
 
     // Update service state
@@ -207,9 +207,9 @@ export class FinanceService {
     // Send request to update the data
     let rule: Rule | RuleRepeatable | null = null
     if (isRuleRepeatable(ruleOriginal) && isRuleRepeatable(ruleEdit)) {
-      rule = await this.dalRuleRepeatableService.update(ruleOriginal, ruleEdit)
+      rule = await this.ruleRepeatableAccess.update(ruleOriginal, ruleEdit)
     } else {
-      rule = await this.dalRuleService.update(ruleOriginal, ruleEdit)
+      rule = await this.ruleAccess.update(ruleOriginal, ruleEdit)
     }
 
     if (rule == null) {
@@ -239,9 +239,9 @@ export class FinanceService {
     // Send request to delete
     let result = false
     if (isRuleRepeatable(rule)) {
-      result = await this.dalRuleRepeatableService.delete(rule)
+      result = await this.ruleRepeatableAccess.delete(rule)
     } else {
-      result = await this.dalRuleService.delete(rule)
+      result = await this.ruleAccess.delete(rule)
     }
 
     if (!result) {
@@ -313,7 +313,7 @@ export class FinanceService {
 
   private async getBalances(budget: Budget) {
     try {
-      const result = await this.dalRuleService.getAll('balance', budget.id)
+      const result = await this.ruleAccess.getAll('balance', budget.id)
       budget.balances = result
       budget.isBalancesLoaded = true
     } catch (error) {
@@ -324,7 +324,7 @@ export class FinanceService {
 
   private async getExpenses(budget: Budget) {
     try {
-      const result = await this.dalRuleRepeatableService.getAll(
+      const result = await this.ruleRepeatableAccess.getAll(
         'expense',
         budget.id,
       )
@@ -338,7 +338,7 @@ export class FinanceService {
 
   private async getRevenues(budget: Budget) {
     try {
-      const result = await this.dalRuleRepeatableService.getAll(
+      const result = await this.ruleRepeatableAccess.getAll(
         'revenue',
         budget.id,
       )
@@ -352,7 +352,7 @@ export class FinanceService {
 
   private async getSnapshots(budget: Budget) {
     try {
-      const result = await this.dalSnapshotService.getAll(budget.id)
+      const result = await this.snapshotAccess.getAll(budget.id)
       budget.snapshots = result
       if (budget.snapshots && budget.snapshots[0]) {
         budget.startDate = budget.snapshots[0].date

@@ -6,10 +6,6 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { provideRouter, withRouterConfig } from '@angular/router'
 import { CalendarService } from '@services/calendar.service'
 import { ChartService } from '@services/chart.service'
-import { DalBudgetService } from '@services/dal/dal.budget.service'
-import { DalRuleRepeatableService } from '@services/dal/dal.rule-repeatable.service'
-import { DalRuleService } from '@services/dal/dal.rule.service'
-import { DalSnapshotService } from '@services/dal/dal.snapshot.service'
 import { FinanceService } from '@services/finance.service'
 import { SideBarService } from '@services/side-bar.service'
 import { ThemeService } from '@services/theme.service'
@@ -29,10 +25,6 @@ export const appConfig: ApplicationConfig = {
     provideCharts(withDefaultRegisterables()),
     { provide: CalendarService },
     { provide: ChartService },
-    { provide: DalRuleService },
-    { provide: DalRuleRepeatableService },
-    { provide: DalBudgetService },
-    { provide: DalSnapshotService },
     { provide: FinanceService },
     { provide: ThemeService },
     { provide: SideBarService },

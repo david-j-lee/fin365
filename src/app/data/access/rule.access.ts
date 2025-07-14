@@ -7,7 +7,7 @@ import { Rule, RuleType, RulesMetadata } from '@interfaces/rule.interface'
 const SERVICE = 'localStorageRuleService'
 
 @Injectable()
-export class DalRuleService {
+export class RuleAccess {
   private localStorageRuleService = LocalStorageRuleService
 
   async getAll(ruleType: RuleType, budgetId: string): Promise<Rule[]> {
