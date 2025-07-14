@@ -55,13 +55,14 @@ export class FinanceService {
   frequencies = ['Once', 'Daily', 'Weekly', 'Bi-Weekly', 'Monthly', 'Yearly']
 
   getFirstDate() {
-    return this.budget?.days ? this.budget?.days[0]?.date : null
+    return this.budget?.days ? this.budget?.days()[0]?.date : null
   }
 
   getMostRecentSnapshotDate() {
     if (!this.budget?.snapshots || this.budget.snapshots.length === 0) {
       return null
     }
+
     return this.budget.snapshots()[0].date
   }
 
@@ -69,9 +70,10 @@ export class FinanceService {
     if (!date || !this.budget || !this.budget.days) {
       return 0
     }
-    const day = this.budget.days.find((budgetDay) =>
-      isSameDay(budgetDay.date, date),
-    )
+
+    const day = this.budget
+      .days()
+      .find((budgetDay) => isSameDay(budgetDay.date, date))
     return day?.balance ?? 0
   }
 
@@ -98,7 +100,6 @@ export class FinanceService {
 
   async selectBudget(budget: Budget | null) {
     this.budget = budget
-
     if (!budget) {
       return
     }
@@ -129,14 +130,17 @@ export class FinanceService {
     if (!this.budgets) {
       return false
     }
+
     const result = await this.budgetAccess.delete(budget.id)
     if (!result) {
       return false
     }
+
     const deletedBudget = this.budgets.find((data) => data.id === budget.id)
     if (!deletedBudget) {
       return false
     }
+
     this.budgets.splice(this.budgets.indexOf(deletedBudget), 1)
     return true
   }
@@ -149,7 +153,6 @@ export class FinanceService {
     this.startDate = new Date(this.budget.startDate)
     this.endDate = addDays(this.startDate, this.numberOfDays)
 
-    this.resetDailyData()
     this.generateDaysOnBudget()
     this.generateDataForRules('balance')
     this.generateDataForRules('revenue')
@@ -161,6 +164,7 @@ export class FinanceService {
     if (!this.budget) {
       return
     }
+
     const [snapshot, newBalances] = await this.snapshotAccess.save(
       addSnapshot,
       balances,
@@ -188,7 +192,11 @@ export class FinanceService {
     // Update service state
     const budgetFieldKey = RulesMetadata[ruleAdd.type].budgetFieldKey
     const budgetField = this.budget[budgetFieldKey] as WritableSignal<Rule[]>
-    budgetField().push(rule)
+    budgetField.update((rules) => {
+      rules.push(rule)
+      return rules
+    })
+
     this.generateDataForRule(rule)
     this.updateRunningTotals()
 
@@ -212,19 +220,19 @@ export class FinanceService {
       rule = await this.ruleAccess.update(ruleOriginal, ruleEdit)
     }
 
-    if (rule == null) {
+    if (!rule) {
       // TODO: Better error handling
       return
     }
 
     // Update service state
-    const metadata = RulesMetadata[ruleOriginal.type]
-    const ruleArray = this.budget[metadata.budgetFieldKey] as Signal<Rule[]>
-    ;(this.budget[metadata.budgetFieldKey] as WritableSignal<Rule[]>).set(
-      ruleArray().map((record) =>
-        record.id === rule.id ? { ...record, ...rule } : record,
-      ),
+    const ruleArray = this.budget[
+      RulesMetadata[ruleOriginal.type].budgetFieldKey
+    ] as WritableSignal<Rule[]>
+    ruleArray.update((currentItems) =>
+      currentItems.map((item) => (item.id === rule.id ? rule : item)),
     )
+
     this.resetRuleCalculatedData(rule)
     this.generateDataForRule(rule)
     this.updateRunningTotals()
@@ -256,45 +264,34 @@ export class FinanceService {
     const budgetField = this.budget[metadata.budgetFieldKey] as WritableSignal<
       Rule[]
     >
-    const deletedRecord = budgetField().find((data) => data.id === rule.id)
+    budgetField.update((currentItems) =>
+      currentItems.filter((item) => item.id !== rule.id),
+    )
 
-    if (!deletedRecord) {
-      return
-    }
-
-    budgetField().splice(budgetField().indexOf(deletedRecord), 1)
     this.resetRuleCalculatedData(rule)
+    this.updateRunningTotals()
 
     // Send out delete event
     this.events.next({ resource: rule.type, event: 'delete', rule })
   }
 
-  private resetDailyData() {
-    this.budget?.balances()?.forEach((balance) => {
-      balance.daily = []
-    })
-    this.budget?.expenses()?.forEach((expense) => {
-      expense.daily = []
-    })
-    this.budget?.revenues()?.forEach((revenue) => {
-      revenue.daily = []
-    })
-  }
-
   private resetRuleCalculatedData(rule: Rule) {
-    rule.daily = []
+    if (!this.budget?.days) {
+      return
+    }
 
-    this.budget?.days?.forEach((day) => {
-      day.daily[rule.type] = day.daily[rule.type].filter(
-        (dailyRevenue) => dailyRevenue.rule !== rule,
-      )
-      day.total[rule.type] = day.daily[rule.type].reduce(
-        (sum, item) => sum + item.amount,
-        0,
-      )
-    })
-
-    this.updateRunningTotals()
+    this.budget.days.update((days) =>
+      days.map((day) => {
+        day.daily[rule.type] = day.daily[rule.type].filter(
+          (dailyRevenue) => dailyRevenue.rule.id !== rule.id,
+        )
+        day.total[rule.type] = day.daily[rule.type].reduce(
+          (sum, item) => sum + item.amount,
+          0,
+        )
+        return day
+      }),
+    )
   }
 
   private updateRunningTotals() {
@@ -304,15 +301,21 @@ export class FinanceService {
 
     let lastBalance = 0
 
-    for (const day of this.budget.days) {
-      day.balance =
-        lastBalance + day.total.balance + day.total.revenue - day.total.expense
-      lastBalance = day.balance
+    this.budget.days.update((days) =>
+      days.map((day) => {
+        day.balance =
+          lastBalance +
+          day.total.balance +
+          day.total.revenue -
+          day.total.expense
+        lastBalance = day.balance
 
-      if (isToday(day.date)) {
-        this.todaysEstimatedBalance = day.balance
-      }
-    }
+        if (isToday(day.date)) {
+          this.todaysEstimatedBalance = day.balance
+        }
+        return day
+      }),
+    )
   }
 
   private async getBalances(budget: Budget) {
@@ -373,7 +376,7 @@ export class FinanceService {
       return
     }
 
-    this.budget.days = []
+    this.budget.days.set([])
 
     for (let i = 0; i < this.numberOfDays; i++) {
       const date = addDays(this.startDate, i)
@@ -395,7 +398,10 @@ export class FinanceService {
         },
         balance: 0,
       }
-      this.budget?.days.push(day)
+      this.budget?.days.update((days) => {
+        days.push(day)
+        return days
+      })
     }
   }
 
@@ -453,11 +459,13 @@ export class FinanceService {
 
     const day =
       'startDate' in rule
-        ? this.budget.days?.find(
-            (budgetDay) =>
-              rule.startDate && isSameDay(budgetDay.date, rule.startDate),
-          )
-        : this.budget.days[0]
+        ? this.budget
+            .days()
+            ?.find(
+              (budgetDay) =>
+                rule.startDate && isSameDay(budgetDay.date, rule.startDate),
+            )
+        : this.budget.days()[0]
 
     if (!day) {
       return
@@ -481,19 +489,19 @@ export class FinanceService {
       rule.frequency,
       rule.isForever,
     )
-    const minDay = this.budget?.days.find((day) =>
-      isSameDay(day.date, startDate),
-    )
+    const minDay = this.budget
+      ?.days()
+      .find((day) => isSameDay(day.date, startDate))
 
     if (!minDay) {
       return
     }
 
-    const minDayIndex = this.budget?.days.indexOf(minDay)
+    const minDayIndex = this.budget?.days().indexOf(minDay)
     const numLoops = differenceInDays(endDate, startDate)
 
     for (let i = 0; i < numLoops; i++) {
-      const day = this.budget?.days[minDayIndex + i]
+      const day = this.budget?.days()[minDayIndex + i]
 
       if (!day) {
         continue
@@ -530,7 +538,8 @@ export class FinanceService {
 
     for (let i = 0; i < numLoops; i++) {
       for (const repeatDay of repeatDays) {
-        const day = this.budget?.days[firstDateIndex + i * skipDays + repeatDay]
+        const day =
+          this.budget?.days()[firstDateIndex + i * skipDays + repeatDay]
 
         if (!day) {
           continue
@@ -556,21 +565,21 @@ export class FinanceService {
       rule.frequency,
       rule.isForever,
     )
-    const budgetFirstDay = this.budget?.days.find((day) =>
-      isSameDay(day.date, firstDate),
-    )
+    const budgetFirstDay = this.budget
+      ?.days()
+      .find((day) => isSameDay(day.date, firstDate))
 
     if (!budgetFirstDay) {
       return
     }
 
-    const firstDateIndex = this.budget?.days.indexOf(budgetFirstDay)
+    const firstDateIndex = this.budget?.days().indexOf(budgetFirstDay)
     const numLoops = differenceInCalendarMonths(maxDate, firstDate) / numMonths
 
     for (let i = 0; i <= numLoops; i++) {
       const date = addMonths(firstDate, i * numMonths)
       const day =
-        this.budget?.days[firstDateIndex + differenceInDays(date, firstDate)]
+        this.budget?.days()[firstDateIndex + differenceInDays(date, firstDate)]
 
       if (!day) {
         continue
@@ -585,24 +594,24 @@ export class FinanceService {
   }
 
   private getFirstDayIndex(date: Date) {
-    if (!this.budget?.days) {
+    if (!this.budget?.days()) {
       return null
     }
 
-    const [firstDay] = this.budget.days
+    const [firstDay] = this.budget.days()
 
     if (date < firstDay.date) {
       return differenceInDays(date, firstDay.date)
     }
 
-    const budgetFirstDay = this.budget?.days.find((day) =>
-      isSameDay(day.date, date),
-    )
+    const budgetFirstDay = this.budget
+      ?.days()
+      .find((day) => isSameDay(day.date, date))
 
     if (!budgetFirstDay) {
       return null
     }
 
-    return this.budget?.days.indexOf(budgetFirstDay)
+    return this.budget?.days().indexOf(budgetFirstDay)
   }
 }

@@ -38,6 +38,7 @@ module.exports = tseslint.config(
       ],
       'prettier/prettier': 'error', // Enforce Prettier formatting as lint errors
       '@typescript-eslint/no-explicit-any': 'error', // Forbid usage of 'any'
+      curly: 'error',
     },
   },
   {

@@ -25,7 +25,7 @@ export class BudgetAccess {
       expenses: signal([]),
       savings: signal([]),
       snapshots: signal([]),
-      days: [],
+      days: signal([]),
     }))
   }
 
@@ -44,7 +44,7 @@ export class BudgetAccess {
       expenses: signal([]),
       savings: signal([]),
       snapshots: signal([]),
-      days: [],
+      days: signal([]),
     }
     const newSnapshot: Snapshot = {
       ...result.snapshot,

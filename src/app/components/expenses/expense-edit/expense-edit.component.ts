@@ -90,7 +90,9 @@ export class ExpenseEditDialogComponent implements OnInit {
 
   constructor() {
     effect(() => {
-      if (!this.financeService.budget?.isExpensesLoaded()) return
+      if (!this.financeService.budget?.isExpensesLoaded()) {
+        return
+      }
 
       this.oldExpense = this.financeService.budget
         ?.expenses()

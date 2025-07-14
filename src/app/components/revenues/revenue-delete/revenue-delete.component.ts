@@ -53,7 +53,9 @@ export class RevenueDeleteDialogComponent implements OnInit {
 
   constructor() {
     effect(() => {
-      if (!this.financeService.budget?.isRevenuesLoaded()) return
+      if (!this.financeService.budget?.isRevenuesLoaded()) {
+        return
+      }
 
       this.deleteRevenue = this.financeService.budget
         ?.revenues()

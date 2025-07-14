@@ -50,10 +50,10 @@ export class CalendarService {
       return
     }
 
-    const [firstDay] = this.financeService.budget.days
+    const [firstDay] = this.financeService.budget.days()
     const lastDay =
-      this.financeService.budget.days[
-        this.financeService.budget.days.length - 1
+      this.financeService.budget.days()[
+        this.financeService.budget.days().length - 1
       ]
 
     this.minMonth = getMonth(firstDay.date) + 1
@@ -102,9 +102,9 @@ export class CalendarService {
     )
     this.days = []
 
-    const days = this.financeService.budget.days.filter(
-      (day) => day.year === year && day.month + 1 === month,
-    )
+    const days = this.financeService.budget
+      .days()
+      .filter((day) => day.year === year && day.month + 1 === month)
 
     if (!days) {
       return
@@ -116,9 +116,9 @@ export class CalendarService {
     let lastBalance = 0
 
     for (let i = 0; i <= numLoops; i++) {
-      const day = this.financeService.budget.days.find((budgetDay) =>
-        isSameDay(budgetDay.date, addDays(firstDate, i)),
-      )
+      const day = this.financeService.budget
+        .days()
+        .find((budgetDay) => isSameDay(budgetDay.date, addDays(firstDate, i)))
 
       if (day) {
         this.days.push(day)

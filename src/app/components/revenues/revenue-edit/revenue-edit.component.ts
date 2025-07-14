@@ -90,7 +90,9 @@ export class RevenueEditDialogComponent implements OnInit {
 
   constructor() {
     effect(() => {
-      if (!this.financeService.budget?.isRevenuesLoaded()) return
+      if (!this.financeService.budget?.isRevenuesLoaded()) {
+        return
+      }
 
       this.oldRevenue = this.financeService.budget
         ?.revenues()

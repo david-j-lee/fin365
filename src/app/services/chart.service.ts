@@ -269,7 +269,7 @@ export class ChartService {
     datasets[1].data = []
     datasets[2].data = []
 
-    this.financeService.budget.days.forEach((day) => {
+    this.financeService.budget.days().forEach((day) => {
       labels.push(format(day.date, 'M/d'))
       datasets[0].data.push(day.balance)
       datasets[1].data.push(day.total.revenue)

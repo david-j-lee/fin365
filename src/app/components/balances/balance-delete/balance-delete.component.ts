@@ -53,7 +53,9 @@ export class BalanceDeleteDialogComponent implements OnInit {
 
   constructor() {
     effect(() => {
-      if (!this.financeService.budget?.isBalancesLoaded()) return
+      if (!this.financeService.budget?.isBalancesLoaded()) {
+        return
+      }
 
       this.deleteBalance = this.financeService.budget
         ?.balances()

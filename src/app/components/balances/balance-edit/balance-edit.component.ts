@@ -70,7 +70,9 @@ export class BalanceEditDialogComponent implements OnInit {
 
   constructor() {
     effect(() => {
-      if (!this.financeService.budget?.isBalancesLoaded()) return
+      if (!this.financeService.budget?.isBalancesLoaded()) {
+        return
+      }
 
       this.oldBalance = this.financeService.budget
         ?.balances()

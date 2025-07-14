@@ -20,5 +20,5 @@ export interface Budget extends Omit<BudgetEntity, 'startDate'> {
 
   snapshots: WritableSignal<Snapshot[]>
 
-  days: Day[]
+  days: WritableSignal<Day[]>
 }
