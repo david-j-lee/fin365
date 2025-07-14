@@ -1,8 +1,6 @@
-import { Moment } from 'moment'
-
 export interface SnapshotAdd {
   budgetId: string
-  date: Moment
+  date: Date
   estimatedBalance: number
   actualBalance: number
 }

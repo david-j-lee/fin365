@@ -19,7 +19,7 @@ export const LocalStorageBudgetService = {
     const budgets = localStorageService.getObject<BudgetEntity>('budgets')
     const budget: BudgetEntity = {
       ...budgetAdd,
-      startDate: budgetAdd.startDate.toString(),
+      startDate: budgetAdd.startDate.toISOString(),
       id: getRansomStringFromObject(budgets),
       isActive: true,
     }
@@ -32,7 +32,7 @@ export const LocalStorageBudgetService = {
     const snapshots = localStorageService.getObject<SnapshotEntity>('snapshots')
     const snapshot: SnapshotEntity = {
       id: getRansomStringFromObject(snapshots),
-      date: budgetAdd.startDate.toString(),
+      date: budgetAdd.startDate.toISOString(),
       actualBalance: 0,
       estimatedBalance: 0,
       budgetId: budget.id,

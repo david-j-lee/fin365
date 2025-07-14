@@ -6,7 +6,8 @@
     <small class="opacity-50">Last Snapshot</small>
     <div class="fill-space text-end">
       {{
-        financeService.budget?.startDate?.toString() ?? '' | date: 'MM/dd/yyyy'
+        financeService.budget?.startDate?.toISOString() ?? ''
+          | date: 'MM/dd/yyyy'
       }}
     </div>
   </div>
@@ -15,9 +16,8 @@
     <div class="fill-space text-end">
       $
       {{
-        financeService.getBalanceOn(
-          financeService.getMostRecentSnapshotDate()?.format('MM/DD/YYYY') ?? ''
-        ) | number: '1.0'
+        financeService.getBalanceOn(financeService.getMostRecentSnapshotDate())
+          | number: '1.0'
       }}
     </div>
   </div>

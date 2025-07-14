@@ -4,7 +4,7 @@ import { MatIconButton } from '@angular/material/button'
 import { MatIcon } from '@angular/material/icon'
 import { MatTooltip } from '@angular/material/tooltip'
 import { CalendarService } from '@services/calendar.service'
-import moment, { Moment } from 'moment'
+import { getMonth, isFirstDayOfMonth, isSameDay } from 'date-fns'
 
 @Component({
   selector: 'app-calendar',
@@ -15,5 +15,9 @@ import moment, { Moment } from 'moment'
 export class CalendarComponent {
   calendarService = inject(CalendarService)
 
-  today: Moment = moment()
+  today: Date = new Date()
+
+  getMonth = getMonth
+  isFirstDayOfMonth = isFirstDayOfMonth
+  isSameDay = isSameDay
 }

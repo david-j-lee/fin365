@@ -1,9 +1,8 @@
 import { DailyItem } from './daily-item.interface'
 import { RuleType } from '@interfaces/rule.interface'
-import { Moment } from 'moment'
 
 export interface Day {
-  date: Moment
+  date: Date
   month: number
   year: number
 

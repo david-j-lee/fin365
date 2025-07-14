@@ -39,7 +39,6 @@ import { SnapshotAdd } from '@interfaces/snapshot-add.interface'
 import { SnapshotBalanceAdd } from '@interfaces/snapshot-balance-add.interface'
 import { FinanceService } from '@services/finance.service'
 import { getRansomStringFromObject } from '@utilities/string-utilities'
-import moment from 'moment'
 
 @Component({
   selector: 'app-snapshot-table-dialog',
@@ -84,13 +83,13 @@ export class SnapshotTableDialogComponent implements OnInit {
 
   mostRecentSnapshotDate = this.financeService.getMostRecentSnapshotDate()
   estimatedTotalBalance = this.financeService.getBalanceOn(
-    this.mostRecentSnapshotDate?.format('MM/DD/YYYY') ?? '',
+    this.mostRecentSnapshotDate,
   )
   displayColumns = ['description', 'amount', 'delete']
   dataSource = new MatTableDataSource<SnapshotBalanceAdd>()
   addSnapshot: SnapshotAdd = {
     budgetId: this.financeService.budget?.id ?? '',
-    date: this.mostRecentSnapshotDate ?? moment(),
+    date: this.mostRecentSnapshotDate ?? new Date(),
     estimatedBalance: 0,
     actualBalance: 0,
   }
@@ -121,7 +120,7 @@ export class SnapshotTableDialogComponent implements OnInit {
 
   onDatePickerChange() {
     this.estimatedTotalBalance = this.financeService.getBalanceOn(
-      this.addSnapshot.date.format('MM/DD/YYYY'),
+      this.addSnapshot.date,
     )
   }
 

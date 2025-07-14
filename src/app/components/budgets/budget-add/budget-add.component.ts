@@ -34,7 +34,6 @@ import { Router } from '@angular/router'
 import { SpinnerComponent } from '@components/spinner/spinner.component'
 import { BudgetAdd } from '@interfaces/budget-add.interface'
 import { FinanceService } from '@services/finance.service'
-import moment from 'moment'
 
 @Component({
   selector: 'app-budget-add-dialog',
@@ -71,7 +70,7 @@ export class BudgetAddDialogComponent implements OnInit {
   myBudget: BudgetAdd | undefined
 
   ngOnInit() {
-    this.myBudget = { name: '', startDate: moment() }
+    this.myBudget = { name: '', startDate: new Date() }
   }
 
   async create(form: NgForm) {

@@ -3,10 +3,9 @@ import { Day } from '@interfaces/day.interface'
 import { RuleRepeatable } from '@interfaces/rule-repeatable.interface'
 import { Rule } from '@interfaces/rule.interface'
 import { Snapshot } from '@interfaces/snapshot.interface'
-import { Moment } from 'moment'
 
 export interface Budget extends Omit<BudgetEntity, 'startDate'> {
-  startDate: Moment
+  startDate: Date
 
   isBalancesLoaded: boolean
   isRevenuesLoaded: boolean

@@ -36,22 +36,22 @@
         @for (day of calendarService.days; track day; let first = $first) {
           <div
             [ngClass]="
-              day.date.format('L') === today.format('L')
+              isSameDay(day.date, today)
                 ? 'today'
-                : day.date.month() + 1 !== calendarService.currentMonth
+                : getMonth(day.date) + 1 !== calendarService.currentMonth
                   ? 'out-of-period'
                   : ''
             "
             class="day"
           >
-            @if (day.date.month() + 1 !== calendarService.currentMonth) {
+            @if (getMonth(day.date) + 1 !== calendarService.currentMonth) {
               <div class="overlay"></div>
             }
             <div class="date mt-1 ms-1">
-              @if (day.date.date() === 1 || first) {
-                <span>{{ day.date.toDate() | date: 'MMM' }} </span>
+              @if (isFirstDayOfMonth(day.date) || first) {
+                <span>{{ day.date | date: 'MMM' }} </span>
               }
-              <span>{{ day.date.toDate() | date: 'd' }}</span>
+              <span>{{ day.date | date: 'd' }}</span>
             </div>
             <div class="items">
               @if (day.total.balance !== 0) {

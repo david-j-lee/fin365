@@ -5,7 +5,7 @@ import { SnapshotAddAll } from '@interfaces/snapshot-add-all.interface'
 import { SnapshotAdd } from '@interfaces/snapshot-add.interface'
 import { SnapshotBalanceAdd } from '@interfaces/snapshot-balance-add.interface'
 import { Snapshot } from '@interfaces/snapshot.interface'
-import moment from 'moment'
+import { compareDesc, parseISO } from 'date-fns'
 
 const SERVICE = 'localStorageSnapshotService'
 
@@ -15,14 +15,16 @@ export class DalSnapshotService {
 
   async getAll(budgetId: string): Promise<Snapshot[]> {
     const data = await this[SERVICE].getAll(budgetId)
-    return data.map((record) => {
-      const mappedRecord: Snapshot = {
-        ...record,
-        date: moment(record.date),
-        balanceDifference: record.actualBalance - record.estimatedBalance,
-      }
-      return mappedRecord
-    })
+    return data
+      .map((record) => {
+        const mappedRecord: Snapshot = {
+          ...record,
+          date: parseISO(record.date),
+          balanceDifference: record.actualBalance - record.estimatedBalance,
+        }
+        return mappedRecord
+      })
+      .toSorted((a, b) => compareDesc(a.date, b.date))
   }
 
   async save(
@@ -55,7 +57,7 @@ export class DalSnapshotService {
     // Add snapshot to local data
     const snapshot: Snapshot = {
       id: result.snapshot.id,
-      date: moment(addSnapshot.date),
+      date: new Date(addSnapshot.date),
       estimatedBalance: newAddSnapshot.estimatedBalance,
       actualBalance: newAddSnapshot.actualBalance,
       balanceDifference:

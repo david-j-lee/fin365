@@ -23,8 +23,16 @@ import {
   getRuleTotal,
   isRuleRepeatable,
 } from '@utilities/rule-utilities'
-import moment from 'moment'
-import { Moment } from 'moment'
+import {
+  addDays,
+  addMonths,
+  differenceInCalendarMonths,
+  differenceInDays,
+  getMonth,
+  getYear,
+  isSameDay,
+  isToday,
+} from 'date-fns'
 import { Subject } from 'rxjs'
 
 @Injectable({ providedIn: 'root' })
@@ -41,8 +49,8 @@ export class FinanceService {
   isLoaded = false
 
   todaysEstimatedBalance = 0
-  startDate: Moment = moment()
-  endDate: Moment = moment()
+  startDate: Date = new Date()
+  endDate: Date = new Date()
   numberOfDays = 365
   frequencies = ['Once', 'Daily', 'Weekly', 'Bi-Weekly', 'Monthly', 'Yearly']
 
@@ -57,12 +65,12 @@ export class FinanceService {
     return this.budget.snapshots[0].date
   }
 
-  getBalanceOn(date: string) {
-    if (!this.budget || !this.budget.days) {
+  getBalanceOn(date: Date | null) {
+    if (!date || !this.budget || !this.budget.days) {
       return 0
     }
-    const day = this.budget.days.find(
-      (budgetDay) => budgetDay.date.format('MM/DD/YYYY') === date,
+    const day = this.budget.days.find((budgetDay) =>
+      isSameDay(budgetDay.date, date),
     )
     return day?.balance ?? 0
   }
@@ -138,8 +146,8 @@ export class FinanceService {
       return
     }
 
-    this.startDate = this.budget.startDate.clone()
-    this.endDate = this.startDate.clone().add(this.numberOfDays, 'days')
+    this.startDate = new Date(this.budget.startDate)
+    this.endDate = addDays(this.startDate, this.numberOfDays)
 
     this.resetDailyData()
     this.generateDaysOnBudget()
@@ -156,7 +164,7 @@ export class FinanceService {
     const [snapshot, newBalances] = await this.dalSnapshotService.save(
       addSnapshot,
       balances,
-      this.getBalanceOn(addSnapshot.date.format('L')),
+      this.getBalanceOn(addSnapshot.date),
     )
     this.budget.startDate = snapshot.date
     this.budget.snapshots?.unshift(snapshot)
@@ -297,7 +305,7 @@ export class FinanceService {
         lastBalance + day.total.balance + day.total.revenue - day.total.expense
       lastBalance = day.balance
 
-      if (day.date.format('L') === moment().format('L')) {
+      if (isToday(day.date)) {
         this.todaysEstimatedBalance = day.balance
       }
     }
@@ -346,16 +354,6 @@ export class FinanceService {
     try {
       const result = await this.dalSnapshotService.getAll(budget.id)
       budget.snapshots = result
-        .map((snapshot) => ({
-          ...snapshot,
-          date: moment(snapshot.date),
-          balanceDifference: snapshot.actualBalance - snapshot.estimatedBalance,
-        }))
-        .sort((a, b) => {
-          const valueA = a.date ? a.date.toISOString() : ''
-          const valueB = b.date ? b.date.toISOString() : ''
-          return valueB.localeCompare(valueA)
-        })
       if (budget.snapshots && budget.snapshots[0]) {
         budget.startDate = budget.snapshots[0].date
       }
@@ -374,11 +372,11 @@ export class FinanceService {
     this.budget.days = []
 
     for (let i = 0; i < this.numberOfDays; i++) {
-      const date = this.startDate.clone().add(i, 'days')
+      const date = addDays(this.startDate, i)
       const day: Day = {
         date,
-        month: date.month(),
-        year: date.year(),
+        month: getMonth(date),
+        year: getYear(date),
         daily: {
           balance: [],
           revenue: [],
@@ -453,7 +451,7 @@ export class FinanceService {
       'startDate' in rule
         ? this.budget.days?.find(
             (budgetDay) =>
-              budgetDay.date.format('L') === rule.startDate?.format('L'),
+              rule.startDate && isSameDay(budgetDay.date, rule.startDate),
           )
         : this.budget.days[0]
 
@@ -479,8 +477,8 @@ export class FinanceService {
       rule.frequency,
       rule.isForever,
     )
-    const minDay = this.budget?.days.find(
-      (day) => day.date.format('L') === startDate.format('L'),
+    const minDay = this.budget?.days.find((day) =>
+      isSameDay(day.date, startDate),
     )
 
     if (!minDay) {
@@ -488,7 +486,7 @@ export class FinanceService {
     }
 
     const minDayIndex = this.budget?.days.indexOf(minDay)
-    const numLoops = endDate.diff(startDate, 'days', true)
+    const numLoops = differenceInDays(endDate, startDate)
 
     for (let i = 0; i < numLoops; i++) {
       const day = this.budget?.days[minDayIndex + i]
@@ -524,7 +522,7 @@ export class FinanceService {
       return
     }
 
-    const numLoops = endDate.diff(startDate, 'days', true) / skipDays
+    const numLoops = differenceInDays(endDate, startDate) / skipDays
 
     for (let i = 0; i < numLoops; i++) {
       for (const repeatDay of repeatDays) {
@@ -554,8 +552,8 @@ export class FinanceService {
       rule.frequency,
       rule.isForever,
     )
-    const budgetFirstDay = this.budget?.days.find(
-      (day) => day.date.format('L') === firstDate.format('L'),
+    const budgetFirstDay = this.budget?.days.find((day) =>
+      isSameDay(day.date, firstDate),
     )
 
     if (!budgetFirstDay) {
@@ -563,12 +561,12 @@ export class FinanceService {
     }
 
     const firstDateIndex = this.budget?.days.indexOf(budgetFirstDay)
-    const numLoops = Math.ceil(maxDate.diff(firstDate, 'M', true)) / numMonths
+    const numLoops = differenceInCalendarMonths(maxDate, firstDate) / numMonths
 
     for (let i = 0; i <= numLoops; i++) {
-      const date = firstDate.clone().add(i * numMonths, 'M')
+      const date = addMonths(firstDate, i * numMonths)
       const day =
-        this.budget?.days[firstDateIndex + date.diff(firstDate, 'days', true)]
+        this.budget?.days[firstDateIndex + differenceInDays(date, firstDate)]
 
       if (!day) {
         continue
@@ -582,7 +580,7 @@ export class FinanceService {
     }
   }
 
-  private getFirstDayIndex(date: Moment) {
+  private getFirstDayIndex(date: Date) {
     if (!this.budget?.days) {
       return null
     }
@@ -590,11 +588,11 @@ export class FinanceService {
     const [firstDay] = this.budget.days
 
     if (date < firstDay.date) {
-      return date.diff(firstDay.date, 'd')
+      return differenceInDays(date, firstDay.date)
     }
 
-    const budgetFirstDay = this.budget?.days.find(
-      (day) => day.date.format('L') === date.format('L'),
+    const budgetFirstDay = this.budget?.days.find((day) =>
+      isSameDay(day.date, date),
     )
 
     if (!budgetFirstDay) {

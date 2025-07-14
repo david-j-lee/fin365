@@ -4,7 +4,7 @@ import { RuleRepeatableAdd } from '@interfaces/rule-repeatable-add.interface'
 import { RuleRepeatableEdit } from '@interfaces/rule-repeatable-edit.interface'
 import { RuleRepeatable } from '@interfaces/rule-repeatable.interface'
 import { Rule, RuleType, RulesMetadata } from '@interfaces/rule.interface'
-import moment from 'moment'
+import { parseISO } from 'date-fns'
 
 const SERVICE = 'localStorageRuleRepeatableService'
 
@@ -19,8 +19,8 @@ export class DalRuleRepeatableService {
     const rules = await this[SERVICE].getAll(RulesMetadata[ruleType], budgetId)
     return rules.map((rule) => ({
       ...rule,
-      startDate: rule.startDate ? moment(rule.startDate) : null,
-      endDate: rule.endDate ? moment(rule.endDate) : null,
+      startDate: rule.startDate ? parseISO(rule.startDate) : null,
+      endDate: rule.endDate ? parseISO(rule.endDate) : null,
     }))
   }
 
@@ -31,8 +31,8 @@ export class DalRuleRepeatableService {
     )
     return {
       ...addResult,
-      startDate: addResult.startDate ? moment(addResult.startDate) : null,
-      endDate: addResult.endDate ? moment(addResult.endDate) : null,
+      startDate: addResult.startDate ? parseISO(addResult.startDate) : null,
+      endDate: addResult.endDate ? parseISO(addResult.endDate) : null,
       yearlyAmount: 0,
       daily: [],
     }
@@ -53,8 +53,10 @@ export class DalRuleRepeatableService {
     return {
       ...ruleOriginal,
       ...updateResult,
-      startDate: updateResult.startDate ? moment(updateResult.startDate) : null,
-      endDate: updateResult.endDate ? moment(updateResult.endDate) : null,
+      startDate: updateResult.startDate
+        ? parseISO(updateResult.startDate)
+        : null,
+      endDate: updateResult.endDate ? parseISO(updateResult.endDate) : null,
     }
   }
 

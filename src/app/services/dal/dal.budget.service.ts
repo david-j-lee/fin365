@@ -4,7 +4,7 @@ import { BudgetAdd } from '@interfaces/budget-add.interface'
 import { BudgetEdit } from '@interfaces/budget-edit.interface'
 import { Budget } from '@interfaces/budget.interface'
 import { Snapshot } from '@interfaces/snapshot.interface'
-import moment from 'moment'
+import { parseISO } from 'date-fns'
 
 const SERVICE = 'localStorageBudgetService'
 
@@ -16,7 +16,7 @@ export class DalBudgetService {
     const budgets = await this[SERVICE].getAll()
     return budgets.map((budget) => ({
       ...budget,
-      startDate: moment(budget.startDate),
+      startDate: parseISO(budget.startDate),
       isBalancesLoaded: false,
       isRevenuesLoaded: false,
       isExpensesLoaded: false,
@@ -35,7 +35,7 @@ export class DalBudgetService {
     const newBudget: Budget = {
       ...result.budget,
       isActive: true,
-      startDate: moment(budgetAdd.startDate),
+      startDate: new Date(budgetAdd.startDate),
       isBalancesLoaded: true,
       isRevenuesLoaded: true,
       isExpensesLoaded: true,
@@ -49,7 +49,7 @@ export class DalBudgetService {
     }
     const newSnapshot: Snapshot = {
       ...result.snapshot,
-      date: moment(budgetAdd.startDate),
+      date: new Date(budgetAdd.startDate),
       balanceDifference: 0,
     }
     return [newBudget, newSnapshot]
@@ -64,7 +64,7 @@ export class DalBudgetService {
     return {
       ...budgetOriginal,
       ...result,
-      startDate: moment(result.startDate),
+      startDate: parseISO(result.startDate),
     }
   }
 

@@ -1,12 +1,11 @@
 import { RuleEdit } from './rule-edit.interface'
-import { Moment } from 'moment'
 
 export interface RuleRepeatableEdit extends RuleEdit {
   isForever: boolean
   frequency: string
 
-  startDate?: Moment | null
-  endDate?: Moment | null
+  startDate?: Date | null
+  endDate?: Date | null
 
   repeatMon: boolean
   repeatTue: boolean

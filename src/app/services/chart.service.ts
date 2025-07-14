@@ -5,6 +5,7 @@ import { ChartBudget } from '@interfaces/chart-budget.interface'
 import { ChartExpense } from '@interfaces/chart-expense.interface'
 import { ChartRevenue } from '@interfaces/chart-revenue.interface'
 import { getRuleTotal } from '@utilities/rule-utilities'
+import { format } from 'date-fns'
 
 const pieOptions = {
   animation: { duration: 0 },
@@ -174,106 +175,110 @@ export class ChartService {
   }
 
   setChartBalance() {
-    if (this.financeService.budget?.balances) {
-      let total = 0
-
-      const data: number[] = []
-      const labels: string[] = []
-      this.financeService.budget.balances.forEach((balance) => {
-        data.push(balance.amount)
-        labels.push(balance.description)
-        total += balance.amount
-      })
-
-      this.chartBalance.data = {
-        ...this.chartBalance.data,
-        labels,
-        datasets: [
-          {
-            ...this.chartBalance.data.datasets[0],
-            data,
-          },
-        ],
-      }
-      this.chartBalance.total = total
+    if (!this.financeService.budget?.balances) {
+      return
     }
+
+    let total = 0
+    const data: number[] = []
+    const labels: string[] = []
+
+    this.financeService.budget.balances.forEach((balance) => {
+      data.push(balance.amount)
+      labels.push(balance.description)
+      total += balance.amount
+    })
+    this.chartBalance.data = {
+      ...this.chartBalance.data,
+      labels,
+      datasets: [
+        {
+          ...this.chartBalance.data.datasets[0],
+          data,
+        },
+      ],
+    }
+    this.chartBalance.total = total
   }
 
   setChartRevenue() {
-    if (this.financeService.budget?.revenues) {
-      let total = 0
-
-      const data: number[] = []
-      const labels: string[] = []
-      this.financeService.budget.revenues.forEach((revenue) => {
-        revenue.yearlyAmount = getRuleTotal(revenue)
-        data.push(revenue.yearlyAmount)
-        labels.push(revenue.description)
-        total += revenue.yearlyAmount
-      })
-
-      this.chartRevenue.data = {
-        ...this.chartRevenue.data,
-        labels,
-        datasets: [
-          {
-            ...this.chartRevenue.data.datasets[0],
-            data,
-          },
-        ],
-      }
-      this.chartRevenue.total = total
+    if (!this.financeService.budget?.revenues) {
+      return
     }
+
+    let total = 0
+    const data: number[] = []
+    const labels: string[] = []
+
+    this.financeService.budget.revenues.forEach((revenue) => {
+      revenue.yearlyAmount = getRuleTotal(revenue)
+      data.push(revenue.yearlyAmount)
+      labels.push(revenue.description)
+      total += revenue.yearlyAmount
+    })
+    this.chartRevenue.data = {
+      ...this.chartRevenue.data,
+      labels,
+      datasets: [
+        {
+          ...this.chartRevenue.data.datasets[0],
+          data,
+        },
+      ],
+    }
+    this.chartRevenue.total = total
   }
 
   setChartExpense() {
-    if (this.financeService.budget?.expenses) {
-      let total = 0
-
-      const data: number[] = []
-      const labels: string[] = []
-      this.financeService.budget.expenses.forEach((expense) => {
-        expense.yearlyAmount = getRuleTotal(expense)
-        data.push(expense.yearlyAmount)
-        labels.push(expense.description)
-        total += expense.yearlyAmount
-      })
-
-      this.chartExpense.data = {
-        ...this.chartExpense,
-        labels,
-        datasets: [
-          {
-            ...this.chartExpense.data.datasets[0],
-            data,
-          },
-        ],
-      }
-      this.chartExpense.total = total
+    if (!this.financeService.budget?.expenses) {
+      return
     }
+
+    let total = 0
+    const data: number[] = []
+    const labels: string[] = []
+
+    this.financeService.budget.expenses.forEach((expense) => {
+      expense.yearlyAmount = getRuleTotal(expense)
+      data.push(expense.yearlyAmount)
+      labels.push(expense.description)
+      total += expense.yearlyAmount
+    })
+    this.chartExpense.data = {
+      ...this.chartExpense,
+      labels,
+      datasets: [
+        {
+          ...this.chartExpense.data.datasets[0],
+          data,
+        },
+      ],
+    }
+    this.chartExpense.total = total
   }
 
   setChartBudget() {
-    if (this.financeService.budget?.days) {
-      const labels: string[] = []
-      const datasets = [...this.chartBudget.data.datasets]
+    if (!this.financeService.budget?.days) {
+      return
+    }
 
-      datasets[0].data = []
-      datasets[1].data = []
-      datasets[2].data = []
+    const labels: string[] = []
+    const datasets = [...this.chartBudget.data.datasets]
 
-      this.financeService.budget.days.forEach((day) => {
-        labels.push(day.date.format('M/D'))
-        datasets[0].data.push(day.balance)
-        datasets[1].data.push(day.total.revenue)
-        datasets[2].data.push(-day.total.expense)
-      })
+    datasets[0].data = []
+    datasets[1].data = []
+    datasets[2].data = []
 
-      this.chartBudget.data = {
-        ...this.chartBudget.data,
-        labels,
-        datasets,
-      }
+    this.financeService.budget.days.forEach((day) => {
+      labels.push(format(day.date, 'M/d'))
+      datasets[0].data.push(day.balance)
+      datasets[1].data.push(day.total.revenue)
+      datasets[2].data.push(-day.total.expense)
+    })
+    this.chartBudget.data = {
+      ...this.chartBudget.data,
+      labels,
+      datasets,
     }
   }
 }

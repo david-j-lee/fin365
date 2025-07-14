@@ -23,7 +23,7 @@ export const LocalStorageSnapshotService = {
       ...snapshotAddAll.snapshot,
       id: getRansomStringFromObject(snapshots),
       budgetId: snapshotAddAll.budgetId,
-      date: snapshotAddAll.snapshot.date.toString(),
+      date: snapshotAddAll.snapshot.date.toISOString(),
     }
     snapshots[snapshot.id] = snapshot
     localStorageService.setObject('snapshots', snapshots)

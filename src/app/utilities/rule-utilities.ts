@@ -5,7 +5,13 @@ import { RuleRepeatableAdd } from '@interfaces/rule-repeatable-add.interface'
 import { RuleRepeatableEdit } from '@interfaces/rule-repeatable-edit.interface'
 import { RuleRepeatable } from '@interfaces/rule-repeatable.interface'
 import { Rule } from '@interfaces/rule.interface'
-import { Moment } from 'moment'
+import {
+  addMonths,
+  addYears,
+  differenceInCalendarMonths,
+  differenceInCalendarYears,
+  startOfWeek,
+} from 'date-fns'
 
 export function isRuleRepeatable(
   rule:
@@ -52,45 +58,45 @@ export function getRuleRepeatDays(item: RuleRepeatable): number[] {
 }
 
 export function getRuleRange(
-  [budgetStart, budgetEnd]: [Moment, Moment],
-  [itemStart, itemEnd]: [Moment | null | undefined, Moment | null | undefined],
+  [budgetStart, budgetEnd]: [Date, Date],
+  [itemStart, itemEnd]: [Date | null | undefined, Date | null | undefined],
   frequency: string,
   isForever: boolean,
-): [Moment, Moment] {
-  let start = budgetStart.clone()
+): [Date, Date] {
+  let start = new Date(budgetStart)
 
   if (frequency === 'Weekly' || frequency === 'Bi-Weekly') {
     if (isForever) {
-      start = start.weekday(0)
+      start = startOfWeek(start)
     } else if (itemStart) {
-      start = itemStart.clone().weekday(0)
+      start = startOfWeek(itemStart)
     }
   }
 
   // If monthly get most recent month
   if (frequency === 'Monthly' && itemStart) {
     if (itemStart < budgetStart) {
-      const monthNeeded = Math.ceil(budgetStart.diff(itemStart, 'months', true))
-      start = itemStart.clone().add(monthNeeded, 'M')
+      const monthNeeded = differenceInCalendarMonths(budgetStart, itemStart)
+      start = addMonths(itemStart, monthNeeded)
     } else {
-      start = itemStart.clone()
+      start = new Date(itemStart)
     }
   }
 
   // If yearly get most recent year
   if (frequency === 'Yearly' && itemStart) {
     if (itemStart < budgetStart) {
-      const yearsNeeded = Math.ceil(budgetStart.diff(itemStart, 'years', true))
-      start = itemStart.clone().add(yearsNeeded, 'year')
+      const yearsNeeded = differenceInCalendarYears(budgetStart, itemStart)
+      start = addYears(itemStart, yearsNeeded)
     } else {
-      start = itemStart.clone()
+      start = new Date(itemStart)
     }
   }
 
   // end date
-  let end = budgetEnd.clone()
+  let end = new Date(budgetEnd)
   if (!isForever && itemEnd && itemEnd <= budgetEnd) {
-    end = itemEnd
+    end = new Date(itemEnd)
   }
 
   return [start, end]

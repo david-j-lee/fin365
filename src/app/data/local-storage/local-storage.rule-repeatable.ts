@@ -30,8 +30,8 @@ export const LocalStorageRuleRepeatableService = {
     const rule = {
       ...ruleAdd,
       id: getRansomStringFromObject(rules),
-      startDate: ruleAdd.startDate?.toString(),
-      endDate: ruleAdd.endDate?.toString(),
+      startDate: ruleAdd.startDate?.toISOString(),
+      endDate: ruleAdd.endDate?.toISOString(),
     }
     rules[rule.id] = rule
     localStorageService.setObject(ruleMetadata.tableName, rules)
@@ -51,8 +51,8 @@ export const LocalStorageRuleRepeatableService = {
     const updatedRule = {
       ...rule,
       ...ruleEdit,
-      startDate: ruleEdit.startDate?.toString(),
-      endDate: ruleEdit.endDate?.toString(),
+      startDate: ruleEdit.startDate?.toISOString(),
+      endDate: ruleEdit.endDate?.toISOString(),
     }
     rules[ruleEdit.id] = updatedRule
     localStorageService.setObject(ruleMetadata.tableName, rules)

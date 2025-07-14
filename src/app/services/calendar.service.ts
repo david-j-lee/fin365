@@ -1,7 +1,19 @@
 import { FinanceService } from './finance.service'
 import { Injectable, inject } from '@angular/core'
 import { Day } from '@interfaces/day.interface'
-import moment from 'moment'
+import {
+  addDays,
+  differenceInDays,
+  endOfMonth,
+  endOfWeek,
+  format,
+  getMonth,
+  getYear,
+  isSameDay,
+  setMonth,
+  startOfMonth,
+  startOfWeek,
+} from 'date-fns'
 
 @Injectable()
 export class CalendarService {
@@ -23,116 +35,116 @@ export class CalendarService {
 
   constructor() {
     this.financeService.events.subscribe((event) => {
-      if (event.resource === 'budget') {
-        this.setFirstMonth()
+      if (event.resource !== 'budget') {
+        return
       }
+      this.setFirstMonth()
     })
   }
 
   setFirstMonth() {
     if (
-      this.financeService.budget?.days &&
-      this.financeService.budget.days.length > 0
+      !this.financeService.budget?.days ||
+      this.financeService.budget.days.length == 0
     ) {
-      const [firstDay] = this.financeService.budget.days
-      const lastDay =
-        this.financeService.budget.days[
-          this.financeService.budget.days.length - 1
-        ]
-
-      this.minMonth = firstDay.date.month() + 1
-      this.maxMonth = lastDay.date.month() + 1
-      this.currentMonth = this.minMonth
-
-      this.minYear = firstDay.date.year()
-      this.maxYear = lastDay.date.year()
-      this.currentYear = this.minYear
-
-      this.setMonth(this.minYear, this.minMonth)
+      return
     }
-  }
 
-  setMonth(year: number, month: number) {
-    if (this.financeService.budget?.days) {
-      this.currentMonthText = moment(this.currentMonth, 'M').format('MMMM')
-      this.days = []
-      const days = this.financeService.budget.days.filter(
-        (day) => day.year === year && day.month + 1 === month,
-      )
+    const [firstDay] = this.financeService.budget.days
+    const lastDay =
+      this.financeService.budget.days[
+        this.financeService.budget.days.length - 1
+      ]
 
-      if (days) {
-        let firstDate = days[0].date.clone().startOf('month')
-        if (!firstDate.weekday(0)) {
-          firstDate = firstDate.add(-7, 'days').isoWeekday(7)
-        }
+    this.minMonth = getMonth(firstDay.date) + 1
+    this.maxMonth = getMonth(lastDay.date) + 1
+    this.currentMonth = this.minMonth
 
-        const lastDate = days[days.length - 1].date
-          .clone()
-          .endOf('month')
-          .isoWeekday(6)
-        const numLoops = lastDate.diff(firstDate, 'days')
-        let lastBalance = 0
+    this.minYear = getYear(firstDay.date)
+    this.maxYear = getYear(lastDay.date)
+    this.currentYear = this.minYear
 
-        for (let i = 0; i <= numLoops; i++) {
-          const day = this.financeService.budget.days.find(
-            (budgetDay) =>
-              budgetDay.date.format('L') ===
-              firstDate.clone().add(i, 'days').format('L'),
-          )
-
-          if (day) {
-            this.days.push(day)
-            lastBalance = day.balance
-          } else {
-            const emptyDate: Day = {
-              date: firstDate.clone().add(i, 'days'),
-              month: firstDate.clone().add(i, 'days').month(),
-              year: firstDate.clone().add(i, 'days').year(),
-
-              balance: lastBalance,
-              daily: {
-                balance: [],
-                revenue: [],
-                expense: [],
-                savings: [],
-              },
-              total: {
-                balance: 0,
-                revenue: 0,
-                expense: 0,
-                savings: 0,
-              },
-            }
-            this.days.push(emptyDate)
-          }
-        }
-      }
-    }
+    this.setCurrentMonth(this.minYear, this.minMonth)
   }
 
   next() {
-    if (this.hasNext) {
-      const newPeriod = this.addMonth(this.currentMonth, this.currentYear)
-      this.currentMonth = newPeriod.month
-      this.currentYear = newPeriod.year
-
-      this.checkNext()
-      this.checkPrev()
-
-      this.setMonth(this.currentYear, this.currentMonth)
+    if (!this.hasNext) {
+      return
     }
+    const newPeriod = this.addMonth(this.currentMonth, this.currentYear)
+    this.currentMonth = newPeriod.month
+    this.currentYear = newPeriod.year
+    this.checkNext()
+    this.checkPrev()
+    this.setCurrentMonth(this.currentYear, this.currentMonth)
   }
 
   prev() {
-    if (this.hasPrev) {
-      const newPeriod = this.removeMonth(this.currentMonth, this.currentYear)
-      this.currentMonth = newPeriod.month
-      this.currentYear = newPeriod.year
+    if (!this.hasPrev) {
+      return
+    }
+    const newPeriod = this.removeMonth(this.currentMonth, this.currentYear)
+    this.currentMonth = newPeriod.month
+    this.currentYear = newPeriod.year
+    this.checkNext()
+    this.checkPrev()
+    this.setCurrentMonth(this.currentYear, this.currentMonth)
+  }
 
-      this.checkNext()
-      this.checkPrev()
+  private setCurrentMonth(year: number, month: number) {
+    if (!this.financeService.budget?.days) {
+      return
+    }
 
-      this.setMonth(this.currentYear, this.currentMonth)
+    this.currentMonthText = format(
+      setMonth(new Date(), this.currentMonth),
+      'MMMM',
+    )
+    this.days = []
+
+    const days = this.financeService.budget.days.filter(
+      (day) => day.year === year && day.month + 1 === month,
+    )
+
+    if (!days) {
+      return
+    }
+
+    const firstDate = startOfWeek(startOfMonth(days[0].date))
+    const lastDate = endOfWeek(endOfMonth(days[days.length - 1].date))
+    const numLoops = differenceInDays(lastDate, firstDate)
+    let lastBalance = 0
+
+    for (let i = 0; i <= numLoops; i++) {
+      const day = this.financeService.budget.days.find((budgetDay) =>
+        isSameDay(budgetDay.date, addDays(firstDate, i)),
+      )
+
+      if (day) {
+        this.days.push(day)
+        lastBalance = day.balance
+      } else {
+        const date = addDays(firstDate, i)
+        const emptyDate: Day = {
+          date,
+          month: getMonth(firstDate),
+          year: getYear(firstDate),
+          balance: lastBalance,
+          daily: {
+            balance: [],
+            revenue: [],
+            expense: [],
+            savings: [],
+          },
+          total: {
+            balance: 0,
+            revenue: 0,
+            expense: 0,
+            savings: 0,
+          },
+        }
+        this.days.push(emptyDate)
+      }
     }
   }
 
