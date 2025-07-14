@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core'
+import { Injectable, Signal, WritableSignal } from '@angular/core'
 import { BudgetAccess } from '@data/access/budget.access'
 import { RuleRepeatableAccess } from '@data/access/rule-repeatable.access'
 import { RuleAccess } from '@data/access/rule.access'
@@ -62,7 +62,7 @@ export class FinanceService {
     if (!this.budget?.snapshots || this.budget.snapshots.length === 0) {
       return null
     }
-    return this.budget.snapshots[0].date
+    return this.budget.snapshots()[0].date
   }
 
   getBalanceOn(date: Date | null) {
@@ -88,7 +88,7 @@ export class FinanceService {
     this.budgets?.push(budget)
     this.selectBudget(budget)
     if (this.budget?.snapshots) {
-      this.budget.snapshots.push(snapshot)
+      this.budget.snapshots().push(snapshot)
     }
     this.generateBudget()
 
@@ -103,16 +103,16 @@ export class FinanceService {
       return
     }
 
-    if (!budget.isBalancesLoaded) {
+    if (!budget.isBalancesLoaded()) {
       await this.getBalances(budget)
     }
-    if (!budget.isExpensesLoaded) {
+    if (!budget.isExpensesLoaded()) {
       await this.getExpenses(budget)
     }
-    if (!budget.isRevenuesLoaded) {
+    if (!budget.isRevenuesLoaded()) {
       await this.getRevenues(budget)
     }
-    if (!budget.isSnapshotsLoaded) {
+    if (!budget.isSnapshotsLoaded()) {
       await this.getSnapshots(budget)
     }
 
@@ -167,8 +167,8 @@ export class FinanceService {
       this.getBalanceOn(addSnapshot.date),
     )
     this.budget.startDate = snapshot.date
-    this.budget.snapshots?.unshift(snapshot)
-    this.budget.balances = newBalances
+    this.budget.snapshots()?.unshift(snapshot)
+    this.budget.balances.set(newBalances)
     this.generateBudget()
   }
 
@@ -187,8 +187,8 @@ export class FinanceService {
 
     // Update service state
     const budgetFieldKey = RulesMetadata[ruleAdd.type].budgetFieldKey
-    const budgetField = this.budget[budgetFieldKey] as Rule[]
-    budgetField.push(rule)
+    const budgetField = this.budget[budgetFieldKey] as WritableSignal<Rule[]>
+    budgetField().push(rule)
     this.generateDataForRule(rule)
     this.updateRunningTotals()
 
@@ -219,9 +219,11 @@ export class FinanceService {
 
     // Update service state
     const metadata = RulesMetadata[ruleOriginal.type]
-    const ruleArray = this.budget[metadata.budgetFieldKey] as Rule[]
-    ;(this.budget[metadata.budgetFieldKey] as Rule[]) = ruleArray.map(
-      (record) => (record.id === rule.id ? { ...record, ...rule } : record),
+    const ruleArray = this.budget[metadata.budgetFieldKey] as Signal<Rule[]>
+    ;(this.budget[metadata.budgetFieldKey] as WritableSignal<Rule[]>).set(
+      ruleArray().map((record) =>
+        record.id === rule.id ? { ...record, ...rule } : record,
+      ),
     )
     this.resetRuleCalculatedData(rule)
     this.generateDataForRule(rule)
@@ -251,14 +253,16 @@ export class FinanceService {
 
     // Update service state
     const metadata = RulesMetadata[rule.type]
-    const budgetField = this.budget[metadata.budgetFieldKey] as Rule[]
-    const deletedRecord = budgetField.find((data) => data.id === rule.id)
+    const budgetField = this.budget[metadata.budgetFieldKey] as WritableSignal<
+      Rule[]
+    >
+    const deletedRecord = budgetField().find((data) => data.id === rule.id)
 
     if (!deletedRecord) {
       return
     }
 
-    budgetField.splice(budgetField.indexOf(deletedRecord), 1)
+    budgetField().splice(budgetField().indexOf(deletedRecord), 1)
     this.resetRuleCalculatedData(rule)
 
     // Send out delete event
@@ -266,13 +270,13 @@ export class FinanceService {
   }
 
   private resetDailyData() {
-    this.budget?.balances?.forEach((balance) => {
+    this.budget?.balances()?.forEach((balance) => {
       balance.daily = []
     })
-    this.budget?.expenses?.forEach((expense) => {
+    this.budget?.expenses()?.forEach((expense) => {
       expense.daily = []
     })
-    this.budget?.revenues?.forEach((revenue) => {
+    this.budget?.revenues()?.forEach((revenue) => {
       revenue.daily = []
     })
   }
@@ -314,10 +318,10 @@ export class FinanceService {
   private async getBalances(budget: Budget) {
     try {
       const result = await this.ruleAccess.getAll('balance', budget.id)
-      budget.balances = result
-      budget.isBalancesLoaded = true
+      budget.balances.set(result)
+      budget.isBalancesLoaded.set(true)
     } catch (error) {
-      budget.balances = []
+      budget.balances.set([])
       console.error(error)
     }
   }
@@ -328,10 +332,10 @@ export class FinanceService {
         'expense',
         budget.id,
       )
-      budget.expenses = result
-      budget.isExpensesLoaded = true
+      budget.expenses.set(result)
+      budget.isExpensesLoaded.set(true)
     } catch (error) {
-      budget.expenses = []
+      budget.expenses.set([])
       console.error(error)
     }
   }
@@ -342,10 +346,10 @@ export class FinanceService {
         'revenue',
         budget.id,
       )
-      budget.revenues = result
-      budget.isRevenuesLoaded = true
+      budget.revenues.set(result)
+      budget.isRevenuesLoaded.set(true)
     } catch (error) {
-      budget.revenues = []
+      budget.revenues.set([])
       console.error(error)
     }
   }
@@ -353,13 +357,13 @@ export class FinanceService {
   private async getSnapshots(budget: Budget) {
     try {
       const result = await this.snapshotAccess.getAll(budget.id)
-      budget.snapshots = result
-      if (budget.snapshots && budget.snapshots[0]) {
-        budget.startDate = budget.snapshots[0].date
+      budget.snapshots.set(result)
+      if (budget.snapshots && budget.snapshots()[0]) {
+        budget.startDate = budget.snapshots()[0].date
       }
-      budget.isSnapshotsLoaded = true
+      budget.isSnapshotsLoaded.set(true)
     } catch (error) {
-      budget.snapshots = []
+      budget.snapshots.set([])
       console.error(error)
     }
   }
@@ -431,13 +435,13 @@ export class FinanceService {
 
   private generateDataForRules(type: RuleType) {
     const key = `${type}s` as keyof Budget
-    const records = this.budget?.[key] as RuleRepeatable[] | undefined
+    const records = this.budget?.[key] as Signal<RuleRepeatable[]> | undefined
 
     if (!records) {
       return
     }
 
-    records.forEach((rule) => {
+    records().forEach((rule) => {
       this.generateDataForRule(rule)
     })
   }

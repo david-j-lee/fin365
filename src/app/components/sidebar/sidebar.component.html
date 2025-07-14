@@ -44,7 +44,7 @@
     </mat-expansion-panel-header>
     @if (
       financeService.budget &&
-      financeService.budget.balances &&
+      financeService.budget.balances() &&
       financeService.budget.balances.length > 0
     ) {
       <mat-divider></mat-divider>
@@ -68,7 +68,7 @@
     </mat-expansion-panel-header>
     @if (
       financeService.budget &&
-      financeService.budget.revenues &&
+      financeService.budget.revenues() &&
       financeService.budget.revenues.length > 0
     ) {
       <mat-divider></mat-divider>
@@ -95,7 +95,7 @@
     </mat-expansion-panel-header>
     @if (
       financeService.budget &&
-      financeService.budget.expenses &&
+      financeService.budget.expenses() &&
       financeService.budget.expenses.length > 0
     ) {
       <mat-divider></mat-divider>

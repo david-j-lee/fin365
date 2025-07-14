@@ -60,45 +60,61 @@ import { FinanceService } from '@services/finance.service'
 })
 export class ExpenseAddDialogComponent implements OnInit {
   financeService = inject(FinanceService)
-  private matDialogRef =
-    inject<MatDialogRef<ExpenseAddDialogComponent>>(MatDialogRef)
+  private router = inject(Router)
   private matSnackBar = inject(MatSnackBar)
+  private matDialogRef = inject<MatDialogRef<ExpenseAddDialogComponent> | null>(
+    MatDialogRef,
+  )
 
   errors = ''
   isSubmitting = false
   myExpense: RuleRepeatableAdd | undefined
 
-  ngOnInit() {
-    this.myExpense = {
-      type: 'expense',
-      budgetId: this.financeService.budget?.id ?? '',
-      description: '',
-      amount: 0,
-      isForever: true,
-      frequency: '',
-      startDate: this.financeService.getFirstDate(),
-      endDate: null,
-      repeatMon: false,
-      repeatTue: false,
-      repeatWed: false,
-      repeatThu: false,
-      repeatFri: false,
-      repeatSat: false,
-      repeatSun: false,
+  constructor() {
+    if (this.financeService.budget) {
+      this.myExpense = {
+        type: 'expense',
+        budgetId: this.financeService.budget.id,
+        description: '',
+        amount: 0,
+        isForever: true,
+        frequency: '',
+        startDate: this.financeService.getFirstDate(),
+        endDate: null,
+        repeatMon: false,
+        repeatTue: false,
+        repeatWed: false,
+        repeatThu: false,
+        repeatFri: false,
+        repeatSat: false,
+        repeatSun: false,
+      }
+    } else {
+      this.errors = 'Unable to locate budget'
     }
+  }
+
+  ngOnInit() {
+    this.matDialogRef?.afterClosed().subscribe(() => {
+      this.matDialogRef = null
+      this.router.navigate(['/', this.financeService.budget?.id])
+    })
   }
 
   async create(form: NgForm) {
     const { value, valid } = form
+
     if (!valid) {
+      this.errors = 'Form is invalid'
       return
     }
+
     this.isSubmitting = true
     this.errors = ''
-    value.budgetId = this.financeService.budget?.id
+
     try {
       await this.financeService.addRule({ ...this.myExpense, ...value })
-      this.matDialogRef.close()
+      this.matDialogRef?.close()
       this.matSnackBar.open('Saved', 'Dismiss', { duration: 2000 })
     } catch (error) {
       this.errors = error as string
@@ -115,17 +131,9 @@ export class ExpenseAddDialogComponent implements OnInit {
   standalone: true,
 })
 export class ExpenseAddComponent implements AfterViewInit {
-  private router = inject(Router)
-  private financeService = inject(FinanceService)
   private matDialog = inject(MatDialog)
 
-  matDialogRef: MatDialogRef<ExpenseAddDialogComponent> | null = null
-
   ngAfterViewInit() {
-    this.matDialogRef = this.matDialog.open(ExpenseAddDialogComponent)
-    this.matDialogRef.afterClosed().subscribe(() => {
-      this.matDialogRef = null
-      this.router.navigate(['/', this.financeService.budget?.id])
-    })
+    this.matDialog.open(ExpenseAddDialogComponent)
   }
 }

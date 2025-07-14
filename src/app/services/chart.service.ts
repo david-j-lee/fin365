@@ -183,7 +183,7 @@ export class ChartService {
     const data: number[] = []
     const labels: string[] = []
 
-    this.financeService.budget.balances.forEach((balance) => {
+    this.financeService.budget.balances().forEach((balance) => {
       data.push(balance.amount)
       labels.push(balance.description)
       total += balance.amount
@@ -210,7 +210,7 @@ export class ChartService {
     const data: number[] = []
     const labels: string[] = []
 
-    this.financeService.budget.revenues.forEach((revenue) => {
+    this.financeService.budget.revenues().forEach((revenue) => {
       revenue.yearlyAmount = getRuleTotal(revenue)
       data.push(revenue.yearlyAmount)
       labels.push(revenue.description)
@@ -238,7 +238,7 @@ export class ChartService {
     const data: number[] = []
     const labels: string[] = []
 
-    this.financeService.budget.expenses.forEach((expense) => {
+    this.financeService.budget.expenses().forEach((expense) => {
       expense.yearlyAmount = getRuleTotal(expense)
       data.push(expense.yearlyAmount)
       labels.push(expense.description)

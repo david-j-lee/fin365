@@ -1,5 +1,12 @@
 import { CdkScrollable } from '@angular/cdk/scrolling'
-import { AfterViewInit, Component, OnInit, inject } from '@angular/core'
+import {
+  AfterViewInit,
+  Component,
+  OnDestroy,
+  OnInit,
+  effect,
+  inject,
+} from '@angular/core'
 import { FormsModule, NgForm } from '@angular/forms'
 import { MatButton } from '@angular/material/button'
 import { MatCheckbox } from '@angular/material/checkbox'
@@ -34,6 +41,7 @@ import { SpinnerComponent } from '@components/spinner/spinner.component'
 import { RuleRepeatableAdd } from '@interfaces/rule-repeatable-add.interface'
 import { RuleRepeatable } from '@interfaces/rule-repeatable.interface'
 import { FinanceService } from '@services/finance.service'
+import { Subscription } from 'rxjs'
 
 @Component({
   selector: 'app-expense-edit-dialog',
@@ -61,7 +69,7 @@ import { FinanceService } from '@services/finance.service'
     SpinnerComponent,
   ],
 })
-export class ExpenseEditDialogComponent implements OnInit, AfterViewInit {
+export class ExpenseEditDialogComponent implements OnInit {
   financeService = inject(FinanceService)
   private router = inject(Router)
   private matSnackBar = inject(MatSnackBar)
@@ -80,49 +88,51 @@ export class ExpenseEditDialogComponent implements OnInit, AfterViewInit {
   navigateToDelete = false
   deleteModal: MatDialogRef<ExpenseDeleteComponent> | null = null
 
-  ngOnInit() {
-    this.oldExpense = this.financeService.budget?.expenses?.find(
-      (budgetExpense) => budgetExpense.id === this.data.id,
-    )
-    if (this.oldExpense) {
-      this.newExpense = {
-        type: 'expense',
-        budgetId: this.oldExpense.budgetId,
-        description: this.oldExpense.description,
-        amount: this.oldExpense.amount,
-        isForever: this.oldExpense.isForever,
-        frequency: this.oldExpense.frequency,
-        startDate: this.oldExpense.startDate,
-        endDate: this.oldExpense.endDate,
-        repeatMon: this.oldExpense.repeatMon,
-        repeatTue: this.oldExpense.repeatTue,
-        repeatWed: this.oldExpense.repeatWed,
-        repeatThu: this.oldExpense.repeatThu,
-        repeatFri: this.oldExpense.repeatFri,
-        repeatSat: this.oldExpense.repeatSat,
-        repeatSun: this.oldExpense.repeatSun,
+  constructor() {
+    effect(() => {
+      if (!this.financeService.budget?.isExpensesLoaded()) return
+
+      this.oldExpense = this.financeService.budget
+        ?.expenses()
+        ?.find((budgetExpense) => budgetExpense.id === this.data.id)
+
+      if (this.oldExpense) {
+        this.newExpense = {
+          type: 'expense',
+          budgetId: this.oldExpense.budgetId,
+          description: this.oldExpense.description,
+          amount: this.oldExpense.amount,
+          isForever: this.oldExpense.isForever,
+          frequency: this.oldExpense.frequency,
+          startDate: this.oldExpense.startDate,
+          endDate: this.oldExpense.endDate,
+          repeatMon: this.oldExpense.repeatMon,
+          repeatTue: this.oldExpense.repeatTue,
+          repeatWed: this.oldExpense.repeatWed,
+          repeatThu: this.oldExpense.repeatThu,
+          repeatFri: this.oldExpense.repeatFri,
+          repeatSat: this.oldExpense.repeatSat,
+          repeatSun: this.oldExpense.repeatSun,
+        }
+      } else {
+        this.errors = 'Unable to locate expense'
       }
-    }
+    })
   }
 
-  ngAfterViewInit() {
+  ngOnInit() {
     this.matDialogRef?.afterClosed().subscribe(() => {
       this.matDialogRef = null
-      // Need to check for navigation with forward button
-      const action =
-        this.router.url.split('/')[this.router.url.split('/').length - 1]
-      if (action !== 'delete') {
-        if (this.navigateToDelete) {
-          this.router.navigate([
-            './',
-            this.financeService.budget?.id,
-            'expense',
-            this.oldExpense?.id,
-            'delete',
-          ])
-        } else {
-          this.router.navigate(['/', this.financeService.budget?.id])
-        }
+      if (this.navigateToDelete) {
+        this.router.navigate([
+          './',
+          this.financeService.budget?.id,
+          'expense',
+          this.oldExpense?.id,
+          'delete',
+        ])
+      } else {
+        this.router.navigate(['/', this.financeService.budget?.id])
       }
     })
   }
@@ -134,11 +144,15 @@ export class ExpenseEditDialogComponent implements OnInit, AfterViewInit {
 
   async edit(form: NgForm) {
     const { value, valid } = form
+
     if (!valid || !this.oldExpense) {
+      this.errors = 'Form is invalid'
       return
     }
+
     this.isSubmitting = true
     this.errors = ''
+
     try {
       await this.financeService.editRule(this.oldExpense, {
         ...this.newExpense,
@@ -159,17 +173,21 @@ export class ExpenseEditDialogComponent implements OnInit, AfterViewInit {
   template: '',
   standalone: true,
 })
-export class ExpenseEditComponent implements OnInit {
-  private activatedRoute = inject(ActivatedRoute)
+export class ExpenseEditComponent implements AfterViewInit, OnDestroy {
+  private route = inject(ActivatedRoute)
   private matDialog = inject(MatDialog)
 
-  matDialogRef: MatDialogRef<ExpenseEditDialogComponent> | null = null
+  private routeParamsSubscription: Subscription | null = null
 
-  ngOnInit() {
-    this.activatedRoute.params.subscribe((params) => {
-      this.matDialogRef = this.matDialog.open(ExpenseEditDialogComponent, {
+  ngAfterViewInit() {
+    this.routeParamsSubscription = this.route.params.subscribe((params) => {
+      this.matDialog.open(ExpenseEditDialogComponent, {
         data: { id: params['id'] },
       })
     })
+  }
+
+  ngOnDestroy() {
+    this.routeParamsSubscription?.unsubscribe()
   }
 }

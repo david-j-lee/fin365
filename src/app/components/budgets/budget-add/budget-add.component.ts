@@ -60,29 +60,46 @@ import { FinanceService } from '@services/finance.service'
   ],
 })
 export class BudgetAddDialogComponent implements OnInit {
-  matDialogRef = inject<MatDialogRef<BudgetAddDialogComponent>>(MatDialogRef)
+  private router = inject(Router)
   private financeService = inject(FinanceService)
   private matSnackBar = inject(MatSnackBar)
+  private matDialogRef = inject<MatDialogRef<BudgetAddDialogComponent> | null>(
+    MatDialogRef,
+  )
 
   errors = ''
   isSubmitting = false
-
   myBudget: BudgetAdd | undefined
 
-  ngOnInit() {
+  constructor() {
     this.myBudget = { name: '', startDate: new Date() }
+  }
+
+  ngOnInit() {
+    this.matDialogRef?.afterClosed().subscribe(() => {
+      this.matDialogRef = null
+      if (this.financeService.budget) {
+        this.router.navigate(['/', this.financeService.budget.id])
+      } else {
+        this.router.navigate(['/'])
+      }
+    })
   }
 
   async create(form: NgForm) {
     const { value, valid } = form
+
     if (!valid) {
+      this.errors = 'Form is invalid'
       return
     }
+
     this.isSubmitting = true
     this.errors = ''
+
     try {
       await this.financeService.addBudget(value)
-      this.matDialogRef.close()
+      this.matDialogRef?.close()
       this.matSnackBar.open('Saved', 'Dismiss', { duration: 2000 })
     } catch (error) {
       this.errors = error as string
@@ -98,21 +115,9 @@ export class BudgetAddDialogComponent implements OnInit {
   standalone: true,
 })
 export class BudgetAddComponent implements AfterViewInit {
-  private router = inject(Router)
-  private financeService = inject(FinanceService)
   private matDialog = inject(MatDialog)
 
-  matDialogRef: MatDialogRef<BudgetAddDialogComponent> | null = null
-
   ngAfterViewInit() {
-    this.matDialogRef = this.matDialog.open(BudgetAddDialogComponent)
-    this.matDialogRef.afterClosed().subscribe(() => {
-      this.matDialogRef = null
-      if (this.financeService.budget) {
-        this.router.navigate(['/', this.financeService.budget.id])
-      } else {
-        this.router.navigate(['/'])
-      }
-    })
+    this.matDialog.open(BudgetAddDialogComponent)
   }
 }

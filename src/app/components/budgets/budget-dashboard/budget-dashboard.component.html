@@ -17,13 +17,24 @@
           mat-align-tabs="start"
         >
           <mat-tab>
-            <!-- <ng-template mat-tab-label>
+            <ng-template mat-tab-label>
               <mat-icon>stacked_line_chart</mat-icon>
               <span class="ms-3 me-1">Charts</span>
-            </ng-template> -->
+            </ng-template>
             <div
               class="container-fluid flex-grow-1 d-flex flex-column pb-1 h-100"
             >
+              <div class="row flex-grow-1">
+                <div class="col-md-4 my-3">
+                  <app-balance-pie-chart></app-balance-pie-chart>
+                </div>
+                <div class="col-md-4 my-3">
+                  <app-revenue-pie-chart></app-revenue-pie-chart>
+                </div>
+                <div class="col-md-4 my-3">
+                  <app-expense-pie-chart></app-expense-pie-chart>
+                </div>
+              </div>
               <div class="row d-flex flex-column flex-grow-2">
                 <div class="col-12 d-flex flex-column flex-grow-1">
                   <div class="d-flex flex-column flex-grow-1 my-3">
@@ -36,10 +47,10 @@
             </div>
           </mat-tab>
           <mat-tab>
-            <!-- <ng-template mat-tab-label>
+            <ng-template mat-tab-label>
               <mat-icon>calendar_month</mat-icon>
               <span class="ms-3 me-1">Calendar</span>
-            </ng-template> -->
+            </ng-template>
             <app-calendar class="h-100"></app-calendar>
           </mat-tab>
         </mat-tab-group>

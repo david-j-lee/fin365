@@ -12,6 +12,7 @@ import { CalendarService } from '@services/calendar.service'
 import { ChartService } from '@services/chart.service'
 import { FinanceService } from '@services/finance.service'
 import { SideBarService } from '@services/side-bar.service'
+import { Subscription } from 'rxjs'
 
 @Component({
   selector: 'app-budget-dashboard',
@@ -34,27 +35,32 @@ import { SideBarService } from '@services/side-bar.service'
 export class BudgetDashboardComponent implements OnInit, OnDestroy {
   financeService = inject(FinanceService)
   private router = inject(Router)
-  private activatedRoute = inject(ActivatedRoute)
+  private route = inject(ActivatedRoute)
   private chartService = inject(ChartService)
   private sideBarService = inject(SideBarService)
   private calendarService = inject(CalendarService)
+
+  private routeParamsSubscription: Subscription | null = null
 
   budgetId: string | null = null
   type = ''
 
   ngOnInit() {
-    this.activatedRoute.params.subscribe((params: Params) => {
-      this.budgetId = params['budgetId']
-      if (this.router.url.split('/').length - 1 > 3) {
-        this.type = this.router.url.split('/')[2]
-      }
-      this.selectBudget()
-    })
+    this.routeParamsSubscription = this.route.params.subscribe(
+      (params: Params) => {
+        this.budgetId = params['budgetId']
+        if (this.router.url.split('/').length - 1 > 3) {
+          this.type = this.router.url.split('/')[2]
+        }
+        this.selectBudget()
+      },
+    )
   }
 
   ngOnDestroy() {
     this.budgetId = null
     this.selectBudget()
+    this.routeParamsSubscription?.unsubscribe()
   }
 
   private selectBudget() {
@@ -70,13 +76,13 @@ export class BudgetDashboardComponent implements OnInit, OnDestroy {
 
     this.financeService.selectBudget(budget)
 
-    if (!budget.isBalancesLoaded) {
+    if (!budget.isBalancesLoaded()) {
       this.sideBarService.setExpanded(this.type)
     }
-    if (!budget.isExpensesLoaded) {
+    if (!budget.isExpensesLoaded()) {
       this.sideBarService.setExpanded(this.type)
     }
-    if (!budget.isRevenuesLoaded) {
+    if (!budget.isRevenuesLoaded()) {
       this.sideBarService.setExpanded(this.type)
     }
 

@@ -76,10 +76,11 @@ import { getRansomStringFromObject } from '@utilities/string-utilities'
   ],
 })
 export class SnapshotTableDialogComponent implements OnInit {
+  private router = inject(Router)
   private financeService = inject(FinanceService)
   private matSnackBar = inject(MatSnackBar)
   private matDialogRef =
-    inject<MatDialogRef<SnapshotTableDialogComponent>>(MatDialogRef)
+    inject<MatDialogRef<SnapshotTableDialogComponent> | null>(MatDialogRef)
 
   mostRecentSnapshotDate = this.financeService.getMostRecentSnapshotDate()
   estimatedTotalBalance = this.financeService.getBalanceOn(
@@ -99,7 +100,7 @@ export class SnapshotTableDialogComponent implements OnInit {
   ngOnInit() {
     // Create models to add balances to db
     if (this.financeService.budget?.balances) {
-      this.financeService.budget.balances.forEach((balance) => {
+      this.financeService.budget.balances().forEach((balance) => {
         const balanceAdd: SnapshotBalanceAdd = {
           id: balance.id,
           description: balance.description,
@@ -116,6 +117,11 @@ export class SnapshotTableDialogComponent implements OnInit {
     })
 
     this.dataSource = new MatTableDataSource(this.balances)
+
+    this.matDialogRef?.afterClosed().subscribe(() => {
+      this.matDialogRef = null
+      this.router.navigate(['/', this.financeService.budget?.id])
+    })
   }
 
   onDatePickerChange() {
@@ -126,14 +132,17 @@ export class SnapshotTableDialogComponent implements OnInit {
 
   async update() {
     const budgetId = this.financeService.budget?.id
+
     if (!budgetId || !this.addSnapshot) {
       return
     }
+
     this.isSubmitting = true
     this.addSnapshot.budgetId = budgetId
+
     try {
       await this.financeService.snapshot(this.addSnapshot, this.balances)
-      this.matDialogRef.close()
+      this.matDialogRef?.close()
       this.matSnackBar.open('Saved', 'Dismiss', { duration: 2000 })
     } catch (error) {
       console.error(error)
@@ -186,17 +195,9 @@ export class SnapshotTableDialogComponent implements OnInit {
   standalone: true,
 })
 export class SnapshotTableComponent implements AfterViewInit {
-  private router = inject(Router)
-  private financeService = inject(FinanceService)
   private matDialog = inject(MatDialog)
 
-  matDialogRef: MatDialogRef<SnapshotTableDialogComponent> | null = null
-
   ngAfterViewInit() {
-    this.matDialogRef = this.matDialog.open(SnapshotTableDialogComponent)
-    this.matDialogRef.afterClosed().subscribe(() => {
-      this.matDialogRef = null
-      this.router.navigate(['/', this.financeService.budget?.id])
-    })
+    this.matDialog.open(SnapshotTableDialogComponent)
   }
 }

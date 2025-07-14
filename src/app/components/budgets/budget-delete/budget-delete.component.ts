@@ -31,6 +31,7 @@ import { FinanceService } from '@services/finance.service'
   ],
 })
 export class BudgetDeleteDialogComponent implements OnInit {
+  private router = inject(Router)
   private financeService = inject(FinanceService)
   private matSnackBar = inject(MatSnackBar)
   private matDialogRef =
@@ -42,16 +43,41 @@ export class BudgetDeleteDialogComponent implements OnInit {
   isSubmitting = false
   deleteBudget: Budget | null = null
 
-  ngOnInit() {
+  constructor() {
     this.deleteBudget = this.financeService.budget
+  }
+
+  ngOnInit() {
+    this.matDialogRef?.afterClosed().subscribe(() => {
+      this.matDialogRef = null
+      // Need to check action for navigation with back button
+      const action =
+        this.router.url.split('/')[this.router.url.split('/').length - 1]
+      if (
+        this.financeService.budgets &&
+        this.financeService.budgets.length === 0
+      ) {
+        this.router.navigate(['/'])
+      } else if (
+        this.financeService.budgets &&
+        this.financeService.budgets.length > 0
+      ) {
+        this.router.navigate(['/', this.financeService.budgets[0].id])
+      } else if (action !== 'edit') {
+        this.router.navigate(['/', this.financeService.budget?.id])
+      }
+    })
   }
 
   async delete() {
     if (!this.deleteBudget) {
+      this.errors = 'Unable to locate budget'
       return
     }
+
     this.isSubmitting = true
     this.errors = ''
+
     try {
       await this.financeService.deleteBudget(this.deleteBudget)
       this.matDialogRef?.close()
@@ -71,39 +97,9 @@ export class BudgetDeleteDialogComponent implements OnInit {
   standalone: true,
 })
 export class BudgetDeleteComponent implements AfterViewInit {
-  private router = inject(Router)
-  private financeService = inject(FinanceService)
   private matDialog = inject(MatDialog)
 
-  matDialogRef: MatDialogRef<BudgetDeleteDialogComponent> | null = null
-
   ngAfterViewInit() {
-    this.matDialogRef = this.matDialog.open(BudgetDeleteDialogComponent)
-    this.setAfterClose()
-  }
-
-  setAfterClose() {
-    if (!this.matDialogRef) {
-      return
-    }
-    this.matDialogRef.afterClosed().subscribe(() => {
-      this.matDialogRef = null
-      // Need to check action for navigation with back button
-      const action =
-        this.router.url.split('/')[this.router.url.split('/').length - 1]
-      if (
-        this.financeService.budgets &&
-        this.financeService.budgets.length === 0
-      ) {
-        this.router.navigate(['/'])
-      } else if (
-        this.financeService.budgets &&
-        this.financeService.budgets.length > 0
-      ) {
-        this.router.navigate(['/', this.financeService.budgets[0].id])
-      } else if (action !== 'edit') {
-        this.router.navigate(['/', this.financeService.budget?.id])
-      }
-    })
+    this.matDialog.open(BudgetDeleteDialogComponent)
   }
 }

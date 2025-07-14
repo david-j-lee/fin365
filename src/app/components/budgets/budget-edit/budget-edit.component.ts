@@ -42,7 +42,7 @@ import { FinanceService } from '@services/finance.service'
     SpinnerComponent,
   ],
 })
-export class BudgetEditDialogComponent implements OnInit, AfterViewInit {
+export class BudgetEditDialogComponent implements OnInit {
   private router = inject(Router)
   private financeService = inject(FinanceService)
   private matSnackBar = inject(MatSnackBar)
@@ -59,7 +59,7 @@ export class BudgetEditDialogComponent implements OnInit, AfterViewInit {
   navigateToDelete = false
   deleteModal: MatDialogRef<BudgetDeleteComponent> | null = null
 
-  ngOnInit() {
+  constructor() {
     this.oldBudget = this.financeService.budget
     if (this.oldBudget) {
       this.newBudget = {
@@ -67,18 +67,14 @@ export class BudgetEditDialogComponent implements OnInit, AfterViewInit {
         name: this.oldBudget.name,
         isActive: this.oldBudget.isActive,
       }
+    } else {
+      this.errors = 'Unable to locate budget'
     }
   }
 
-  ngAfterViewInit() {
+  ngOnInit() {
     this.matDialogRef?.afterClosed().subscribe(() => {
       this.matDialogRef = null
-      // Need to check for navigation with forward button
-      const action =
-        this.router.url.split('/')[this.router.url.split('/').length - 1]
-      if (action === 'delete') {
-        return
-      }
       if (this.navigateToDelete) {
         this.router.navigate(['/', this.financeService.budget?.id, 'delete'])
       } else {
@@ -94,11 +90,15 @@ export class BudgetEditDialogComponent implements OnInit, AfterViewInit {
 
   async edit(form: NgForm) {
     const { value, valid } = form
+
     if (!valid || !this.oldBudget) {
+      this.errors = 'Form is invalid'
       return
     }
+
     this.isSubmitting = true
     this.errors = ''
+
     try {
       await this.financeService.editBudget(this.oldBudget, {
         ...this.newBudget,
@@ -122,9 +122,7 @@ export class BudgetEditDialogComponent implements OnInit, AfterViewInit {
 export class BudgetEditComponent implements AfterViewInit {
   private matDialog = inject(MatDialog)
 
-  matDialogRef: MatDialogRef<BudgetEditDialogComponent> | null = null
-
   ngAfterViewInit() {
-    this.matDialogRef = this.matDialog.open(BudgetEditDialogComponent)
+    this.matDialog.open(BudgetEditDialogComponent)
   }
 }

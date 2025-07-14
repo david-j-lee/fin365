@@ -1,6 +1,6 @@
 <mat-list>
   @for (
-    expense of financeService.budget?.expenses | sortBy: 'description';
+    expense of financeService.budget?.expenses() | sortBy: 'description';
     track expense
   ) {
     <mat-list-item>

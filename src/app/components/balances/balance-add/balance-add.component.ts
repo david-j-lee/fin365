@@ -39,17 +39,20 @@ import { FinanceService } from '@services/finance.service'
   ],
 })
 export class BalanceAddDialogComponent implements OnInit {
+  private router = inject(Router)
   private financeService = inject(FinanceService)
   private matSnackBar = inject(MatSnackBar)
-  private matDialogRef =
-    inject<MatDialogRef<BalanceAddDialogComponent>>(MatDialogRef)
+  private matDialogRef = inject<MatDialogRef<BalanceAddDialogComponent> | null>(
+    MatDialogRef,
+  )
 
   errors = ''
   isSubmitting = false
   myBalance: RuleAdd | undefined
 
-  ngOnInit() {
+  constructor() {
     const budgetId = this.financeService.budget?.id
+
     if (budgetId) {
       this.myBalance = {
         type: 'balance',
@@ -57,22 +60,35 @@ export class BalanceAddDialogComponent implements OnInit {
         description: '',
         amount: 0,
       }
+    } else {
+      this.errors = 'Unable to locate budget'
     }
+  }
+
+  ngOnInit() {
+    this.matDialogRef?.afterClosed().subscribe(() => {
+      this.matDialogRef = null
+      this.router.navigate(['/', this.financeService.budget?.id])
+    })
   }
 
   async create(form: NgForm) {
     const { value, valid } = form
+
     if (!valid) {
+      this.errors = 'Form is invalid'
       return
     }
+
     this.isSubmitting = true
     this.errors = ''
+
     try {
       await this.financeService.addRule({
         ...this.myBalance,
         ...value,
       })
-      this.matDialogRef.close()
+      this.matDialogRef?.close()
       this.matSnackBar.open('Saved', 'Dismiss', { duration: 2000 })
     } catch (error) {
       this.errors = error as string
@@ -88,17 +104,9 @@ export class BalanceAddDialogComponent implements OnInit {
   standalone: true,
 })
 export class BalanceAddComponent implements AfterViewInit {
-  private router = inject(Router)
-  private financeService = inject(FinanceService)
   private matDialog = inject(MatDialog)
 
-  matDialogRef: MatDialogRef<BalanceAddDialogComponent> | null = null
-
   ngAfterViewInit() {
-    this.matDialogRef = this.matDialog.open(BalanceAddDialogComponent)
-    this.matDialogRef.afterClosed().subscribe(() => {
-      this.matDialogRef = null
-      this.router.navigate(['/', this.financeService.budget?.id])
-    })
+    this.matDialog.open(BalanceAddDialogComponent)
   }
 }

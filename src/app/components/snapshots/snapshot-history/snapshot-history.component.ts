@@ -55,6 +55,9 @@ import { FinanceService } from '@services/finance.service'
 })
 export class SnapshotHistoryDialogComponent implements OnInit {
   financeService = inject(FinanceService)
+  private router = inject(Router)
+  private matDialogRef: MatDialogRef<SnapshotHistoryDialogComponent> | null =
+    inject(MatDialogRef<SnapshotHistoryDialogComponent>)
 
   displayColumns = [
     'date',
@@ -66,8 +69,13 @@ export class SnapshotHistoryDialogComponent implements OnInit {
 
   ngOnInit() {
     this.dataSource = new MatTableDataSource(
-      this.financeService.budget?.snapshots,
+      this.financeService.budget?.snapshots(),
     )
+
+    this.matDialogRef?.afterClosed().subscribe(() => {
+      this.matDialogRef = null
+      this.router.navigate(['/', this.financeService.budget?.id])
+    })
   }
 }
 
@@ -77,17 +85,9 @@ export class SnapshotHistoryDialogComponent implements OnInit {
   standalone: true,
 })
 export class SnapshotHistoryComponent implements AfterViewInit {
-  private router = inject(Router)
-  private financeService = inject(FinanceService)
   private matDialog = inject(MatDialog)
 
-  matDialogRef: MatDialogRef<SnapshotHistoryDialogComponent> | null = null
-
   ngAfterViewInit() {
-    this.matDialogRef = this.matDialog.open(SnapshotHistoryDialogComponent)
-    this.matDialogRef.afterClosed().subscribe(() => {
-      this.matDialogRef = null
-      this.router.navigate(['/', this.financeService.budget?.id])
-    })
+    this.matDialog.open(SnapshotHistoryDialogComponent)
   }
 }

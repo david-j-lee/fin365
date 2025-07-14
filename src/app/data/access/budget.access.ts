@@ -1,3 +1,4 @@
+import { signal } from '@angular/core'
 import { LocalStorageBudgetService } from '@data/local-storage/local-storage.budget'
 import { BudgetAdd } from '@interfaces/budget-add.interface'
 import { BudgetEdit } from '@interfaces/budget-edit.interface'
@@ -15,15 +16,15 @@ export class BudgetAccess {
     return budgets.map((budget) => ({
       ...budget,
       startDate: parseISO(budget.startDate),
-      isBalancesLoaded: false,
-      isRevenuesLoaded: false,
-      isExpensesLoaded: false,
-      isSnapshotsLoaded: false,
-      balances: [],
-      revenues: [],
-      expenses: [],
-      savings: [],
-      snapshots: [],
+      isBalancesLoaded: signal(false),
+      isRevenuesLoaded: signal(false),
+      isExpensesLoaded: signal(false),
+      isSnapshotsLoaded: signal(false),
+      balances: signal([]),
+      revenues: signal([]),
+      expenses: signal([]),
+      savings: signal([]),
+      snapshots: signal([]),
       days: [],
     }))
   }
@@ -34,15 +35,15 @@ export class BudgetAccess {
       ...result.budget,
       isActive: true,
       startDate: new Date(budgetAdd.startDate),
-      isBalancesLoaded: true,
-      isRevenuesLoaded: true,
-      isExpensesLoaded: true,
-      isSnapshotsLoaded: true,
-      balances: [],
-      revenues: [],
-      expenses: [],
-      savings: [],
-      snapshots: [],
+      isBalancesLoaded: signal(true),
+      isRevenuesLoaded: signal(true),
+      isExpensesLoaded: signal(true),
+      isSnapshotsLoaded: signal(true),
+      balances: signal([]),
+      revenues: signal([]),
+      expenses: signal([]),
+      savings: signal([]),
+      snapshots: signal([]),
       days: [],
     }
     const newSnapshot: Snapshot = {
