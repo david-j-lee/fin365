@@ -18,7 +18,7 @@ import { SnapshotAdd } from '@interfaces/snapshot-add.interface'
 import { SnapshotBalanceAdd } from '@interfaces/snapshot-balance-add.interface'
 import { getCalculatedDataForRule } from '@utilities/rule-daily-utilities'
 import { getDefaultDays, isRuleRepeatable } from '@utilities/rule-utilities'
-import { isSameDay } from 'date-fns'
+import { formatISO, isSameDay } from 'date-fns'
 import { Subject } from 'rxjs'
 
 @Injectable({ providedIn: 'root' })
@@ -298,6 +298,20 @@ export class FinanceService {
   ) {
     let lastBalance = 0
 
+    const dailyItemsByDay = dailyItems
+      ? dailyItems.reduce(
+          (accumulator, item) => {
+            const key = formatISO(item.day.date)
+            if (!accumulator[key]) {
+              accumulator[key] = []
+            }
+            accumulator[key].push(item)
+            return accumulator
+          },
+          {} as Record<string, DailyItem[]>,
+        )
+      : {}
+
     budget.days.update((days) =>
       days.map((day) => {
         // Remove the daily data for the rule
@@ -307,8 +321,9 @@ export class FinanceService {
 
         // Add the new daily data for the rule
         if (dailyItems) {
-          for (const dailyItem of dailyItems) {
-            if (dailyItem.day === day) {
+          const dailyItemsForDay = dailyItemsByDay[formatISO(day.date)]
+          if (dailyItemsForDay) {
+            for (const dailyItem of dailyItemsForDay) {
               day.daily[dailyItem.rule.type].push(dailyItem)
               day.total[dailyItem.rule.type] += dailyItem.amount
             }
@@ -333,8 +348,10 @@ export class FinanceService {
   }
 
   private static setRuleData(budget: Budget, type: RuleType) {
-    const key = `${type}s` as keyof Budget
-    const records = budget[key] as WritableSignal<RuleRepeatable[]> | undefined
+    const metadata = RulesMetadata[type]
+    const records = budget[metadata.budgetFieldKey] as
+      | WritableSignal<RuleRepeatable[]>
+      | undefined
 
     if (!records) {
       return
@@ -347,16 +364,31 @@ export class FinanceService {
       }))
     })
 
+    const dailyDataByDay = records().reduce(
+      (accumulator, item) => {
+        for (const dailyItem of item.daily) {
+          const key = formatISO(dailyItem.day.date)
+          if (!accumulator[key]) {
+            accumulator[key] = []
+          }
+          accumulator[key].push(dailyItem)
+        }
+        return accumulator
+      },
+      {} as Record<string, DailyItem[]>,
+    )
+
     let lastBalance = 0
 
     budget.days.update((days) => {
       return days.map((day) => {
-        for (const record of records()) {
-          for (const dailyItem of record.daily) {
-            if (dailyItem.day === day) {
-              day.daily[dailyItem.rule.type].push(dailyItem)
-              day.total[dailyItem.rule.type] += dailyItem.amount
-            }
+        // This assumes the daily data has already been cleared via the
+        // setBudgetData method
+        const dailyItemsForDay = dailyDataByDay[formatISO(day.date)]
+        if (dailyItemsForDay) {
+          for (const dailyItem of dailyItemsForDay) {
+            day.daily[dailyItem.rule.type].push(dailyItem)
+            day.total[dailyItem.rule.type] += dailyItem.amount
           }
         }
 
