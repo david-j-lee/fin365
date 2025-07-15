@@ -44,8 +44,8 @@ export class CalendarService {
 
   setFirstMonth() {
     if (
-      !this.financeService.budget?.days ||
-      this.financeService.budget.days.length == 0
+      !this.financeService.budget?.days() ||
+      this.financeService.budget.days().length == 0
     ) {
       return
     }

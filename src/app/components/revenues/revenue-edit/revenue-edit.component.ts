@@ -41,6 +41,7 @@ import { SpinnerComponent } from '@components/spinner/spinner.component'
 import { RuleRepeatableAdd } from '@interfaces/rule-repeatable-add.interface'
 import { RuleRepeatable } from '@interfaces/rule-repeatable.interface'
 import { FinanceService } from '@services/finance.service'
+import { frequencies } from '@utilities/constants'
 import { Subscription } from 'rxjs'
 
 @Component({
@@ -70,8 +71,8 @@ import { Subscription } from 'rxjs'
   ],
 })
 export class RevenueEditDialogComponent implements OnInit {
-  financeService = inject(FinanceService)
   private router = inject(Router)
+  private financeService = inject(FinanceService)
   private matSnackBar = inject(MatSnackBar)
   private matDialogRef =
     inject<MatDialogRef<RevenueEditDialogComponent> | null>(
@@ -84,6 +85,7 @@ export class RevenueEditDialogComponent implements OnInit {
 
   oldRevenue: RuleRepeatable | undefined
   newRevenue: RuleRepeatableAdd | undefined
+  frequencies = frequencies
 
   navigateToDelete = false
   deleteModal: MatDialogRef<RevenueDeleteComponent> | null = null

@@ -1,4 +1,5 @@
-import { DailyItem } from '@interfaces/daily-item.interface'
+import { numberOfDays } from './constants'
+import { Day } from '@interfaces/day.interface'
 import { RuleAdd } from '@interfaces/rule-add.interface'
 import { RuleEdit } from '@interfaces/rule-edit.interface'
 import { RuleRepeatableAdd } from '@interfaces/rule-repeatable-add.interface'
@@ -6,10 +7,13 @@ import { RuleRepeatableEdit } from '@interfaces/rule-repeatable-edit.interface'
 import { RuleRepeatable } from '@interfaces/rule-repeatable.interface'
 import { Rule } from '@interfaces/rule.interface'
 import {
+  addDays,
   addMonths,
   addYears,
   differenceInCalendarMonths,
   differenceInCalendarYears,
+  getMonth,
+  getYear,
   startOfWeek,
 } from 'date-fns'
 
@@ -102,19 +106,31 @@ export function getRuleRange(
   return [start, end]
 }
 
-export function getRuleTotal(rule: Rule): number {
-  return rule.daily ? rule.daily.reduce((sum, item) => sum + item.amount, 0) : 0
-}
+export function getDefaultDays(startDate: Date) {
+  const days: Day[] = []
 
-export function addDailyItem(dailyItem: DailyItem) {
-  // Add the daily item to the day
-  dailyItem.day.daily[dailyItem.rule.type].push(dailyItem)
-  dailyItem.day.total[dailyItem.rule.type] += dailyItem.amount
-
-  // Also across reference it back in the rule
-  if (!dailyItem.rule.daily) {
-    dailyItem.rule.daily = []
+  for (let i = 0; i < numberOfDays; i++) {
+    const date = addDays(startDate, i)
+    const day: Day = {
+      date,
+      month: getMonth(date),
+      year: getYear(date),
+      daily: {
+        balance: [],
+        revenue: [],
+        expense: [],
+        savings: [],
+      },
+      total: {
+        balance: 0,
+        revenue: 0,
+        expense: 0,
+        savings: 0,
+      },
+      balance: 0,
+    }
+    days.push(day)
   }
 
-  dailyItem.rule.daily.push(dailyItem)
+  return days
 }

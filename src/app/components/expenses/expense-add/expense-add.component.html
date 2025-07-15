@@ -56,7 +56,7 @@
             [(ngModel)]="myExpense.frequency"
             name="frequency"
           >
-            @for (frequency of financeService.frequencies; track frequency) {
+            @for (frequency of frequencies; track frequency) {
               <mat-option [value]="frequency">{{ frequency }}</mat-option>
             }
           </mat-select>

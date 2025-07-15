@@ -19,6 +19,8 @@ export class RuleRepeatableAccess {
       ...rule,
       startDate: rule.startDate ? parseISO(rule.startDate) : null,
       endDate: rule.endDate ? parseISO(rule.endDate) : null,
+      daily: [],
+      yearlyAmount: 0,
     }))
   }
 

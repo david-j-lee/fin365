@@ -79,6 +79,8 @@ export class SnapshotAccess {
         description: balance.description,
         amount: balance.amount,
         budgetId,
+        yearlyAmount: balance.amount,
+        daily: [],
       })
     }
 

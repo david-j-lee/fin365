@@ -31,6 +31,6 @@ export const RulesMetadata: Record<RuleType, RuleMetadata> = {
 }
 
 export interface Rule extends RuleEntity {
-  yearlyAmount?: number
-  daily?: DailyItem[]
+  yearlyAmount: number
+  daily: DailyItem[]
 }

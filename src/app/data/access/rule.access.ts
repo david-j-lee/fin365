@@ -12,11 +12,21 @@ export class RuleAccess {
 
   async getAll(ruleType: RuleType, budgetId: string): Promise<Rule[]> {
     const data = await this[SERVICE].getAll(RulesMetadata[ruleType], budgetId)
-    return data.map((item) => ({ ...item, type: ruleType }))
+    return data.map((item) => ({
+      ...item,
+      type: ruleType,
+      daily: [],
+      yearlyAmount: 0,
+    }))
   }
 
   async add(ruleAdd: RuleAdd): Promise<Rule> {
-    return await this[SERVICE].add(RulesMetadata[ruleAdd.type], ruleAdd)
+    const record = await this[SERVICE].add(RulesMetadata[ruleAdd.type], ruleAdd)
+    return {
+      ...record,
+      daily: [],
+      yearlyAmount: 0,
+    }
   }
 
   async update(ruleOriginal: Rule, ruleEdit: ruleEdit): Promise<Rule | null> {

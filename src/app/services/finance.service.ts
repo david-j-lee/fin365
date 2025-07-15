@@ -1,4 +1,4 @@
-import { Injectable, Signal, WritableSignal } from '@angular/core'
+import { Injectable, WritableSignal } from '@angular/core'
 import { BudgetAccess } from '@data/access/budget.access'
 import { RuleRepeatableAccess } from '@data/access/rule-repeatable.access'
 import { RuleAccess } from '@data/access/rule.access'
@@ -6,7 +6,7 @@ import { SnapshotAccess } from '@data/access/snapshot.access'
 import { BudgetAdd } from '@interfaces/budget-add.interface'
 import { BudgetEdit } from '@interfaces/budget-edit.interface'
 import { Budget } from '@interfaces/budget.interface'
-import { Day } from '@interfaces/day.interface'
+import { DailyItem } from '@interfaces/daily-item.interface'
 import { Event } from '@interfaces/event.interface'
 import { RuleAdd } from '@interfaces/rule-add.interface'
 import { RuleEdit } from '@interfaces/rule-edit.interface'
@@ -16,23 +16,9 @@ import { RuleRepeatable } from '@interfaces/rule-repeatable.interface'
 import { Rule, RuleType, RulesMetadata } from '@interfaces/rule.interface'
 import { SnapshotAdd } from '@interfaces/snapshot-add.interface'
 import { SnapshotBalanceAdd } from '@interfaces/snapshot-balance-add.interface'
-import {
-  addDailyItem,
-  getRuleRange,
-  getRuleRepeatDays,
-  getRuleTotal,
-  isRuleRepeatable,
-} from '@utilities/rule-utilities'
-import {
-  addDays,
-  addMonths,
-  differenceInCalendarMonths,
-  differenceInDays,
-  getMonth,
-  getYear,
-  isSameDay,
-  isToday,
-} from 'date-fns'
+import { getCalculatedDataForRule } from '@utilities/rule-daily-utilities'
+import { getDefaultDays, isRuleRepeatable } from '@utilities/rule-utilities'
+import { isSameDay } from 'date-fns'
 import { Subject } from 'rxjs'
 
 @Injectable({ providedIn: 'root' })
@@ -47,12 +33,6 @@ export class FinanceService {
   budgets: Budget[] | null = null
   budget: Budget | null = null
   isLoaded = false
-
-  todaysEstimatedBalance = 0
-  startDate: Date = new Date()
-  endDate: Date = new Date()
-  numberOfDays = 365
-  frequencies = ['Once', 'Daily', 'Weekly', 'Bi-Weekly', 'Monthly', 'Yearly']
 
   getFirstDate() {
     return this.budget?.days ? this.budget?.days()[0]?.date : null
@@ -74,6 +54,7 @@ export class FinanceService {
     const day = this.budget
       .days()
       .find((budgetDay) => isSameDay(budgetDay.date, date))
+
     return day?.balance ?? 0
   }
 
@@ -89,37 +70,65 @@ export class FinanceService {
     // Load the data
     this.budgets?.push(budget)
     this.selectBudget(budget)
+
     if (this.budget?.snapshots) {
-      this.budget.snapshots().push(snapshot)
+      this.budget.snapshots.update((snapshots) => {
+        snapshots.push(snapshot)
+        return snapshots
+      })
     }
-    this.generateBudget()
+    this.setBudgetData(this.budget)
 
     // Send out the add budget event
     this.events.next({ resource: 'budget', event: 'add', budget })
   }
 
   async selectBudget(budget: Budget | null) {
-    this.budget = budget
     if (!budget) {
       return
     }
 
+    // Load the data if needed
     if (!budget.isBalancesLoaded()) {
-      await this.getBalances(budget)
+      budget.balances.set(await this.ruleAccess.getAll('balance', budget.id))
+      budget.isBalancesLoaded.set(true)
     }
     if (!budget.isExpensesLoaded()) {
-      await this.getExpenses(budget)
+      budget.expenses.set(
+        (await this.ruleRepeatableAccess.getAll(
+          'expense',
+          budget.id,
+        )) as RuleRepeatable[],
+      )
+      budget.isExpensesLoaded.set(true)
     }
     if (!budget.isRevenuesLoaded()) {
-      await this.getRevenues(budget)
+      budget.revenues.set(
+        (await this.ruleRepeatableAccess.getAll(
+          'revenue',
+          budget.id,
+        )) as RuleRepeatable[],
+      )
+      budget.isRevenuesLoaded.set(true)
     }
     if (!budget.isSnapshotsLoaded()) {
-      await this.getSnapshots(budget)
+      budget.snapshots.set(await this.snapshotAccess.getAll(budget.id))
+      if (budget.snapshots && budget.snapshots()[0]) {
+        budget.startDate = budget.snapshots()[0].date
+      }
+      budget.isSnapshotsLoaded.set(true)
     }
 
-    this.generateBudget()
+    // Regenerate the data
+    this.setBudgetData(budget)
+    this.budget = budget
 
-    this.events.next({ resource: 'budget', event: 'select', budget })
+    // Send event out for this
+    this.events.next({
+      resource: 'budget',
+      event: 'select',
+      budget: budget,
+    })
   }
 
   async editBudget(budgetOriginal: Budget, budgetEdit: BudgetEdit) {
@@ -145,35 +154,27 @@ export class FinanceService {
     return true
   }
 
-  generateBudget() {
-    if (!this.budget || !this.budget.startDate) {
-      return
-    }
-
-    this.startDate = new Date(this.budget.startDate)
-    this.endDate = addDays(this.startDate, this.numberOfDays)
-
-    this.generateDaysOnBudget()
-    this.generateDataForRules('balance')
-    this.generateDataForRules('revenue')
-    this.generateDataForRules('expense')
-    this.updateRunningTotals()
-  }
-
   async snapshot(addSnapshot: SnapshotAdd, balances: SnapshotBalanceAdd[]) {
     if (!this.budget) {
       return
     }
 
+    // Send request to save data
     const [snapshot, newBalances] = await this.snapshotAccess.save(
       addSnapshot,
       balances,
       this.getBalanceOn(addSnapshot.date),
     )
+
+    // Update the service state
     this.budget.startDate = snapshot.date
-    this.budget.snapshots()?.unshift(snapshot)
+    this.budget.snapshots.update((snapshots) => {
+      snapshots?.unshift(snapshot)
+      return snapshots
+    })
     this.budget.balances.set(newBalances)
-    this.generateBudget()
+
+    this.setBudgetData(this.budget)
   }
 
   async addRule(ruleAdd: RuleAdd | RuleRepeatableAdd) {
@@ -190,15 +191,24 @@ export class FinanceService {
     }
 
     // Update service state
-    const budgetFieldKey = RulesMetadata[ruleAdd.type].budgetFieldKey
-    const budgetField = this.budget[budgetFieldKey] as WritableSignal<Rule[]>
+    rule = {
+      ...rule,
+      ...getCalculatedDataForRule(this.budget, rule),
+    }
+    const budgetField = this.budget[
+      RulesMetadata[ruleAdd.type].budgetFieldKey
+    ] as WritableSignal<Rule[]>
     budgetField.update((rules) => {
       rules.push(rule)
       return rules
     })
 
-    this.generateDataForRule(rule)
-    this.updateRunningTotals()
+    FinanceService.setBudgetDaysForRule(
+      this.budget,
+      rule.type,
+      rule.id,
+      rule.daily,
+    )
 
     // Send out event of the new rule
     this.events.next({ resource: rule.type, event: 'add', rule })
@@ -226,16 +236,23 @@ export class FinanceService {
     }
 
     // Update service state
-    const ruleArray = this.budget[
+    rule = {
+      ...rule,
+      ...getCalculatedDataForRule(this.budget, rule),
+    }
+    const rulesArray = this.budget[
       RulesMetadata[ruleOriginal.type].budgetFieldKey
     ] as WritableSignal<Rule[]>
-    ruleArray.update((currentItems) =>
+    rulesArray.update((currentItems) =>
       currentItems.map((item) => (item.id === rule.id ? rule : item)),
     )
 
-    this.resetRuleCalculatedData(rule)
-    this.generateDataForRule(rule)
-    this.updateRunningTotals()
+    FinanceService.setBudgetDaysForRule(
+      this.budget,
+      rule.type,
+      rule.id,
+      rule.daily,
+    )
 
     // Send out events for the rule update
     this.events.next({ resource: rule.type, event: 'update', rule })
@@ -260,49 +277,49 @@ export class FinanceService {
     }
 
     // Update service state
-    const metadata = RulesMetadata[rule.type]
-    const budgetField = this.budget[metadata.budgetFieldKey] as WritableSignal<
-      Rule[]
-    >
-    budgetField.update((currentItems) =>
+    const rulesArray = this.budget[
+      RulesMetadata[rule.type].budgetFieldKey
+    ] as WritableSignal<Rule[]>
+    rulesArray.update((currentItems) =>
       currentItems.filter((item) => item.id !== rule.id),
     )
 
-    this.resetRuleCalculatedData(rule)
-    this.updateRunningTotals()
+    FinanceService.setBudgetDaysForRule(this.budget, rule.type, rule.id)
 
     // Send out delete event
     this.events.next({ resource: rule.type, event: 'delete', rule })
   }
 
-  private resetRuleCalculatedData(rule: Rule) {
-    if (!this.budget?.days) {
-      return
-    }
+  private static setBudgetDaysForRule(
+    budget: Budget,
+    ruleType: RuleType,
+    ruleId: string,
+    dailyItems?: DailyItem[],
+  ) {
+    let lastBalance = 0
 
-    this.budget.days.update((days) =>
+    budget.days.update((days) =>
       days.map((day) => {
-        day.daily[rule.type] = day.daily[rule.type].filter(
-          (dailyRevenue) => dailyRevenue.rule.id !== rule.id,
+        // Remove the daily data for the rule
+        day.daily[ruleType] = day.daily[ruleType].filter(
+          (dailyRevenue) => dailyRevenue.rule.id !== ruleId,
         )
-        day.total[rule.type] = day.daily[rule.type].reduce(
+
+        // Add the new daily data for the rule
+        if (dailyItems) {
+          for (const dailyItem of dailyItems) {
+            if (dailyItem.day === day) {
+              day.daily[dailyItem.rule.type].push(dailyItem)
+              day.total[dailyItem.rule.type] += dailyItem.amount
+            }
+          }
+        }
+
+        // Calculate the new total
+        day.total[ruleType] = day.daily[ruleType].reduce(
           (sum, item) => sum + item.amount,
           0,
         )
-        return day
-      }),
-    )
-  }
-
-  private updateRunningTotals() {
-    if (!this.budget?.days) {
-      return
-    }
-
-    let lastBalance = 0
-
-    this.budget.days.update((days) =>
-      days.map((day) => {
         day.balance =
           lastBalance +
           day.total.balance +
@@ -310,308 +327,59 @@ export class FinanceService {
           day.total.expense
         lastBalance = day.balance
 
-        if (isToday(day.date)) {
-          this.todaysEstimatedBalance = day.balance
-        }
         return day
       }),
     )
   }
 
-  private async getBalances(budget: Budget) {
-    try {
-      const result = await this.ruleAccess.getAll('balance', budget.id)
-      budget.balances.set(result)
-      budget.isBalancesLoaded.set(true)
-    } catch (error) {
-      budget.balances.set([])
-      console.error(error)
-    }
-  }
-
-  private async getExpenses(budget: Budget) {
-    try {
-      const result = await this.ruleRepeatableAccess.getAll(
-        'expense',
-        budget.id,
-      )
-      budget.expenses.set(result)
-      budget.isExpensesLoaded.set(true)
-    } catch (error) {
-      budget.expenses.set([])
-      console.error(error)
-    }
-  }
-
-  private async getRevenues(budget: Budget) {
-    try {
-      const result = await this.ruleRepeatableAccess.getAll(
-        'revenue',
-        budget.id,
-      )
-      budget.revenues.set(result)
-      budget.isRevenuesLoaded.set(true)
-    } catch (error) {
-      budget.revenues.set([])
-      console.error(error)
-    }
-  }
-
-  private async getSnapshots(budget: Budget) {
-    try {
-      const result = await this.snapshotAccess.getAll(budget.id)
-      budget.snapshots.set(result)
-      if (budget.snapshots && budget.snapshots()[0]) {
-        budget.startDate = budget.snapshots()[0].date
-      }
-      budget.isSnapshotsLoaded.set(true)
-    } catch (error) {
-      budget.snapshots.set([])
-      console.error(error)
-    }
-  }
-
-  private generateDaysOnBudget() {
-    if (!this.budget) {
-      return
-    }
-
-    this.budget.days.set([])
-
-    for (let i = 0; i < this.numberOfDays; i++) {
-      const date = addDays(this.startDate, i)
-      const day: Day = {
-        date,
-        month: getMonth(date),
-        year: getYear(date),
-        daily: {
-          balance: [],
-          revenue: [],
-          expense: [],
-          savings: [],
-        },
-        total: {
-          balance: 0,
-          revenue: 0,
-          expense: 0,
-          savings: 0,
-        },
-        balance: 0,
-      }
-      this.budget?.days.update((days) => {
-        days.push(day)
-        return days
-      })
-    }
-  }
-
-  private generateDataForRule(rule: Rule | RuleRepeatable) {
-    if ('frequency' in rule) {
-      switch (rule.frequency) {
-        case 'Once':
-          this.generateRuleOnce(rule)
-          break
-        case 'Daily':
-          this.generateRuleDaily(rule)
-          break
-        case 'Weekly':
-          this.generateRuleWeeks(rule, 1)
-          break
-        case 'Bi-Weekly':
-          this.generateRuleWeeks(rule, 2)
-          break
-        case 'Monthly':
-          this.generateRuleMonths(rule, 1)
-          break
-        case 'Yearly':
-          this.generateRuleMonths(rule, 12)
-          break
-        default:
-          console.error(`Encountered unknown frequency ${rule.frequency}`)
-          break
-      }
-    } else {
-      // If it's a one-time rule, we can just generate it once
-      this.generateRuleOnce(rule)
-    }
-
-    // Add any meta data or calculated data to the rule
-    rule.yearlyAmount = getRuleTotal(rule)
-  }
-
-  private generateDataForRules(type: RuleType) {
+  private static setRuleData(budget: Budget, type: RuleType) {
     const key = `${type}s` as keyof Budget
-    const records = this.budget?.[key] as Signal<RuleRepeatable[]> | undefined
+    const records = budget[key] as WritableSignal<RuleRepeatable[]> | undefined
 
     if (!records) {
       return
     }
 
-    records().forEach((rule) => {
-      this.generateDataForRule(rule)
+    records?.update((rules) => {
+      return rules.map((rule) => ({
+        ...rule,
+        ...getCalculatedDataForRule(budget, rule),
+      }))
     })
-  }
 
-  private generateRuleOnce(rule: Rule | RuleRepeatable) {
-    if (!this.budget) {
-      return
-    }
+    let lastBalance = 0
 
-    const day =
-      'startDate' in rule
-        ? this.budget
-            .days()
-            ?.find(
-              (budgetDay) =>
-                rule.startDate && isSameDay(budgetDay.date, rule.startDate),
-            )
-        : this.budget.days()[0]
-
-    if (!day) {
-      return
-    }
-
-    addDailyItem({
-      day,
-      rule,
-      amount: rule.amount,
-    })
-  }
-
-  private generateRuleDaily(rule: RuleRepeatable) {
-    if (!this.budget?.days) {
-      return
-    }
-
-    const [startDate, endDate] = getRuleRange(
-      [this.startDate, this.endDate],
-      [rule.startDate, rule.endDate],
-      rule.frequency,
-      rule.isForever,
-    )
-    const minDay = this.budget
-      ?.days()
-      .find((day) => isSameDay(day.date, startDate))
-
-    if (!minDay) {
-      return
-    }
-
-    const minDayIndex = this.budget?.days().indexOf(minDay)
-    const numLoops = differenceInDays(endDate, startDate)
-
-    for (let i = 0; i < numLoops; i++) {
-      const day = this.budget?.days()[minDayIndex + i]
-
-      if (!day) {
-        continue
-      }
-
-      addDailyItem({
-        day,
-        rule,
-        amount: rule.amount,
-      })
-    }
-  }
-
-  private generateRuleWeeks(rule: RuleRepeatable, byWeeks: number) {
-    if (!this.budget?.days) {
-      return
-    }
-
-    const skipDays = byWeeks * 7
-    const repeatDays = getRuleRepeatDays(rule)
-    const [startDate, endDate] = getRuleRange(
-      [this.startDate, this.endDate],
-      [rule.startDate, rule.endDate],
-      rule.frequency,
-      rule.isForever,
-    )
-    const firstDateIndex = this.getFirstDayIndex(startDate)
-
-    if (firstDateIndex === null) {
-      return
-    }
-
-    const numLoops = differenceInDays(endDate, startDate) / skipDays
-
-    for (let i = 0; i < numLoops; i++) {
-      for (const repeatDay of repeatDays) {
-        const day =
-          this.budget?.days()[firstDateIndex + i * skipDays + repeatDay]
-
-        if (!day) {
-          continue
+    budget.days.update((days) => {
+      return days.map((day) => {
+        for (const record of records()) {
+          for (const dailyItem of record.daily) {
+            if (dailyItem.day === day) {
+              day.daily[dailyItem.rule.type].push(dailyItem)
+              day.total[dailyItem.rule.type] += dailyItem.amount
+            }
+          }
         }
 
-        addDailyItem({
-          day,
-          rule,
-          amount: rule.amount,
-        })
-      }
-    }
-  }
+        day.balance =
+          lastBalance +
+          day.total.balance +
+          day.total.revenue -
+          day.total.expense
+        lastBalance = day.balance
 
-  private generateRuleMonths(rule: RuleRepeatable, numMonths: number) {
-    if (!this.budget?.days) {
-      return
-    }
-
-    const [firstDate, maxDate] = getRuleRange(
-      [this.startDate, this.endDate],
-      [rule.startDate, rule.endDate],
-      rule.frequency,
-      rule.isForever,
-    )
-    const budgetFirstDay = this.budget
-      ?.days()
-      .find((day) => isSameDay(day.date, firstDate))
-
-    if (!budgetFirstDay) {
-      return
-    }
-
-    const firstDateIndex = this.budget?.days().indexOf(budgetFirstDay)
-    const numLoops = differenceInCalendarMonths(maxDate, firstDate) / numMonths
-
-    for (let i = 0; i <= numLoops; i++) {
-      const date = addMonths(firstDate, i * numMonths)
-      const day =
-        this.budget?.days()[firstDateIndex + differenceInDays(date, firstDate)]
-
-      if (!day) {
-        continue
-      }
-
-      addDailyItem({
-        day,
-        rule,
-        amount: rule.amount,
+        return day
       })
-    }
+    })
   }
 
-  private getFirstDayIndex(date: Date) {
-    if (!this.budget?.days()) {
-      return null
+  private setBudgetData(budget: Budget | null) {
+    if (!budget) {
+      return
     }
 
-    const [firstDay] = this.budget.days()
-
-    if (date < firstDay.date) {
-      return differenceInDays(date, firstDay.date)
-    }
-
-    const budgetFirstDay = this.budget
-      ?.days()
-      .find((day) => isSameDay(day.date, date))
-
-    if (!budgetFirstDay) {
-      return null
-    }
-
-    return this.budget?.days().indexOf(budgetFirstDay)
+    budget.days.set(getDefaultDays(budget.startDate))
+    FinanceService.setRuleData(budget, 'balance')
+    FinanceService.setRuleData(budget, 'revenue')
+    FinanceService.setRuleData(budget, 'expense')
   }
 }

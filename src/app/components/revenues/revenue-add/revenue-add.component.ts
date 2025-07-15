@@ -31,6 +31,7 @@ import { Router } from '@angular/router'
 import { SpinnerComponent } from '@components/spinner/spinner.component'
 import { RuleRepeatableAdd } from '@interfaces/rule-repeatable-add.interface'
 import { FinanceService } from '@services/finance.service'
+import { frequencies } from '@utilities/constants'
 
 @Component({
   selector: 'app-revenue-add-dialog',
@@ -59,8 +60,8 @@ import { FinanceService } from '@services/finance.service'
   ],
 })
 export class RevenueAddDialogComponent implements OnInit {
-  financeService = inject(FinanceService)
   private router = inject(Router)
+  private financeService = inject(FinanceService)
   private matSnackBar = inject(MatSnackBar)
   private matDialogRef = inject<MatDialogRef<RevenueAddDialogComponent> | null>(
     MatDialogRef,
@@ -69,6 +70,7 @@ export class RevenueAddDialogComponent implements OnInit {
   errors = ''
   isSubmitting = false
   myRevenue: RuleRepeatableAdd | undefined
+  frequencies = frequencies
 
   constructor() {
     if (this.financeService.budget?.id) {
