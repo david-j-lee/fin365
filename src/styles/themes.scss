@@ -34,3 +34,12 @@ html.dark {
   @include mat.all-component-colors($theme-dark);
   @include mat.color-variants-backwards-compatibility($theme-dark);
 }
+
+// Theme based styles
+.active-mat-button {
+  background: color-mix(
+    in srgb,
+    mat.get-theme-color($theme-dark, primary, 70) 30%,
+    transparent
+  ) !important;
+}

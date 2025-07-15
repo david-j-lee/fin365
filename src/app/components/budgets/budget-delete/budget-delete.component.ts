@@ -62,9 +62,13 @@ export class BudgetDeleteDialogComponent implements OnInit {
         this.financeService.budgets &&
         this.financeService.budgets.length > 0
       ) {
-        this.router.navigate(['/', this.financeService.budgets[0].id])
+        this.router.navigate(['/', this.financeService.budgets[0].id], {
+          preserveFragment: true,
+        })
       } else if (action !== 'edit') {
-        this.router.navigate(['/', this.financeService.budget?.id])
+        this.router.navigate(['/', this.financeService.budget?.id], {
+          preserveFragment: true,
+        })
       }
     })
   }

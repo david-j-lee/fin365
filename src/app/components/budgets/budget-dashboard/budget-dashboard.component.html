@@ -12,52 +12,29 @@
         class="col-12 col-md-7 col-lg-8 col-xl-9 h-100 overflow-y-auto charts-wrapper"
       >
         <mat-tab-group
-          class="w-100 h-100"
+          class="w-100 h-100 header-less-tabs"
           mat-stretch-tabs="false"
           mat-align-tabs="start"
+          [selectedIndex]="financeService.tab.index"
         >
           <mat-tab>
-            <ng-template mat-tab-label>
-              <mat-icon>stacked_line_chart</mat-icon>
-              <span class="ms-3 me-1">Charts</span>
-            </ng-template>
-            <div
-              class="container-fluid flex-grow-1 d-flex flex-column pb-1 h-100"
-            >
-              <div class="row flex-grow-1">
-                <div class="col-md-4 my-3">
-                  <app-balance-pie-chart></app-balance-pie-chart>
-                </div>
-                <div class="col-md-4 my-3">
-                  <app-revenue-pie-chart></app-revenue-pie-chart>
-                </div>
-                <div class="col-md-4 my-3">
-                  <app-expense-pie-chart></app-expense-pie-chart>
-                </div>
-              </div>
-              <div class="row d-flex flex-column flex-grow-2">
-                <div class="col-12 d-flex flex-column flex-grow-1">
-                  <div class="d-flex flex-column flex-grow-1 my-3">
-                    <app-budget-chart
-                      class="d-flex flex-column flex-grow-1"
-                    ></app-budget-chart>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <app-budget-chart class="h-100"></app-budget-chart>
           </mat-tab>
           <mat-tab>
-            <ng-template mat-tab-label>
-              <mat-icon>calendar_month</mat-icon>
-              <span class="ms-3 me-1">Calendar</span>
-            </ng-template>
             <app-calendar class="h-100"></app-calendar>
+          </mat-tab>
+          <mat-tab>
+            <app-balance-dashboard></app-balance-dashboard>
+          </mat-tab>
+          <mat-tab>
+            <app-revenue-dashboard></app-revenue-dashboard>
+          </mat-tab>
+          <mat-tab>
+            <app-expense-dashboard></app-expense-dashboard>
           </mat-tab>
         </mat-tab-group>
       </div>
     </div>
   </ng-container>
-}
-@if (financeService.budget) {
   <router-outlet></router-outlet>
 }

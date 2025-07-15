@@ -1,12 +1,14 @@
 import { Injectable } from '@angular/core'
 
+export type SideBarOptions = 'balance' | 'expense' | 'revenue' | ''
+
 @Injectable()
 export class SideBarService {
   isBalancesExpanded = true
   isRevenuesExpanded = false
   isExpensesExpanded = false
 
-  setExpanded(type: string) {
+  setExpanded(type: SideBarOptions) {
     if (!type) {
       return
     }
@@ -28,7 +30,6 @@ export class SideBarService {
         this.isRevenuesExpanded = true
         break
       default:
-        console.error(`Encountered an supported ${type}`)
         break
     }
   }

@@ -16,10 +16,12 @@ import { RuleRepeatable } from '@interfaces/rule-repeatable.interface'
 import { Rule, RuleType, RulesMetadata } from '@interfaces/rule.interface'
 import { SnapshotAdd } from '@interfaces/snapshot-add.interface'
 import { SnapshotBalanceAdd } from '@interfaces/snapshot-balance-add.interface'
+import { Tab } from '@interfaces/tab.interface'
+import { tabs } from '@utilities/constants'
 import { getCalculatedDataForRule } from '@utilities/rule-daily-utilities'
 import { getDefaultDays, isRuleRepeatable } from '@utilities/rule-utilities'
 import { formatISO, isSameDay } from 'date-fns'
-import { Subject } from 'rxjs'
+import { ReplaySubject } from 'rxjs'
 
 @Injectable({ providedIn: 'root' })
 export class FinanceService {
@@ -28,11 +30,15 @@ export class FinanceService {
   private ruleRepeatableAccess = new RuleRepeatableAccess()
   private snapshotAccess = new SnapshotAccess()
 
-  events = new Subject<Event>()
-
+  events = new ReplaySubject<Event>(1)
   budgets: Budget[] | null = null
   budget: Budget | null = null
   isLoaded = false
+  tab: Tab = tabs[0]
+
+  setTab(tab: Tab) {
+    this.tab = tab
+  }
 
   getFirstDate() {
     return this.budget?.days ? this.budget?.days()[0]?.date : null
@@ -85,6 +91,7 @@ export class FinanceService {
 
   async selectBudget(budget: Budget | null) {
     if (!budget) {
+      this.budget = null
       return
     }
 

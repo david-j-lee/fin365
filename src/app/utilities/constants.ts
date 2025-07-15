@@ -1,3 +1,13 @@
+import { Tab } from '@interfaces/tab.interface'
+
+export const tabs: Tab[] = [
+  { key: 'summary', index: 0, label: 'Summary' },
+  { key: 'calendar', index: 1, label: 'Calendar' },
+  { key: 'balance', index: 2, label: 'Balances' },
+  { key: 'revenue', index: 3, label: 'Revenues' },
+  { key: 'expense', index: 4, label: 'Expenses' },
+]
+
 export const numberOfDays = 365
 
 export const frequencies = [

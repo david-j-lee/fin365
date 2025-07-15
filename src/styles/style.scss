@@ -133,6 +133,10 @@ button.mdc-icon-button {
   flex-grow: 1;
 }
 
+.mat-mdc-tab-group.header-less-tabs .mat-mdc-tab-header {
+  display: none;
+}
+
 /*
  * Shared component styles
  */

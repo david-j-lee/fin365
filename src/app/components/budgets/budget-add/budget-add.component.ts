@@ -79,7 +79,9 @@ export class BudgetAddDialogComponent implements OnInit {
     this.matDialogRef?.afterClosed().subscribe(() => {
       this.matDialogRef = null
       if (this.financeService.budget) {
-        this.router.navigate(['/', this.financeService.budget.id])
+        this.router.navigate(['/', this.financeService.budget.id], {
+          preserveFragment: true,
+        })
       } else {
         this.router.navigate(['/'])
       }

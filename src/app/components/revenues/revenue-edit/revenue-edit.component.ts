@@ -128,15 +128,20 @@ export class RevenueEditDialogComponent implements OnInit {
     this.matDialogRef?.afterClosed().subscribe(() => {
       this.matDialogRef = null
       if (this.navigateToDelete) {
-        this.router.navigate([
-          './',
-          this.financeService.budget?.id,
-          'revenue',
-          this.oldRevenue?.id,
-          'delete',
-        ])
+        this.router.navigate(
+          [
+            './',
+            this.financeService.budget?.id,
+            'revenue',
+            this.oldRevenue?.id,
+            'delete',
+          ],
+          { preserveFragment: true },
+        )
       } else {
-        this.router.navigate(['/', this.financeService.budget?.id])
+        this.router.navigate(['/', this.financeService.budget?.id], {
+          preserveFragment: true,
+        })
       }
     })
   }
