@@ -1,5 +1,5 @@
 import { CdkScrollable } from '@angular/cdk/scrolling'
-import { Component, OnInit, inject } from '@angular/core'
+import { AfterViewInit, Component, OnInit, inject } from '@angular/core'
 import { FormsModule, NgForm } from '@angular/forms'
 import { MatButton } from '@angular/material/button'
 import { MatCheckbox } from '@angular/material/checkbox'
@@ -29,9 +29,9 @@ import { MatSelect } from '@angular/material/select'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { Router } from '@angular/router'
 import { SpinnerComponent } from '@components/spinner/spinner.component'
-import { RevenueAdd } from '@interfaces/revenues/revenue-add.interface'
-import { DalRevenueService } from '@services/dal/dal.revenue.service'
+import { RuleRepeatableAdd } from '@interfaces/rule-repeatable-add.interface'
 import { FinanceService } from '@services/finance.service'
+import { frequencies } from '@utilities/constants'
 
 @Component({
   selector: 'app-revenue-add-dialog',
@@ -60,53 +60,69 @@ import { FinanceService } from '@services/finance.service'
   ],
 })
 export class RevenueAddDialogComponent implements OnInit {
-  financeService = inject(FinanceService)
-  private dalRevenueService = inject(DalRevenueService)
+  private router = inject(Router)
+  private financeService = inject(FinanceService)
   private matSnackBar = inject(MatSnackBar)
-  matDialogRef = inject<MatDialogRef<RevenueAddDialogComponent>>(MatDialogRef)
+  private matDialogRef = inject<MatDialogRef<RevenueAddDialogComponent> | null>(
+    MatDialogRef,
+  )
 
   errors = ''
   isSubmitting = false
+  myRevenue: RuleRepeatableAdd | undefined
+  frequencies = frequencies
 
-  myRevenue: RevenueAdd | undefined
-
-  ngOnInit() {
-    this.myRevenue = {
-      budgetId: this.financeService.selectedBudget?.id ?? '',
-      description: '',
-      amount: 0,
-      isForever: true,
-      frequency: '',
-      startDate: this.financeService.getFirstDate(),
-      endDate: null,
-      repeatMon: false,
-      repeatTue: false,
-      repeatWed: false,
-      repeatThu: false,
-      repeatFri: false,
-      repeatSat: false,
-      repeatSun: false,
+  constructor() {
+    if (this.financeService.budget?.id) {
+      this.myRevenue = {
+        type: 'revenue',
+        budgetId: this.financeService.budget?.id ?? '',
+        description: '',
+        amount: 0,
+        isForever: true,
+        frequency: '',
+        startDate: this.financeService.getFirstDate(),
+        endDate: null,
+        repeatMon: false,
+        repeatTue: false,
+        repeatWed: false,
+        repeatThu: false,
+        repeatFri: false,
+        repeatSat: false,
+        repeatSun: false,
+      }
+    } else {
+      this.errors = 'Unable to locate budge'
     }
   }
 
-  create(form: NgForm) {
+  ngOnInit() {
+    this.matDialogRef?.afterClosed().subscribe(() => {
+      this.matDialogRef = null
+      this.router.navigate(['/', this.financeService.budget?.id])
+    })
+  }
+
+  async create(form: NgForm) {
     const { value, valid } = form
-    if (valid) {
-      this.isSubmitting = true
-      this.errors = ''
-      value.budgetId = this.financeService.selectedBudget?.id
-      this.dalRevenueService.add(value).subscribe({
-        next: () => {
-          this.matDialogRef.close()
-          this.matSnackBar.open('Saved', 'Dismiss', { duration: 2000 })
-        },
-        error: (errors) => {
-          this.errors = errors
-        },
-        complete: () => {
-          this.isSubmitting = false
-        },
-      })
+
+    if (!valid) {
+      this.errors = 'Form is invalid'
+      return
+    }
+
+    this.isSubmitting = true
+    this.errors = ''
+
+    try {
+      await this.financeService.addRule({ ...this.myRevenue, ...value })
+      this.matDialogRef?.close()
+      this.matSnackBar.open('Saved', 'Dismiss', { duration: 2000 })
+    } catch (error) {
+      this.errors = error as string
+      console.error(error)
+    } finally {
+      this.isSubmitting = false
     }
   }
 }
@@ -116,20 +132,10 @@ export class RevenueAddDialogComponent implements OnInit {
   template: '',
   standalone: true,
 })
-export class RevenueAddComponent implements OnInit {
-  matDialog = inject(MatDialog)
-  private router = inject(Router)
-  private financeService = inject(FinanceService)
+export class RevenueAddComponent implements AfterViewInit {
+  private matDialog = inject(MatDialog)
 
-  matDialogRef: MatDialogRef<RevenueAddDialogComponent> | null = null
-
-  ngOnInit() {
-    setTimeout(() => {
-      this.matDialogRef = this.matDialog.open(RevenueAddDialogComponent)
-      this.matDialogRef.afterClosed().subscribe(() => {
-        this.matDialogRef = null
-        this.router.navigate(['/', this.financeService.selectedBudget?.id])
-      })
-    })
+  ngAfterViewInit() {
+    this.matDialog.open(RevenueAddDialogComponent)
   }
 }

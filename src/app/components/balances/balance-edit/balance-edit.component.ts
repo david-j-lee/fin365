@@ -1,5 +1,12 @@
 import { CdkScrollable } from '@angular/cdk/scrolling'
-import { Component, OnInit, inject } from '@angular/core'
+import {
+  AfterViewInit,
+  Component,
+  OnDestroy,
+  OnInit,
+  effect,
+  inject,
+} from '@angular/core'
 import { FormsModule, NgForm } from '@angular/forms'
 import { MatButton } from '@angular/material/button'
 import {
@@ -18,10 +25,10 @@ import { MatSnackBar } from '@angular/material/snack-bar'
 import { ActivatedRoute, Router } from '@angular/router'
 import { BalanceDeleteComponent } from '@components/balances/balance-delete/balance-delete.component'
 import { SpinnerComponent } from '@components/spinner/spinner.component'
-import { BalanceAdd } from '@interfaces/balances/balance-add.interface'
-import { Balance } from '@interfaces/balances/balance.interface'
-import { DalBalanceService } from '@services/dal/dal.balance.service'
+import { RuleEdit } from '@interfaces/rule-edit.interface'
+import { Rule } from '@interfaces/rule.interface'
 import { FinanceService } from '@services/finance.service'
+import { Subscription } from 'rxjs'
 
 @Component({
   selector: 'app-balance-edit-dialog',
@@ -45,75 +52,60 @@ import { FinanceService } from '@services/finance.service'
 export class BalanceEditDialogComponent implements OnInit {
   private router = inject(Router)
   private financeService = inject(FinanceService)
-  private dalBalanceService = inject(DalBalanceService)
   private matSnackBar = inject(MatSnackBar)
-  matDialogRef = inject<MatDialogRef<BalanceEditDialogComponent> | null>(
-    MatDialogRef<BalanceEditDialogComponent>,
-  )
-  data = inject<{
-    id: string
-  }>(MAT_DIALOG_DATA)
+  private matDialogRef =
+    inject<MatDialogRef<BalanceEditDialogComponent> | null>(
+      MatDialogRef<BalanceEditDialogComponent>,
+    )
+  private data = inject<{ id: string }>(MAT_DIALOG_DATA)
 
   errors = ''
   isSubmitting = false
 
-  oldBalance: Balance | undefined
-  newBalance: BalanceAdd | undefined
+  oldBalance: Rule | undefined
+  newBalance: RuleEdit | undefined
 
   navigateToDelete = false
   deleteModal: MatDialogRef<BalanceDeleteComponent> | null = null
 
-  ngOnInit() {
-    this.setAfterClosed()
-    // Get Balance
-    if (this.financeService.selectedBudget?.balances) {
-      this.getData()
-    } else if (this.financeService.selectedBudget) {
-      this.dalBalanceService
-        .getAll(this.financeService.selectedBudget.id)
-        .subscribe((result) => {
-          if (result) {
-            this.getData()
-          }
-        })
-    }
-  }
-
-  setAfterClosed() {
-    this.matDialogRef?.afterClosed().subscribe(() => {
-      this.matDialogRef = null
-      // Need to check for navigation with forward button
-      const action =
-        this.router.url.split('/')[this.router.url.split('/').length - 1]
-      if (action === 'delete') {
+  constructor() {
+    effect(() => {
+      if (!this.financeService.budget?.isBalancesLoaded()) {
         return
       }
+
+      this.oldBalance = this.financeService.budget
+        ?.balances()
+        .find((balance) => balance.id === this.data.id)
+
+      if (this.oldBalance) {
+        this.newBalance = {
+          type: 'balance',
+          id: this.oldBalance.id,
+          description: this.oldBalance.description,
+          amount: this.oldBalance.amount,
+        }
+      } else {
+        this.errors = 'Unable to locate balance'
+      }
+    })
+  }
+
+  ngOnInit() {
+    this.matDialogRef?.afterClosed().subscribe(() => {
+      this.matDialogRef = null
       if (this.navigateToDelete) {
         this.router.navigate([
           './',
-          this.financeService.selectedBudget?.id,
+          this.financeService.budget?.id,
           'balance',
           this.oldBalance?.id,
           'delete',
         ])
       } else {
-        this.router.navigate(['/', this.financeService.selectedBudget?.id])
+        this.router.navigate(['/', this.financeService.budget?.id])
       }
     })
-  }
-
-  getData() {
-    const oldBalance = this.financeService.selectedBudget?.balances?.find(
-      (balance) => balance.id === this.data.id,
-    )
-    this.oldBalance = oldBalance
-    if (this.oldBalance) {
-      this.newBalance = {
-        description: this.oldBalance.description,
-        amount: this.oldBalance.amount,
-        budgetId: this.oldBalance.budgetId,
-      }
-    }
   }
 
   requestDelete() {
@@ -121,23 +113,25 @@ export class BalanceEditDialogComponent implements OnInit {
     this.matDialogRef?.close()
   }
 
-  edit(form: NgForm) {
+  async edit(form: NgForm) {
     const { value, valid } = form
-    if (valid && this.oldBalance) {
-      this.isSubmitting = true
-      this.errors = ''
-      this.dalBalanceService.update(this.oldBalance, value).subscribe({
-        next: () => {
-          this.matDialogRef?.close()
-          this.matSnackBar.open('Saved', 'Dismiss', { duration: 2000 })
-        },
-        error: (errors) => {
-          this.errors = errors
-        },
-        complete: () => {
-          this.isSubmitting = false
-        },
+    if (!valid || !this.oldBalance) {
+      return
+    }
+    this.isSubmitting = true
+    this.errors = ''
+    try {
+      await this.financeService.editRule(this.oldBalance, {
+        ...this.newBalance,
+        ...value,
       })
+      this.matDialogRef?.close()
+      this.matSnackBar.open('Saved', 'Dismiss', { duration: 2000 })
+    } catch (error) {
+      this.errors = error as string
+      console.error(error)
+    } finally {
+      this.isSubmitting = false
     }
   }
 }
@@ -147,21 +141,21 @@ export class BalanceEditDialogComponent implements OnInit {
   template: '',
   standalone: true,
 })
-export class BalanceEditComponent implements OnInit {
-  matDialog = inject(MatDialog)
-  private activatedRoute = inject(ActivatedRoute)
+export class BalanceEditComponent implements AfterViewInit, OnDestroy {
+  private route = inject(ActivatedRoute)
+  private matDialog = inject(MatDialog)
 
-  matDialogRef: MatDialogRef<BalanceEditDialogComponent> | null = null
+  private routeParamsSubscription: Subscription | null = null
 
-  ngOnInit() {
-    this.activatedRoute.parent?.params.subscribe(() => {
-      this.activatedRoute.params.subscribe((params) => {
-        setTimeout(() => {
-          this.matDialogRef = this.matDialog.open(BalanceEditDialogComponent, {
-            data: { id: params['id'] },
-          })
-        })
+  ngAfterViewInit() {
+    this.routeParamsSubscription = this.route.params.subscribe((params) => {
+      this.matDialog.open(BalanceEditDialogComponent, {
+        data: { id: params['id'] },
       })
     })
+  }
+
+  ngOnDestroy() {
+    this.routeParamsSubscription?.unsubscribe()
   }
 }

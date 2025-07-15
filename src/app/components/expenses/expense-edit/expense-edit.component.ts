@@ -1,5 +1,12 @@
 import { CdkScrollable } from '@angular/cdk/scrolling'
-import { Component, OnInit, inject } from '@angular/core'
+import {
+  AfterViewInit,
+  Component,
+  OnDestroy,
+  OnInit,
+  effect,
+  inject,
+} from '@angular/core'
 import { FormsModule, NgForm } from '@angular/forms'
 import { MatButton } from '@angular/material/button'
 import { MatCheckbox } from '@angular/material/checkbox'
@@ -31,10 +38,11 @@ import { MatSnackBar } from '@angular/material/snack-bar'
 import { ActivatedRoute, Router } from '@angular/router'
 import { ExpenseDeleteComponent } from '@components/expenses/expense-delete/expense-delete.component'
 import { SpinnerComponent } from '@components/spinner/spinner.component'
-import { ExpenseAdd } from '@interfaces/expenses/expense-add.interface'
-import { Expense } from '@interfaces/expenses/expense.interface'
-import { DalExpenseService } from '@services/dal/dal.expense.service'
+import { RuleRepeatableAdd } from '@interfaces/rule-repeatable-add.interface'
+import { RuleRepeatable } from '@interfaces/rule-repeatable.interface'
 import { FinanceService } from '@services/finance.service'
+import { frequencies } from '@utilities/constants'
+import { Subscription } from 'rxjs'
 
 @Component({
   selector: 'app-expense-edit-dialog',
@@ -63,88 +71,74 @@ import { FinanceService } from '@services/finance.service'
   ],
 })
 export class ExpenseEditDialogComponent implements OnInit {
-  financeService = inject(FinanceService)
   private router = inject(Router)
-  private dalExpenseService = inject(DalExpenseService)
+  private financeService = inject(FinanceService)
   private matSnackBar = inject(MatSnackBar)
-  matDialogRef = inject<MatDialogRef<ExpenseEditDialogComponent> | null>(
-    MatDialogRef<ExpenseEditDialogComponent>,
-  )
-  data = inject<{
-    id: string
-  }>(MAT_DIALOG_DATA)
+  private matDialogRef =
+    inject<MatDialogRef<ExpenseEditDialogComponent> | null>(
+      MatDialogRef<ExpenseEditDialogComponent>,
+    )
+  private data = inject<{ id: string }>(MAT_DIALOG_DATA)
 
   errors = ''
   isSubmitting = false
 
-  oldExpense: Expense | undefined
-  newExpense: ExpenseAdd | undefined
+  oldExpense: RuleRepeatable | undefined
+  newExpense: RuleRepeatableAdd | undefined
+  frequencies = frequencies
 
   navigateToDelete = false
   deleteModal: MatDialogRef<ExpenseDeleteComponent> | null = null
 
-  ngOnInit() {
-    this.setAfterClosed()
-    // Get Balance
-    if (this.financeService.selectedBudget?.expenses) {
-      this.getData()
-    } else if (this.financeService.selectedBudget) {
-      this.dalExpenseService
-        .getAll(this.financeService.selectedBudget.id)
-        .subscribe((result) => {
-          if (result) {
-            this.getData()
-          }
-        })
-    }
-  }
+  constructor() {
+    effect(() => {
+      if (!this.financeService.budget?.isExpensesLoaded()) {
+        return
+      }
 
-  setAfterClosed() {
-    this.matDialogRef?.afterClosed().subscribe(() => {
-      this.matDialogRef = null
-      // Need to check for navigation with forward button
-      const action =
-        this.router.url.split('/')[this.router.url.split('/').length - 1]
-      if (action !== 'delete') {
-        if (this.navigateToDelete) {
-          this.router.navigate([
-            './',
-            this.financeService.selectedBudget?.id,
-            'expense',
-            this.oldExpense?.id,
-            'delete',
-          ])
-        } else {
-          this.router.navigate(['/', this.financeService.selectedBudget?.id])
+      this.oldExpense = this.financeService.budget
+        ?.expenses()
+        ?.find((budgetExpense) => budgetExpense.id === this.data.id)
+
+      if (this.oldExpense) {
+        this.newExpense = {
+          type: 'expense',
+          budgetId: this.oldExpense.budgetId,
+          description: this.oldExpense.description,
+          amount: this.oldExpense.amount,
+          isForever: this.oldExpense.isForever,
+          frequency: this.oldExpense.frequency,
+          startDate: this.oldExpense.startDate,
+          endDate: this.oldExpense.endDate,
+          repeatMon: this.oldExpense.repeatMon,
+          repeatTue: this.oldExpense.repeatTue,
+          repeatWed: this.oldExpense.repeatWed,
+          repeatThu: this.oldExpense.repeatThu,
+          repeatFri: this.oldExpense.repeatFri,
+          repeatSat: this.oldExpense.repeatSat,
+          repeatSun: this.oldExpense.repeatSun,
         }
+      } else {
+        this.errors = 'Unable to locate expense'
       }
     })
   }
 
-  getData() {
-    // Get Balance
-    const expense = this.financeService.selectedBudget?.expenses?.find(
-      (budgetExpense) => budgetExpense.id === this.data.id,
-    )
-    this.oldExpense = expense
-    if (this.oldExpense) {
-      this.newExpense = {
-        budgetId: this.oldExpense.budgetId,
-        description: this.oldExpense.description,
-        amount: this.oldExpense.amount,
-        isForever: this.oldExpense.isForever,
-        frequency: this.oldExpense.frequency,
-        startDate: this.oldExpense.startDate,
-        endDate: this.oldExpense.endDate,
-        repeatMon: this.oldExpense.repeatMon,
-        repeatTue: this.oldExpense.repeatTue,
-        repeatWed: this.oldExpense.repeatWed,
-        repeatThu: this.oldExpense.repeatThu,
-        repeatFri: this.oldExpense.repeatFri,
-        repeatSat: this.oldExpense.repeatSat,
-        repeatSun: this.oldExpense.repeatSun,
+  ngOnInit() {
+    this.matDialogRef?.afterClosed().subscribe(() => {
+      this.matDialogRef = null
+      if (this.navigateToDelete) {
+        this.router.navigate([
+          './',
+          this.financeService.budget?.id,
+          'expense',
+          this.oldExpense?.id,
+          'delete',
+        ])
+      } else {
+        this.router.navigate(['/', this.financeService.budget?.id])
       }
-    }
+    })
   }
 
   requestDelete() {
@@ -152,23 +146,28 @@ export class ExpenseEditDialogComponent implements OnInit {
     this.matDialogRef?.close()
   }
 
-  edit(form: NgForm) {
+  async edit(form: NgForm) {
     const { value, valid } = form
-    if (valid && this.oldExpense) {
-      this.isSubmitting = true
-      this.errors = ''
-      this.dalExpenseService.update(this.oldExpense, value).subscribe({
-        next: () => {
-          this.matDialogRef?.close()
-          this.matSnackBar.open('Saved', 'Dismiss', { duration: 2000 })
-        },
-        error: (errors) => {
-          this.errors = errors
-        },
-        complete: () => {
-          this.isSubmitting = false
-        },
+
+    if (!valid || !this.oldExpense) {
+      this.errors = 'Form is invalid'
+      return
+    }
+
+    this.isSubmitting = true
+    this.errors = ''
+
+    try {
+      await this.financeService.editRule(this.oldExpense, {
+        ...this.newExpense,
+        ...value,
       })
+      this.matDialogRef?.close()
+      this.matSnackBar.open('Saved', 'Dismiss', { duration: 2000 })
+    } catch (error) {
+      this.errors = error as string
+    } finally {
+      this.isSubmitting = false
     }
   }
 }
@@ -178,21 +177,21 @@ export class ExpenseEditDialogComponent implements OnInit {
   template: '',
   standalone: true,
 })
-export class ExpenseEditComponent implements OnInit {
-  matDialog = inject(MatDialog)
-  private activatedRoute = inject(ActivatedRoute)
+export class ExpenseEditComponent implements AfterViewInit, OnDestroy {
+  private route = inject(ActivatedRoute)
+  private matDialog = inject(MatDialog)
 
-  matDialogRef: MatDialogRef<ExpenseEditDialogComponent> | null = null
+  private routeParamsSubscription: Subscription | null = null
 
-  ngOnInit() {
-    this.activatedRoute.parent?.params.subscribe(() => {
-      this.activatedRoute.params.subscribe((params) => {
-        setTimeout(() => {
-          this.matDialogRef = this.matDialog.open(ExpenseEditDialogComponent, {
-            data: { id: params['id'] },
-          })
-        })
+  ngAfterViewInit() {
+    this.routeParamsSubscription = this.route.params.subscribe((params) => {
+      this.matDialog.open(ExpenseEditDialogComponent, {
+        data: { id: params['id'] },
       })
     })
+  }
+
+  ngOnDestroy() {
+    this.routeParamsSubscription?.unsubscribe()
   }
 }

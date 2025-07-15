@@ -1,5 +1,6 @@
 import { CdkScrollable } from '@angular/cdk/scrolling'
 import {
+  AfterViewInit,
   ChangeDetectionStrategy,
   Component,
   OnInit,
@@ -31,10 +32,8 @@ import { MatInput } from '@angular/material/input'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { Router } from '@angular/router'
 import { SpinnerComponent } from '@components/spinner/spinner.component'
-import { BudgetAdd } from '@interfaces/budgets/budget-add.interface'
-import { DalBudgetService } from '@services/dal/dal.budget.service'
+import { BudgetAdd } from '@interfaces/budget-add.interface'
 import { FinanceService } from '@services/finance.service'
-import moment from 'moment'
 
 @Component({
   selector: 'app-budget-add-dialog',
@@ -61,36 +60,51 @@ import moment from 'moment'
   ],
 })
 export class BudgetAddDialogComponent implements OnInit {
-  matDialogRef = inject<MatDialogRef<BudgetAddDialogComponent>>(MatDialogRef)
-  private dalBudgetService = inject(DalBudgetService)
+  private router = inject(Router)
+  private financeService = inject(FinanceService)
   private matSnackBar = inject(MatSnackBar)
+  private matDialogRef = inject<MatDialogRef<BudgetAddDialogComponent> | null>(
+    MatDialogRef,
+  )
 
   errors = ''
   isSubmitting = false
-
   myBudget: BudgetAdd | undefined
 
-  ngOnInit() {
-    this.myBudget = { name: '', startDate: moment() }
+  constructor() {
+    this.myBudget = { name: '', startDate: new Date() }
   }
 
-  create(form: NgForm) {
+  ngOnInit() {
+    this.matDialogRef?.afterClosed().subscribe(() => {
+      this.matDialogRef = null
+      if (this.financeService.budget) {
+        this.router.navigate(['/', this.financeService.budget.id])
+      } else {
+        this.router.navigate(['/'])
+      }
+    })
+  }
+
+  async create(form: NgForm) {
     const { value, valid } = form
-    if (valid) {
-      this.isSubmitting = true
-      this.errors = ''
-      this.dalBudgetService.add(value).subscribe({
-        next: () => {
-          this.matDialogRef.close()
-          this.matSnackBar.open('Saved', 'Dismiss', { duration: 2000 })
-        },
-        error: (errors) => {
-          this.errors = errors
-        },
-        complete: () => {
-          this.isSubmitting = false
-        },
-      })
+
+    if (!valid) {
+      this.errors = 'Form is invalid'
+      return
+    }
+
+    this.isSubmitting = true
+    this.errors = ''
+
+    try {
+      await this.financeService.addBudget(value)
+      this.matDialogRef?.close()
+      this.matSnackBar.open('Saved', 'Dismiss', { duration: 2000 })
+    } catch (error) {
+      this.errors = error as string
+    } finally {
+      this.isSubmitting = false
     }
   }
 }
@@ -100,24 +114,10 @@ export class BudgetAddDialogComponent implements OnInit {
   template: '',
   standalone: true,
 })
-export class BudgetAddComponent implements OnInit {
-  matDialog = inject(MatDialog)
-  private router = inject(Router)
-  private financeService = inject(FinanceService)
+export class BudgetAddComponent implements AfterViewInit {
+  private matDialog = inject(MatDialog)
 
-  matDialogRef: MatDialogRef<BudgetAddDialogComponent> | null = null
-
-  ngOnInit() {
-    setTimeout(() => {
-      this.matDialogRef = this.matDialog.open(BudgetAddDialogComponent)
-      this.matDialogRef.afterClosed().subscribe(() => {
-        this.matDialogRef = null
-        if (this.financeService.selectedBudget) {
-          this.router.navigate(['/', this.financeService.selectedBudget.id])
-        } else {
-          this.router.navigate(['/'])
-        }
-      })
-    })
+  ngAfterViewInit() {
+    this.matDialog.open(BudgetAddDialogComponent)
   }
 }

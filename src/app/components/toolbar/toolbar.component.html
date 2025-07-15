@@ -1,20 +1,20 @@
 <mat-toolbar color="primary">
-  @if (financeService.selectedBudget) {
+  @if (financeService.budget) {
     <button mat-icon-button [routerLink]="['/']">
       <mat-icon>arrow_back</mat-icon>
     </button>
   }
-  @if (!financeService.selectedBudget) {
+  @if (!financeService.budget) {
     <div class="fill-space"></div>
     <button mat-icon-button [routerLink]="['/add']">
       <mat-icon>add</mat-icon>
     </button>
   }
-  @if (financeService.selectedBudget) {
+  @if (financeService.budget) {
     <button mat-button [matMenuTriggerFor]="budgetsMenu">
-      @if (financeService.selectedBudget) {
+      @if (financeService.budget) {
         <span class="nav-dropdown">
-          {{ financeService.selectedBudget.name }}
+          {{ financeService.budget.name }}
         </span>
       }
       <mat-icon>arrow_drop_down</mat-icon>
@@ -23,13 +23,13 @@
     <button
       mat-icon-button
       class="primary"
-      [routerLink]="['/', financeService.selectedBudget.id, 'edit']"
+      [routerLink]="['/', financeService.budget.id, 'edit']"
     >
       <mat-icon>mode_edit</mat-icon>
     </button>
     <button
       mat-icon-button
-      [routerLink]="['/', financeService.selectedBudget.id, 'add']"
+      [routerLink]="['/', financeService.budget.id, 'add']"
     >
       <mat-icon>add</mat-icon>
     </button>
@@ -48,9 +48,7 @@
       <a
         mat-menu-item
         [routerLink]="['/', subItem.id]"
-        [ngClass]="
-          subItem.id === financeService.selectedBudget?.id ? 'selected' : ''
-        "
+        [ngClass]="subItem.id === financeService.budget?.id ? 'selected' : ''"
       >
         {{ subItem.name }}
       </a>
@@ -76,9 +74,7 @@
       <a
         mat-menu-item
         [routerLink]="['/', subItem.id]"
-        [ngClass]="
-          subItem.id === financeService.selectedBudget?.id ? 'selected' : ''
-        "
+        [ngClass]="subItem.id === financeService.budget?.id ? 'selected' : ''"
       >
         {{ subItem.name }}
       </a>

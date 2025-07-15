@@ -1,6 +1,6 @@
 <h4 mat-dialog-title>Snapshots</h4>
 <div mat-dialog-content>
-  @if (financeService.selectedBudget) {
+  @if (financeService.budget) {
     <div>
       <mat-table #table [dataSource]="dataSource">
         <!-- Date -->

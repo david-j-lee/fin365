@@ -1,6 +1,6 @@
 <mat-list>
   @for (
-    expense of financeService.selectedBudget?.expenses | sortBy: 'description';
+    expense of financeService.budget?.expenses() | sortBy: 'description';
     track expense
   ) {
     <mat-list-item>
@@ -17,7 +17,9 @@
             >{{ expense.description }}</a
           >
         </div>
-        <div class="fill-space text-end">$ {{ expense.amount }}</div>
+        <div class="fill-space text-end">
+          $ {{ expense.amount | number: '1.0' }}
+        </div>
       </div>
     </mat-list-item>
   }

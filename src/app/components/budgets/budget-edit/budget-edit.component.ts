@@ -1,5 +1,5 @@
 import { CdkScrollable } from '@angular/cdk/scrolling'
-import { Component, OnInit, inject } from '@angular/core'
+import { AfterViewInit, Component, OnInit, inject } from '@angular/core'
 import { FormsModule, NgForm } from '@angular/forms'
 import { MatButton } from '@angular/material/button'
 import { MatCheckbox } from '@angular/material/checkbox'
@@ -18,9 +18,8 @@ import { MatSnackBar } from '@angular/material/snack-bar'
 import { Router } from '@angular/router'
 import { BudgetDeleteComponent } from '@components/budgets/budget-delete/budget-delete.component'
 import { SpinnerComponent } from '@components/spinner/spinner.component'
-import { BudgetEdit } from '@interfaces/budgets/budget-edit.interface'
-import { Budget } from '@interfaces/budgets/budget.interface'
-import { DalBudgetService } from '@services/dal/dal.budget.service'
+import { BudgetEdit } from '@interfaces/budget-edit.interface'
+import { Budget } from '@interfaces/budget.interface'
 import { FinanceService } from '@services/finance.service'
 
 @Component({
@@ -46,9 +45,8 @@ import { FinanceService } from '@services/finance.service'
 export class BudgetEditDialogComponent implements OnInit {
   private router = inject(Router)
   private financeService = inject(FinanceService)
-  private dalBudgetService = inject(DalBudgetService)
   private matSnackBar = inject(MatSnackBar)
-  matDialogRef = inject<MatDialogRef<BudgetEditDialogComponent> | null>(
+  private matDialogRef = inject<MatDialogRef<BudgetEditDialogComponent> | null>(
     MatDialogRef<BudgetEditDialogComponent>,
   )
 
@@ -61,35 +59,26 @@ export class BudgetEditDialogComponent implements OnInit {
   navigateToDelete = false
   deleteModal: MatDialogRef<BudgetDeleteComponent> | null = null
 
-  ngOnInit() {
-    this.setAfterClosed()
-    this.oldBudget = this.financeService.selectedBudget
+  constructor() {
+    this.oldBudget = this.financeService.budget
     if (this.oldBudget) {
       this.newBudget = {
         id: this.oldBudget.id,
         name: this.oldBudget.name,
         isActive: this.oldBudget.isActive,
       }
+    } else {
+      this.errors = 'Unable to locate budget'
     }
   }
 
-  setAfterClosed() {
+  ngOnInit() {
     this.matDialogRef?.afterClosed().subscribe(() => {
       this.matDialogRef = null
-      // Need to check for navigation with forward button
-      const action =
-        this.router.url.split('/')[this.router.url.split('/').length - 1]
-      if (action === 'delete') {
-        return
-      }
       if (this.navigateToDelete) {
-        this.router.navigate([
-          '/',
-          this.financeService.selectedBudget?.id,
-          'delete',
-        ])
+        this.router.navigate(['/', this.financeService.budget?.id, 'delete'])
       } else {
-        this.router.navigate(['/', this.financeService.selectedBudget?.id])
+        this.router.navigate(['/', this.financeService.budget?.id])
       }
     })
   }
@@ -99,24 +88,28 @@ export class BudgetEditDialogComponent implements OnInit {
     this.matDialogRef?.close()
   }
 
-  edit(form: NgForm) {
+  async edit(form: NgForm) {
     const { value, valid } = form
-    if (valid && this.oldBudget) {
-      this.isSubmitting = true
-      this.errors = ''
-      value.id = this.oldBudget.id
-      this.dalBudgetService.update(this.oldBudget, value).subscribe({
-        next: () => {
-          this.matDialogRef?.close()
-          this.matSnackBar.open('Saved', 'Dismiss', { duration: 2000 })
-        },
-        error: (errors) => {
-          this.errors = errors
-        },
-        complete: () => {
-          this.isSubmitting = false
-        },
+
+    if (!valid || !this.oldBudget) {
+      this.errors = 'Form is invalid'
+      return
+    }
+
+    this.isSubmitting = true
+    this.errors = ''
+
+    try {
+      await this.financeService.editBudget(this.oldBudget, {
+        ...this.newBudget,
+        ...value,
       })
+      this.matDialogRef?.close()
+      this.matSnackBar.open('Saved', 'Dismiss', { duration: 2000 })
+    } catch (error) {
+      this.errors = error as string
+    } finally {
+      this.isSubmitting = false
     }
   }
 }
@@ -126,14 +119,10 @@ export class BudgetEditDialogComponent implements OnInit {
   template: '',
   standalone: true,
 })
-export class BudgetEditComponent implements OnInit {
-  matDialog = inject(MatDialog)
+export class BudgetEditComponent implements AfterViewInit {
+  private matDialog = inject(MatDialog)
 
-  matDialogRef: MatDialogRef<BudgetEditDialogComponent> | null = null
-
-  ngOnInit() {
-    setTimeout(() => {
-      this.matDialogRef = this.matDialog.open(BudgetEditDialogComponent)
-    })
+  ngAfterViewInit() {
+    this.matDialog.open(BudgetEditDialogComponent)
   }
 }

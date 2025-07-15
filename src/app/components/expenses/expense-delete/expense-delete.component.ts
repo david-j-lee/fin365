@@ -1,5 +1,12 @@
 import { CdkScrollable } from '@angular/cdk/scrolling'
-import { Component, OnInit, inject } from '@angular/core'
+import {
+  AfterViewInit,
+  Component,
+  OnDestroy,
+  OnInit,
+  effect,
+  inject,
+} from '@angular/core'
 import { MatButton } from '@angular/material/button'
 import {
   MAT_DIALOG_DATA,
@@ -14,9 +21,9 @@ import { MatIcon } from '@angular/material/icon'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { ActivatedRoute, Router } from '@angular/router'
 import { SpinnerComponent } from '@components/spinner/spinner.component'
-import { Expense } from '@interfaces/expenses/expense.interface'
-import { DalExpenseService } from '@services/dal/dal.expense.service'
+import { RuleRepeatable } from '@interfaces/rule-repeatable.interface'
 import { FinanceService } from '@services/finance.service'
+import { Subscription } from 'rxjs'
 
 @Component({
   selector: 'app-expense-delete-dialog',
@@ -33,91 +40,80 @@ import { FinanceService } from '@services/finance.service'
   ],
 })
 export class ExpenseDeleteDialogComponent implements OnInit {
+  private router = inject(Router)
   private financeService = inject(FinanceService)
-  private dalExpenseService = inject(DalExpenseService)
-  matDialog = inject(MatDialog)
   private matSnackBar = inject(MatSnackBar)
-  matDialogRef =
-    inject<MatDialogRef<ExpenseDeleteDialogComponent>>(MatDialogRef)
-  data = inject<{
-    id: string
-  }>(MAT_DIALOG_DATA)
+  private matDialogRef =
+    inject<MatDialogRef<ExpenseDeleteDialogComponent> | null>(MatDialogRef)
+  private data = inject<{ id: string }>(MAT_DIALOG_DATA)
 
   errors = ''
   isSubmitting = false
+  deleteExpense: RuleRepeatable | undefined
 
-  deleteExpense: Expense | undefined
+  constructor() {
+    effect(() => {
+      if (!this.financeService.budget?.isExpensesLoaded()) {
+        return
+      }
+
+      this.deleteExpense = this.financeService.budget
+        ?.expenses()
+        ?.find((expense) => expense.id === this.data.id)
+
+      if (!this.deleteExpense) {
+        this.errors = 'Unable to locate expense'
+      }
+    })
+  }
 
   ngOnInit() {
-    if (this.financeService.selectedBudget?.expenses) {
-      this.getData()
-    } else if (this.financeService.selectedBudget) {
-      this.dalExpenseService
-        .getAll(this.financeService.selectedBudget.id)
-        .subscribe(() => {
-          this.getData()
-        })
+    this.matDialogRef?.afterClosed().subscribe(() => {
+      this.matDialogRef = null
+      this.router.navigate(['/', this.financeService.budget?.id])
+    })
+  }
+
+  async delete() {
+    if (!this.deleteExpense) {
+      return
     }
-  }
 
-  getData() {
-    // Get Balance
-    const expenseToDelete = this.financeService.selectedBudget?.expenses?.find(
-      (expense) => expense.id === this.data.id,
-    )
-    this.deleteExpense = expenseToDelete
-  }
+    this.isSubmitting = true
+    this.errors = ''
 
-  delete() {
-    if (this.deleteExpense) {
-      this.isSubmitting = true
-      this.dalExpenseService.delete(this.deleteExpense.id).subscribe({
-        next: () => {
-          this.matDialogRef.close()
-          this.matSnackBar.open('Deleted', 'Dismiss', { duration: 2000 })
-        },
-        error: (errors) => {
-          this.errors = errors
-        },
-        complete: () => {
-          this.isSubmitting = false
-        },
-      })
+    try {
+      await this.financeService.deleteRule(this.deleteExpense)
+      this.matDialogRef?.close()
+      this.matSnackBar.open('Deleted', 'Dismiss', { duration: 2000 })
+    } catch (error) {
+      this.errors = error as string
+    } finally {
+      this.isSubmitting = false
     }
   }
 }
 
 @Component({
-  selector: 'app-budget-add',
+  selector: 'app-expense-delete',
   template: '',
   standalone: true,
 })
-export class ExpenseDeleteComponent implements OnInit {
-  matDialog = inject(MatDialog)
-  private router = inject(Router)
-  private activatedRoute = inject(ActivatedRoute)
+export class ExpenseDeleteComponent implements AfterViewInit, OnDestroy {
+  private route = inject(ActivatedRoute)
+  private matDialog = inject(MatDialog)
 
-  matDialogRef: MatDialogRef<ExpenseDeleteDialogComponent> | null = null
+  private routeParamsSubscription: Subscription | null = null
 
-  ngOnInit() {
-    this.activatedRoute.parent?.params.subscribe((parentParams) => {
-      this.activatedRoute.params.subscribe((params) => {
-        setTimeout(() => {
-          this.matDialogRef = this.matDialog.open(
-            ExpenseDeleteDialogComponent,
-            { data: { id: params['id'] } },
-          )
-          this.matDialogRef.afterClosed().subscribe(() => {
-            this.matDialogRef = null
-            // Need to check action for navigation with back button
-            const action =
-              this.router.url.split('/')[this.router.url.split('/').length - 1]
-            if (action !== 'edit') {
-              this.router.navigate(['/', parentParams['budgetId']])
-            }
-          })
-        })
+  ngAfterViewInit() {
+    this.routeParamsSubscription = this.route.params.subscribe((params) => {
+      this.matDialog.open(ExpenseDeleteDialogComponent, {
+        data: { id: params['id'] },
       })
     })
+  }
+
+  ngOnDestroy() {
+    this.routeParamsSubscription?.unsubscribe()
   }
 }

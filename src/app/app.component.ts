@@ -3,7 +3,6 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner'
 import { Title } from '@angular/platform-browser'
 import { RouterOutlet } from '@angular/router'
 import { ToolbarComponent } from '@components/toolbar/toolbar.component'
-import { DalBudgetService } from '@services/dal/dal.budget.service'
 import { FinanceService } from '@services/finance.service'
 
 @Component({
@@ -14,7 +13,6 @@ import { FinanceService } from '@services/finance.service'
 export class AppComponent implements OnInit {
   title = inject(Title)
   financeService = inject(FinanceService)
-  private dalBudgetService = inject(DalBudgetService)
 
   ngOnInit() {
     this.title.setTitle('fin365')
@@ -24,12 +22,7 @@ export class AppComponent implements OnInit {
 
   private getBudgets() {
     if (this.financeService.budgets === null) {
-      this.dalBudgetService.getAll().subscribe((result) => {
-        if (result) {
-          this.financeService.budgets = result
-          this.financeService.isLoaded = true
-        }
-      })
+      this.financeService.loadBudgets()
     }
   }
 }

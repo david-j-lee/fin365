@@ -36,34 +36,34 @@
         @for (day of calendarService.days; track day; let first = $first) {
           <div
             [ngClass]="
-              day.date.format('L') === today.format('L')
+              isSameDay(day.date, today)
                 ? 'today'
-                : day.date.month() + 1 !== calendarService.currentMonth
+                : getMonth(day.date) + 1 !== calendarService.currentMonth
                   ? 'out-of-period'
                   : ''
             "
             class="day"
           >
-            @if (day.date.month() + 1 !== calendarService.currentMonth) {
+            @if (getMonth(day.date) + 1 !== calendarService.currentMonth) {
               <div class="overlay"></div>
             }
             <div class="date mt-1 ms-1">
-              @if (day.date.date() === 1 || first) {
-                <span>{{ day.date.toDate() | date: 'MMM' }} </span>
+              @if (isFirstDayOfMonth(day.date) || first) {
+                <span>{{ day.date | date: 'MMM' }} </span>
               }
-              <span>{{ day.date.toDate() | date: 'd' }}</span>
+              <span>{{ day.date | date: 'd' }}</span>
             </div>
             <div class="items">
-              @if (day.totalBalance !== 0) {
+              @if (day.total.balance !== 0) {
                 <div class="balances px-2">
-                  @for (dailyBalance of day.dailyBalances; track dailyBalance) {
+                  @for (dailyBalance of day.daily.balance; track dailyBalance) {
                     <div class="d-flex">
                       <small
                         class="text-start text-ellipsis"
-                        [matTooltip]="dailyBalance.balance.description"
+                        [matTooltip]="dailyBalance.rule.description"
                         matTooltipShowDelay="3000"
                       >
-                        {{ dailyBalance.balance.description }}
+                        {{ dailyBalance.rule.description }}
                       </small>
                       <span class="fill-space text-end">{{
                         dailyBalance.amount
@@ -72,16 +72,16 @@
                   }
                 </div>
               }
-              @if (day.totalRevenue !== 0) {
+              @if (day.total.revenue !== 0) {
                 <div class="revenues px-2">
-                  @for (dailyRevenue of day.dailyRevenues; track dailyRevenue) {
+                  @for (dailyRevenue of day.daily.revenue; track dailyRevenue) {
                     <div class="d-flex">
                       <small
                         class="text-start text-ellipsis"
-                        [matTooltip]="dailyRevenue.revenue.description"
+                        [matTooltip]="dailyRevenue.rule.description"
                         matTooltipShowDelay="3000"
                       >
-                        {{ dailyRevenue.revenue.description }}
+                        {{ dailyRevenue.rule.description }}
                       </small>
                       <span class="fill-space text-end">
                         <span class="positive">+</span>
@@ -91,16 +91,16 @@
                   }
                 </div>
               }
-              @if (day.totalExpense !== 0) {
+              @if (day.total.expense !== 0) {
                 <div class="expenses px-2">
-                  @for (dailyExpense of day.dailyExpenses; track dailyExpense) {
+                  @for (dailyExpense of day.daily.expense; track dailyExpense) {
                     <div class="d-flex">
                       <small
                         class="text-start text-ellipsis"
-                        [matTooltip]="dailyExpense.expense.description"
+                        [matTooltip]="dailyExpense.rule.description"
                         matTooltipShowDelay="3000"
                       >
-                        {{ dailyExpense.expense.description }}
+                        {{ dailyExpense.rule.description }}
                       </small>
                       <span class="fill-space text-end">
                         <span class="negative">-</span>

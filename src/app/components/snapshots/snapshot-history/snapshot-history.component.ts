@@ -1,6 +1,6 @@
 import { CdkScrollable } from '@angular/cdk/scrolling'
 import { DatePipe } from '@angular/common'
-import { Component, OnInit, inject } from '@angular/core'
+import { AfterViewInit, Component, OnInit, inject } from '@angular/core'
 import { MatButton } from '@angular/material/button'
 import {
   MatDialog,
@@ -25,7 +25,7 @@ import {
   MatTableDataSource,
 } from '@angular/material/table'
 import { Router } from '@angular/router'
-import { Snapshot } from '@interfaces/snapshots/snapshot.interface'
+import { Snapshot } from '@interfaces/snapshot.interface'
 import { FinanceService } from '@services/finance.service'
 
 @Component({
@@ -55,8 +55,9 @@ import { FinanceService } from '@services/finance.service'
 })
 export class SnapshotHistoryDialogComponent implements OnInit {
   financeService = inject(FinanceService)
-  matDialogRef =
-    inject<MatDialogRef<SnapshotHistoryDialogComponent>>(MatDialogRef)
+  private router = inject(Router)
+  private matDialogRef: MatDialogRef<SnapshotHistoryDialogComponent> | null =
+    inject(MatDialogRef<SnapshotHistoryDialogComponent>)
 
   displayColumns = [
     'date',
@@ -68,8 +69,13 @@ export class SnapshotHistoryDialogComponent implements OnInit {
 
   ngOnInit() {
     this.dataSource = new MatTableDataSource(
-      this.financeService.selectedBudget?.snapshots,
+      this.financeService.budget?.snapshots(),
     )
+
+    this.matDialogRef?.afterClosed().subscribe(() => {
+      this.matDialogRef = null
+      this.router.navigate(['/', this.financeService.budget?.id])
+    })
   }
 }
 
@@ -78,20 +84,10 @@ export class SnapshotHistoryDialogComponent implements OnInit {
   template: '',
   standalone: true,
 })
-export class SnapshotHistoryComponent implements OnInit {
-  matDialog = inject(MatDialog)
-  private router = inject(Router)
-  private financeService = inject(FinanceService)
+export class SnapshotHistoryComponent implements AfterViewInit {
+  private matDialog = inject(MatDialog)
 
-  matDialogRef: MatDialogRef<SnapshotHistoryDialogComponent> | null = null
-
-  ngOnInit() {
-    setTimeout(() => {
-      this.matDialogRef = this.matDialog.open(SnapshotHistoryDialogComponent)
-      this.matDialogRef.afterClosed().subscribe(() => {
-        this.matDialogRef = null
-        this.router.navigate(['/', this.financeService.selectedBudget?.id])
-      })
-    })
+  ngAfterViewInit() {
+    this.matDialog.open(SnapshotHistoryDialogComponent)
   }
 }

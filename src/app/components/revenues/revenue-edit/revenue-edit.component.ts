@@ -1,5 +1,12 @@
 import { CdkScrollable } from '@angular/cdk/scrolling'
-import { Component, OnInit, inject } from '@angular/core'
+import {
+  AfterViewInit,
+  Component,
+  OnDestroy,
+  OnInit,
+  effect,
+  inject,
+} from '@angular/core'
 import { FormsModule, NgForm } from '@angular/forms'
 import { MatButton } from '@angular/material/button'
 import { MatCheckbox } from '@angular/material/checkbox'
@@ -31,10 +38,11 @@ import { MatSnackBar } from '@angular/material/snack-bar'
 import { ActivatedRoute, Router } from '@angular/router'
 import { RevenueDeleteComponent } from '@components/revenues/revenue-delete/revenue-delete.component'
 import { SpinnerComponent } from '@components/spinner/spinner.component'
-import { RevenueAdd } from '@interfaces/revenues/revenue-add.interface'
-import { Revenue } from '@interfaces/revenues/revenue.interface'
-import { DalRevenueService } from '@services/dal/dal.revenue.service'
+import { RuleRepeatableAdd } from '@interfaces/rule-repeatable-add.interface'
+import { RuleRepeatable } from '@interfaces/rule-repeatable.interface'
 import { FinanceService } from '@services/finance.service'
+import { frequencies } from '@utilities/constants'
+import { Subscription } from 'rxjs'
 
 @Component({
   selector: 'app-revenue-edit-dialog',
@@ -63,94 +71,74 @@ import { FinanceService } from '@services/finance.service'
   ],
 })
 export class RevenueEditDialogComponent implements OnInit {
-  financeService = inject(FinanceService)
   private router = inject(Router)
-  private dalRevenueService = inject(DalRevenueService)
+  private financeService = inject(FinanceService)
   private matSnackBar = inject(MatSnackBar)
-  matDialogRef = inject<MatDialogRef<RevenueEditDialogComponent> | null>(
-    MatDialogRef<RevenueEditDialogComponent>,
-  )
-  data = inject<{
-    id: string
-  }>(MAT_DIALOG_DATA)
+  private matDialogRef =
+    inject<MatDialogRef<RevenueEditDialogComponent> | null>(
+      MatDialogRef<RevenueEditDialogComponent>,
+    )
+  private data = inject<{ id: string }>(MAT_DIALOG_DATA)
 
   errors = ''
   isSubmitting = false
 
-  oldRevenue: Revenue | undefined
-  newRevenue: RevenueAdd | undefined
+  oldRevenue: RuleRepeatable | undefined
+  newRevenue: RuleRepeatableAdd | undefined
+  frequencies = frequencies
 
   navigateToDelete = false
   deleteModal: MatDialogRef<RevenueDeleteComponent> | null = null
 
+  constructor() {
+    effect(() => {
+      if (!this.financeService.budget?.isRevenuesLoaded()) {
+        return
+      }
+
+      this.oldRevenue = this.financeService.budget
+        ?.revenues()
+        ?.find((budgetRevenue) => budgetRevenue.id === this.data.id)
+
+      if (this.oldRevenue) {
+        this.newRevenue = {
+          type: 'revenue',
+          budgetId: this.oldRevenue.budgetId,
+          description: this.oldRevenue.description,
+          amount: this.oldRevenue.amount,
+          isForever: this.oldRevenue.isForever,
+          frequency: this.oldRevenue.frequency,
+          startDate: this.oldRevenue.startDate,
+          endDate: this.oldRevenue.endDate,
+          repeatMon: this.oldRevenue.repeatMon,
+          repeatTue: this.oldRevenue.repeatTue,
+          repeatWed: this.oldRevenue.repeatWed,
+          repeatThu: this.oldRevenue.repeatThu,
+          repeatFri: this.oldRevenue.repeatFri,
+          repeatSat: this.oldRevenue.repeatSat,
+          repeatSun: this.oldRevenue.repeatSun,
+        }
+      } else {
+        this.errors = 'Unable to locate revenue'
+      }
+    })
+  }
+
   ngOnInit() {
-    this.setAfterClosed()
-    // Get Balance
-    if (this.financeService.selectedBudget?.revenues) {
-      this.getData()
-    } else if (this.financeService.selectedBudget) {
-      this.dalRevenueService
-        .getAll(this.financeService.selectedBudget.id)
-        .subscribe((result) => {
-          if (result) {
-            this.getData()
-          }
-        })
-    }
-  }
-
-  setAfterClosed() {
-    if (this.matDialogRef) {
-      this.matDialogRef.afterClosed().subscribe(() => {
-        this.matDialogRef = null
-        // Need to check for navigation with forward button
-        const action =
-          this.router.url.split('/')[this.router.url.split('/').length - 1]
-
-        if (action === 'delete') {
-          return
-        }
-
-        if (this.navigateToDelete) {
-          this.router.navigate([
-            './',
-            this.financeService.selectedBudget?.id,
-            'revenue',
-            this.oldRevenue?.id,
-            'delete',
-          ])
-        } else {
-          this.router.navigate(['/', this.financeService.selectedBudget?.id])
-        }
-      })
-    }
-  }
-
-  getData() {
-    // Get Revenue
-    const revenue = this.financeService.selectedBudget?.revenues?.find(
-      (budgetRevenue) => budgetRevenue.id === this.data.id,
-    )
-    if (!revenue) {
-      return
-    }
-    this.oldRevenue = revenue
-    this.newRevenue = {
-      budgetId: this.oldRevenue.budgetId,
-      description: this.oldRevenue.description,
-      amount: this.oldRevenue.amount,
-      isForever: this.oldRevenue.isForever,
-      frequency: this.oldRevenue.frequency,
-      startDate: this.oldRevenue.startDate,
-      endDate: this.oldRevenue.endDate,
-      repeatMon: this.oldRevenue.repeatMon,
-      repeatTue: this.oldRevenue.repeatTue,
-      repeatWed: this.oldRevenue.repeatWed,
-      repeatThu: this.oldRevenue.repeatThu,
-      repeatFri: this.oldRevenue.repeatFri,
-      repeatSat: this.oldRevenue.repeatSat,
-      repeatSun: this.oldRevenue.repeatSun,
-    }
+    this.matDialogRef?.afterClosed().subscribe(() => {
+      this.matDialogRef = null
+      if (this.navigateToDelete) {
+        this.router.navigate([
+          './',
+          this.financeService.budget?.id,
+          'revenue',
+          this.oldRevenue?.id,
+          'delete',
+        ])
+      } else {
+        this.router.navigate(['/', this.financeService.budget?.id])
+      }
+    })
   }
 
   requestDelete() {
@@ -158,23 +146,28 @@ export class RevenueEditDialogComponent implements OnInit {
     this.matDialogRef?.close()
   }
 
-  edit(form: NgForm) {
+  async edit(form: NgForm) {
     const { value, valid } = form
-    if (valid && this.oldRevenue) {
-      this.isSubmitting = true
-      this.errors = ''
-      this.dalRevenueService.update(this.oldRevenue, value).subscribe({
-        next: () => {
-          this.matDialogRef?.close()
-          this.matSnackBar.open('Saved', 'Dismiss', { duration: 2000 })
-        },
-        error: (errors) => {
-          this.errors = errors
-        },
-        complete: () => {
-          this.isSubmitting = false
-        },
+
+    if (!valid || !this.oldRevenue) {
+      this.errors = 'Unable to locate revenue'
+      return
+    }
+
+    this.isSubmitting = true
+    this.errors = ''
+
+    try {
+      await this.financeService.editRule(this.oldRevenue, {
+        ...this.newRevenue,
+        ...value,
       })
+      this.matDialogRef?.close()
+      this.matSnackBar.open('Saved', 'Dismiss', { duration: 2000 })
+    } catch (error) {
+      this.errors = error as string
+    } finally {
+      this.isSubmitting = false
     }
   }
 }
@@ -184,26 +177,21 @@ export class RevenueEditDialogComponent implements OnInit {
   template: '',
   standalone: true,
 })
-export class RevenueEditComponent implements OnInit {
-  matDialog = inject(MatDialog)
-  private activatedRoute = inject(ActivatedRoute)
+export class RevenueEditComponent implements AfterViewInit, OnDestroy {
+  private route = inject(ActivatedRoute)
+  private matDialog = inject(MatDialog)
 
-  matDialogRef: MatDialogRef<RevenueEditDialogComponent> | null = null
+  private routeParamsSubscription: Subscription | null = null
 
-  ngOnInit() {
-    if (this.activatedRoute.parent) {
-      this.activatedRoute.parent.params.subscribe(() => {
-        this.activatedRoute.params.subscribe((params) => {
-          setTimeout(() => {
-            this.matDialogRef = this.matDialog.open(
-              RevenueEditDialogComponent,
-              {
-                data: { id: params['id'] },
-              },
-            )
-          })
-        })
+  ngAfterViewInit() {
+    this.routeParamsSubscription = this.route.params.subscribe((params) => {
+      this.matDialog.open(RevenueEditDialogComponent, {
+        data: { id: params['id'] },
       })
-    }
+    })
+  }
+
+  ngOnDestroy() {
+    this.routeParamsSubscription?.unsubscribe()
   }
 }

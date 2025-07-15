@@ -1,5 +1,5 @@
 import { CdkScrollable } from '@angular/cdk/scrolling'
-import { Component, OnInit, inject } from '@angular/core'
+import { AfterViewInit, Component, OnInit, inject } from '@angular/core'
 import { FormsModule, NgForm } from '@angular/forms'
 import { MatButton } from '@angular/material/button'
 import { MatCheckbox } from '@angular/material/checkbox'
@@ -29,9 +29,9 @@ import { MatSelect } from '@angular/material/select'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { Router } from '@angular/router'
 import { SpinnerComponent } from '@components/spinner/spinner.component'
-import { ExpenseAdd } from '@interfaces/expenses/expense-add.interface'
-import { DalExpenseService } from '@services/dal/dal.expense.service'
+import { RuleRepeatableAdd } from '@interfaces/rule-repeatable-add.interface'
 import { FinanceService } from '@services/finance.service'
+import { frequencies } from '@utilities/constants'
 
 @Component({
   selector: 'app-expense-add-dialog',
@@ -60,53 +60,69 @@ import { FinanceService } from '@services/finance.service'
   ],
 })
 export class ExpenseAddDialogComponent implements OnInit {
-  financeService = inject(FinanceService)
-  private dalExpenseService = inject(DalExpenseService)
+  private router = inject(Router)
+  private financeService = inject(FinanceService)
   private matSnackBar = inject(MatSnackBar)
-  matDialogRef = inject<MatDialogRef<ExpenseAddDialogComponent>>(MatDialogRef)
+  private matDialogRef = inject<MatDialogRef<ExpenseAddDialogComponent> | null>(
+    MatDialogRef,
+  )
 
   errors = ''
   isSubmitting = false
+  myExpense: RuleRepeatableAdd | undefined
+  frequencies = frequencies
 
-  myExpense: ExpenseAdd | undefined
-
-  ngOnInit() {
-    this.myExpense = {
-      budgetId: this.financeService.selectedBudget?.id ?? '',
-      description: '',
-      amount: 0,
-      isForever: true,
-      frequency: '',
-      startDate: this.financeService.getFirstDate(),
-      endDate: null,
-      repeatMon: false,
-      repeatTue: false,
-      repeatWed: false,
-      repeatThu: false,
-      repeatFri: false,
-      repeatSat: false,
-      repeatSun: false,
+  constructor() {
+    if (this.financeService.budget) {
+      this.myExpense = {
+        type: 'expense',
+        budgetId: this.financeService.budget.id,
+        description: '',
+        amount: 0,
+        isForever: true,
+        frequency: '',
+        startDate: this.financeService.getFirstDate(),
+        endDate: null,
+        repeatMon: false,
+        repeatTue: false,
+        repeatWed: false,
+        repeatThu: false,
+        repeatFri: false,
+        repeatSat: false,
+        repeatSun: false,
+      }
+    } else {
+      this.errors = 'Unable to locate budget'
     }
   }
 
-  create(form: NgForm) {
+  ngOnInit() {
+    this.matDialogRef?.afterClosed().subscribe(() => {
+      this.matDialogRef = null
+      this.router.navigate(['/', this.financeService.budget?.id])
+    })
+  }
+
+  async create(form: NgForm) {
     const { value, valid } = form
-    if (valid) {
-      this.isSubmitting = true
-      this.errors = ''
-      value.budgetId = this.financeService.selectedBudget?.id
-      this.dalExpenseService.add(value).subscribe({
-        next: () => {
-          this.matDialogRef.close()
-          this.matSnackBar.open('Saved', 'Dismiss', { duration: 2000 })
-        },
-        error: (errors) => {
-          this.errors = errors
-        },
-        complete: () => {
-          this.isSubmitting = false
-        },
-      })
+
+    if (!valid) {
+      this.errors = 'Form is invalid'
+      return
+    }
+
+    this.isSubmitting = true
+    this.errors = ''
+
+    try {
+      await this.financeService.addRule({ ...this.myExpense, ...value })
+      this.matDialogRef?.close()
+      this.matSnackBar.open('Saved', 'Dismiss', { duration: 2000 })
+    } catch (error) {
+      this.errors = error as string
+      console.error(error)
+    } finally {
+      this.isSubmitting = false
     }
   }
 }
@@ -116,20 +132,10 @@ export class ExpenseAddDialogComponent implements OnInit {
   template: '',
   standalone: true,
 })
-export class ExpenseAddComponent implements OnInit {
-  matDialog = inject(MatDialog)
-  private router = inject(Router)
-  private financeService = inject(FinanceService)
+export class ExpenseAddComponent implements AfterViewInit {
+  private matDialog = inject(MatDialog)
 
-  matDialogRef: MatDialogRef<ExpenseAddDialogComponent> | null = null
-
-  ngOnInit() {
-    setTimeout(() => {
-      this.matDialogRef = this.matDialog.open(ExpenseAddDialogComponent)
-      this.matDialogRef.afterClosed().subscribe(() => {
-        this.matDialogRef = null
-        this.router.navigate(['/', this.financeService.selectedBudget?.id])
-      })
-    })
+  ngAfterViewInit() {
+    this.matDialog.open(ExpenseAddDialogComponent)
   }
 }

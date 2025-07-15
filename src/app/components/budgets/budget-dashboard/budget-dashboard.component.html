@@ -1,4 +1,4 @@
-@if (financeService.selectedBudget) {
+@if (financeService.budget) {
   <ng-container class="container-fluid content-wrapper h-100">
     <div class="row flex-grow-1 h-100">
       <div class="col-12 col-md-5 col-lg-4 col-xl-3 h-100 overflow-y-auto">
@@ -58,6 +58,6 @@
     </div>
   </ng-container>
 }
-@if (financeService.selectedBudget) {
+@if (financeService.budget) {
   <router-outlet></router-outlet>
 }

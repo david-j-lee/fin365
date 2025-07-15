@@ -6,7 +6,7 @@
     <small class="opacity-50">Last Snapshot</small>
     <div class="fill-space text-end">
       {{
-        financeService.selectedBudget?.startDate?.toString() ?? ''
+        financeService.budget?.startDate?.toISOString() ?? ''
           | date: 'MM/dd/yyyy'
       }}
     </div>
@@ -16,9 +16,8 @@
     <div class="fill-space text-end">
       $
       {{
-        dailyService.getBalanceForGivenDay(
-          financeService.getMostRecentSnapshotDate()?.format('MM/DD/YYYY') ?? ''
-        ) | number: '1.0'
+        financeService.getBalanceOn(financeService.getMostRecentSnapshotDate())
+          | number: '1.0'
       }}
     </div>
   </div>
@@ -44,9 +43,9 @@
       <mat-panel-title>Balances</mat-panel-title>
     </mat-expansion-panel-header>
     @if (
-      financeService.selectedBudget &&
-      financeService.selectedBudget.balances &&
-      financeService.selectedBudget.balances.length > 0
+      financeService.budget &&
+      financeService.budget.balances() &&
+      financeService.budget.balances().length > 0
     ) {
       <mat-divider></mat-divider>
     }
@@ -68,9 +67,9 @@
       <mat-panel-title>Revenues</mat-panel-title>
     </mat-expansion-panel-header>
     @if (
-      financeService.selectedBudget &&
-      financeService.selectedBudget.revenues &&
-      financeService.selectedBudget.revenues.length > 0
+      financeService.budget &&
+      financeService.budget.revenues() &&
+      financeService.budget.revenues().length > 0
     ) {
       <mat-divider></mat-divider>
     }
@@ -95,9 +94,9 @@
       <mat-panel-title>Expenses</mat-panel-title>
     </mat-expansion-panel-header>
     @if (
-      financeService.selectedBudget &&
-      financeService.selectedBudget.expenses &&
-      financeService.selectedBudget.expenses.length > 0
+      financeService.budget &&
+      financeService.budget.expenses() &&
+      financeService.budget.expenses().length > 0
     ) {
       <mat-divider></mat-divider>
     }
