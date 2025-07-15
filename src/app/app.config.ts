@@ -5,7 +5,6 @@ import { MAT_DATE_LOCALE } from '@angular/material/core'
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async'
 import { provideRouter, withRouterConfig } from '@angular/router'
 import { CalendarService } from '@services/calendar.service'
-import { ChartService } from '@services/chart.service'
 import { FinanceService } from '@services/finance.service'
 import { SideBarService } from '@services/side-bar.service'
 import { ThemeService } from '@services/theme.service'
@@ -24,7 +23,6 @@ export const appConfig: ApplicationConfig = {
     provideAnimationsAsync(),
     provideCharts(withDefaultRegisterables()),
     { provide: CalendarService },
-    { provide: ChartService },
     { provide: FinanceService },
     { provide: ThemeService },
     { provide: SideBarService },

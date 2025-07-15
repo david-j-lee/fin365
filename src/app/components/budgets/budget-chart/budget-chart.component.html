@@ -1,10 +1,10 @@
-@if (chartService.chartBudget) {
+@if (chartBudget) {
   <div class="chart-wrapper">
     <canvas
       baseChart
-      [type]="chartService.chartBudget.chartType"
-      [options]="chartService.chartBudget.options"
-      [data]="chartService.chartBudget.data"
+      [type]="chartBudget.chartType"
+      [options]="chartBudget.options"
+      [data]="chartBudget.data"
     ></canvas>
   </div>
 }

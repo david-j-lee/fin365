@@ -1,16 +1,15 @@
-<h6 class="text-center">Revenues</h6>
-@if (chartService.chartRevenue) {
+@if (chartRevenue) {
   <div>
     <div class="budgets-pie-chart">
       <canvas
         baseChart
-        [type]="chartService.chartRevenue.chartType"
-        [options]="chartService.chartRevenue.options"
-        [data]="chartService.chartRevenue.data"
+        [type]="chartRevenue.chartType"
+        [options]="chartRevenue.options"
+        [data]="chartRevenue.data"
       ></canvas>
     </div>
     <h5 class="text-center mt-3">
-      {{ chartService.chartRevenue.total | currency: '' : 'symbol' : '1.0-0' }}
+      {{ chartRevenue.total | currency: '' : 'symbol' : '1.0-0' }}
       / yr
     </h5>
   </div>

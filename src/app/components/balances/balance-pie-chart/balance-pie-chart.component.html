@@ -1,16 +1,15 @@
-<h6 class="text-center">Balances</h6>
-@if (chartService.chartBalance) {
+@if (chartBalance) {
   <div>
     <div class="budgets-pie-chart">
       <canvas
         baseChart
-        [type]="chartService.chartBalance.chartType"
-        [options]="chartService.chartBalance.options"
-        [data]="chartService.chartBalance.data"
+        [type]="chartBalance.chartType"
+        [options]="chartBalance.options"
+        [data]="chartBalance.data"
       ></canvas>
     </div>
     <h5 class="text-center mt-3">
-      {{ chartService.chartBalance.total | currency: '' : 'symbol' : '1.0-0' }}
+      {{ chartBalance.total | currency: '' : 'symbol' : '1.0-0' }}
     </h5>
   </div>
 }
