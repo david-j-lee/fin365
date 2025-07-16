@@ -19,6 +19,14 @@ html.dark {
 }
 
 // Theme based styles
+.mat-theme-red {
+  @include mat.theme(
+    (
+      color: mat.$red-palette,
+    )
+  );
+}
+
 .active-mat-button {
   background: color-mix(
     in srgb,

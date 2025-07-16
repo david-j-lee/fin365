@@ -58,25 +58,25 @@
 
 .day-header {
   width: 14.285%;
-  font: var(--mat-sys-body-small);
+  font: var(--mat-sys-label-small);
   text-align: center;
 }
 
 .date {
-  font: var(--mat-sys-body-small);
+  font: var(--mat-sys-label-small);
   text-align: center;
 }
 
 .items {
   margin-top: auto;
   overflow-y: auto;
-  font: var(--mat-sys-body-medium);
+  font: var(--mat-sys-label-medium);
   white-space: nowrap;
 }
 
 .balance {
   position: relative;
-  font: var(--mat-sys-body-large);
+  font: var(--mat-sys-label-large);
 }
 
 .positive {
