@@ -79,7 +79,7 @@ export function getRuleRange(
 
   // If monthly get most recent month
   if (frequency === 'Monthly' && itemStart) {
-    if (itemStart < budgetStart) {
+    if (itemStart < budgetStart && isForever) {
       const monthNeeded = differenceInCalendarMonths(budgetStart, itemStart) + 1
       start = addMonths(itemStart, monthNeeded)
     } else {
@@ -89,7 +89,7 @@ export function getRuleRange(
 
   // If yearly get most recent year
   if (frequency === 'Yearly' && itemStart) {
-    if (itemStart < budgetStart) {
+    if (itemStart < budgetStart && isForever) {
       const yearsNeeded = differenceInCalendarYears(budgetStart, itemStart) + 1
       start = addYears(itemStart, yearsNeeded)
     } else {
