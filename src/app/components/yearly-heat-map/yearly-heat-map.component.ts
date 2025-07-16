@@ -106,7 +106,7 @@ export class YearlyHeatMapComponent implements OnInit {
           intensity === 0
             ? 0
             : baselineOpacity + (1 - baselineOpacity) * intensity,
-        tooltip: `$ ${amount} on ${format(day.date, 'PP p')}`,
+        tooltip: `$${amount} on ${format(day.date, 'PP')}`,
       })
       dayCounter++
     }

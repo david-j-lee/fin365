@@ -90,7 +90,7 @@ export function getRuleRange(
   // If yearly get most recent year
   if (frequency === 'Yearly' && itemStart) {
     if (itemStart < budgetStart) {
-      const yearsNeeded = differenceInCalendarYears(budgetStart, itemStart)
+      const yearsNeeded = differenceInCalendarYears(budgetStart, itemStart) + 1
       start = addYears(itemStart, yearsNeeded)
     } else {
       start = new Date(itemStart)
