@@ -16,15 +16,15 @@ export class ThemePickerComponent implements OnInit {
     // Remove the default
     html.classList.remove('light')
     // Set based on users preference
-    html.classList.add(this.themeService.selectedTheme)
+    html.classList.add(this.themeService.selectedMode)
   }
 
   toggleTheme() {
     const html = document.getElementsByTagName('html')[0]
-    html.classList.remove(this.themeService.selectedTheme)
+    html.classList.remove(this.themeService.selectedMode)
     const newTheme =
-      this.themeService.selectedTheme === 'dark' ? 'light' : 'dark'
-    this.themeService.selectTheme(newTheme)
+      this.themeService.selectedMode === 'dark' ? 'light' : 'dark'
+    this.themeService.selectMode(newTheme)
     html.classList.add(newTheme)
   }
 }

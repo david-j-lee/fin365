@@ -1,3 +1,5 @@
+@use '../../../styles/spacing';
+
 .budget-chart {
-  height: 200px;
+  height: spacing.get(64);
 }

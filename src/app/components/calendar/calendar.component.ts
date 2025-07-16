@@ -30,7 +30,7 @@ export class CalendarComponent {
   private financeService = inject(FinanceService)
 
   today: Date = new Date()
-  days: Day[] = []
+  weeks: Day[][] = []
   currentMonthText = ''
   currentMonth = 0
   currentYear = 0
@@ -115,7 +115,7 @@ export class CalendarComponent {
       setMonth(new Date(), this.currentMonth),
       'MMMM',
     )
-    this.days = []
+    this.weeks = []
 
     const days = this.financeService.budget
       .days()
@@ -135,8 +135,15 @@ export class CalendarComponent {
         .days()
         .find((budgetDay) => isSameDay(budgetDay.date, addDays(firstDate, i)))
 
+      const weekIndex = Math.floor(i / 7)
+      let week = this.weeks[weekIndex]
+      if (!week) {
+        week = []
+        this.weeks[weekIndex] = week
+      }
+
       if (day) {
-        this.days.push(day)
+        week.push(day)
         lastBalance = day.balance
       } else {
         const date = addDays(firstDate, i)
@@ -158,7 +165,7 @@ export class CalendarComponent {
             savings: 0,
           },
         }
-        this.days.push(emptyDate)
+        week.push(emptyDate)
       }
     }
   }

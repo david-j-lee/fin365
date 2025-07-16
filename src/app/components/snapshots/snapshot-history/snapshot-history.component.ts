@@ -31,7 +31,6 @@ import { FinanceService } from '@services/finance.service'
 @Component({
   selector: 'app-snapshot-history-dialog',
   templateUrl: 'snapshot-history.component.html',
-  styleUrls: ['snapshot-history.component.scss'],
   imports: [
     CdkScrollable,
     DatePipe,

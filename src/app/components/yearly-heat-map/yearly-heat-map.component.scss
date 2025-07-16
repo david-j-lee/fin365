@@ -1,3 +1,5 @@
+@use '../../../styles/spacing';
+
 .calendar-wrapper {
   display: flex;
   flex-direction: column;
@@ -7,7 +9,7 @@
   .calendar {
     display: flex;
     flex-direction: row;
-    padding: 2px;
+    padding: spacing.get();
 
     .week-row {
       display: flex;
@@ -15,28 +17,30 @@
       margin: 1px;
 
       div {
-        width: 14px;
-        height: 14px;
+        width: spacing.get(3);
+        height: spacing.get(3);
         margin: 1px;
       }
 
       .row-label {
-        font-size: 14px;
+        font: var(--mat-sys-label-small);
+        height: spacing.get(3);
         display: flex;
         align-items: center;
         width: fit-content;
+        overflow: hidden;
       }
 
       .col-label {
-        font-size: 14px;
-        width: 14px;
-        margin-bottom: 8px;
+        font: var(--mat-sys-label-small);
+        width: spacing.get(3);
+        margin-bottom: spacing.get(2);
       }
 
       // TODO: Use theme colors
       .day-item {
-        background-color: #333;
-        border-radius: 3px;
+        background-color: var(--mat-sys-surface-container-high);
+        border-radius: var(--mat-sys-corner-extra-small);
       }
     }
   }

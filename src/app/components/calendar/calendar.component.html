@@ -1,4 +1,4 @@
-<div class="wrapper d-flex flex-column h-100">
+<div class="wrapper d-flex flex-column h-100 pb-3 pe-3">
   <div class="d-flex align-items-center py-1">
     <button
       mat-icon-button
@@ -16,7 +16,7 @@
       {{ currentYear }}
     </div>
   </div>
-  <div class="day-headers">
+  <div class="day-headers mb-1">
     <div class="day-header">Sun</div>
     <div class="day-header">Mon</div>
     <div class="day-header">Tue</div>
@@ -26,94 +26,108 @@
     <div class="day-header">Sat</div>
   </div>
   <div class="flex-grow-1 d-flex flex-column overflow-y-auto">
-    @if (days) {
+    @if (weeks) {
       <div class="calendar flex-grow-1">
-        @for (day of days; track day; let first = $first) {
-          <div
-            [ngClass]="
-              isSameDay(day.date, today)
-                ? 'today'
-                : getMonth(day.date) + 1 !== currentMonth
-                  ? 'out-of-period'
-                  : ''
-            "
-            class="day"
-          >
-            @if (getMonth(day.date) + 1 !== currentMonth) {
-              <div class="overlay"></div>
-            }
-            <div class="date mt-1 ms-1">
-              @if (isFirstDayOfMonth(day.date) || first) {
-                <span>{{ day.date | date: 'MMM' }} </span>
-              }
-              <span>{{ day.date | date: 'd' }}</span>
-            </div>
-            <div class="items">
-              @if (day.total.balance !== 0) {
-                <div class="balances px-2">
-                  @for (dailyBalance of day.daily.balance; track dailyBalance) {
-                    <div class="d-flex">
-                      <small
-                        class="text-start text-ellipsis"
-                        [matTooltip]="dailyBalance.rule.description"
-                        matTooltipShowDelay="3000"
-                      >
-                        {{ dailyBalance.rule.description }}
-                      </small>
-                      <span class="fill-space text-end">{{
-                        dailyBalance.amount
-                      }}</span>
-                    </div>
-                  }
-                </div>
-              }
-              @if (day.total.revenue !== 0) {
-                <div class="revenues px-2">
-                  @for (dailyRevenue of day.daily.revenue; track dailyRevenue) {
-                    <div class="d-flex">
-                      <small
-                        class="text-start text-ellipsis"
-                        [matTooltip]="dailyRevenue.rule.description"
-                        matTooltipShowDelay="3000"
-                      >
-                        {{ dailyRevenue.rule.description }}
-                      </small>
-                      <span class="fill-space text-end">
-                        <span class="positive">+</span>
-                        {{ dailyRevenue.amount }}</span
-                      >
-                    </div>
-                  }
-                </div>
-              }
-              @if (day.total.expense !== 0) {
-                <div class="expenses px-2">
-                  @for (dailyExpense of day.daily.expense; track dailyExpense) {
-                    <div class="d-flex">
-                      <small
-                        class="text-start text-ellipsis"
-                        [matTooltip]="dailyExpense.rule.description"
-                        matTooltipShowDelay="3000"
-                      >
-                        {{ dailyExpense.rule.description }}
-                      </small>
-                      <span class="fill-space text-end">
-                        <span class="negative">-</span>
-                        {{ dailyExpense.amount }}</span
-                      >
-                    </div>
-                  }
-                  <!-- <span>- {{day.totalExpense | number: '1.0'}}</span> -->
-                </div>
-              }
+        @for (week of weeks; track week; let firstWeek = $first) {
+          <div class="week">
+            @for (day of week; track day; let firstDayOfWeek = $first) {
               <div
-                class="balance text-end pb-2 pe-2"
-                [ngClass]="{ negative: day.balance < 0 }"
+                [ngClass]="
+                  isSameDay(day.date, today)
+                    ? 'today'
+                    : getMonth(day.date) + 1 !== currentMonth
+                      ? 'out-of-period'
+                      : ''
+                "
+                class="day"
               >
-                <span>{{ day.balance | number: '1.0' }}</span>
+                @if (getMonth(day.date) + 1 !== currentMonth) {
+                  <div class="overlay"></div>
+                }
+                <div class="date mt-1 ms-1">
+                  @if (
+                    isFirstDayOfMonth(day.date) || (firstWeek && firstDayOfWeek)
+                  ) {
+                    <span>{{ day.date | date: 'MMM' }} </span>
+                  }
+                  <span>{{ day.date | date: 'd' }}</span>
+                </div>
+                <div class="items">
+                  @if (day.total.balance !== 0) {
+                    <div class="balances px-3">
+                      @for (
+                        dailyBalance of day.daily.balance;
+                        track dailyBalance
+                      ) {
+                        <div class="d-flex">
+                          <small
+                            class="text-start text-ellipsis"
+                            [matTooltip]="dailyBalance.rule.description"
+                            matTooltipShowDelay="3000"
+                          >
+                            {{ dailyBalance.rule.description }}
+                          </small>
+                          <span class="fill-space text-end">
+                            {{ dailyBalance.amount | number: '1.0' }}
+                          </span>
+                        </div>
+                      }
+                    </div>
+                  }
+                  @if (day.total.revenue !== 0) {
+                    <div class="revenues px-3">
+                      @for (
+                        dailyRevenue of day.daily.revenue;
+                        track dailyRevenue
+                      ) {
+                        <div class="d-flex">
+                          <small
+                            class="text-start text-ellipsis"
+                            [matTooltip]="dailyRevenue.rule.description"
+                            matTooltipShowDelay="3000"
+                          >
+                            {{ dailyRevenue.rule.description }}
+                          </small>
+                          <span class="fill-space text-end">
+                            <span class="positive">+</span>
+                            {{ dailyRevenue.amount | number: '1.0' }}
+                          </span>
+                        </div>
+                      }
+                    </div>
+                  }
+                  @if (day.total.expense !== 0) {
+                    <div class="expenses px-3">
+                      @for (
+                        dailyExpense of day.daily.expense;
+                        track dailyExpense
+                      ) {
+                        <div class="d-flex">
+                          <small
+                            class="text-start text-ellipsis"
+                            [matTooltip]="dailyExpense.rule.description"
+                            matTooltipShowDelay="3000"
+                          >
+                            {{ dailyExpense.rule.description }}
+                          </small>
+                          <span class="fill-space text-end">
+                            <span class="negative">-</span>
+                            {{ dailyExpense.amount | number: '1.0' }}
+                          </span>
+                        </div>
+                      }
+                    </div>
+                  }
+                  <div
+                    class="balance text-end py-2 px-3"
+                    [ngClass]="{ negative: day.balance < 0 }"
+                  >
+                    <span>{{ day.balance | number: '1.0' }}</span>
+                  </div>
+                  <div class="clearfix"></div>
+                </div>
               </div>
-              <div class="clearfix"></div>
-            </div>
+            }
           </div>
         }
       </div>

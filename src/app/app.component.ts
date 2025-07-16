@@ -8,6 +8,7 @@ import { FinanceService } from '@services/finance.service'
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
+  styleUrls: ['./app.component.scss'],
   imports: [ToolbarComponent, RouterOutlet, MatProgressSpinner],
 })
 export class AppComponent implements OnInit {
