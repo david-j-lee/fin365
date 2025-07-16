@@ -7,8 +7,8 @@ import { Rule } from '@interfaces/rule.interface'
 import {
   addDays,
   addMonths,
+  differenceInCalendarDays,
   differenceInCalendarMonths,
-  differenceInDays,
   isSameDay,
 } from 'date-fns'
 
@@ -110,7 +110,7 @@ function generateRuleDaily(
   }
 
   const minDayIndex = budget?.days().indexOf(minDay)
-  const numLoops = differenceInDays(endDate, startDate)
+  const numLoops = differenceInCalendarDays(endDate, startDate)
   const dailyItems: DailyItem[] = []
 
   for (let i = 0; i < numLoops; i++) {
@@ -157,7 +157,7 @@ function generateRuleWeeks(
     return null
   }
 
-  const numLoops = differenceInDays(endDate, startDate) / skipDays
+  const numLoops = differenceInCalendarDays(endDate, startDate) / skipDays
   const dailyItems: DailyItem[] = []
 
   for (let i = 0; i < numLoops; i++) {
@@ -213,7 +213,7 @@ function generateRuleMonths(
   for (let i = 0; i <= numLoops; i++) {
     const date = addMonths(firstDate, i * numMonths)
     const day =
-      budget?.days()[firstDateIndex + differenceInDays(date, firstDate)]
+      budget?.days()[firstDateIndex + differenceInCalendarDays(date, firstDate)]
 
     if (!day) {
       continue
@@ -241,7 +241,7 @@ function getFirstDayIndex(budget: Budget, date: Date) {
   const [firstDay] = budget.days()
 
   if (date < firstDay.date) {
-    return differenceInDays(date, firstDay.date)
+    return differenceInCalendarDays(date, firstDay.date)
   }
 
   const budgetFirstDay = budget?.days().find((day) => isSameDay(day.date, date))

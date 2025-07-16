@@ -26,17 +26,8 @@
         @for (week of weeks; track week; let firstWeek = $first) {
           <div class="week">
             @for (day of week; track day; let firstDayOfWeek = $first) {
-              <div
-                [ngClass]="
-                  isSameDay(day.date, today)
-                    ? 'today'
-                    : getMonth(day.date) + 1 !== currentMonth
-                      ? 'out-of-period'
-                      : ''
-                "
-                class="day"
-              >
-                @if (getMonth(day.date) + 1 !== currentMonth) {
+              <div [ngClass]="day.cssClass" class="day">
+                @if (getMonth(day.date) !== currentMonth) {
                   <div class="overlay"></div>
                 }
                 <div class="date mt-1 ms-1">
@@ -45,7 +36,9 @@
                   ) {
                     <span>{{ day.date | date: 'MMM' }} </span>
                   }
-                  <span>{{ day.date | date: 'd' }}</span>
+                  <div [matTooltip]="day.tooltip">
+                    <span class="date-number">{{ day.date | date: 'd' }}</span>
+                  </div>
                 </div>
                 <div class="items">
                   @if (day.total.balance !== 0) {

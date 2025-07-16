@@ -3,11 +3,12 @@ import { Component, inject } from '@angular/core'
 import { MatIconButton } from '@angular/material/button'
 import { MatIcon } from '@angular/material/icon'
 import { MatTooltip } from '@angular/material/tooltip'
+import { numberOfDays } from '@constants/budget.constants'
 import { Day } from '@interfaces/day.interface'
 import { FinanceService } from '@services/finance.service'
 import {
   addDays,
-  differenceInDays,
+  differenceInCalendarDays,
   endOfMonth,
   endOfWeek,
   format,
@@ -30,10 +31,12 @@ export class CalendarComponent {
   private financeService = inject(FinanceService)
 
   today: Date = new Date()
-  weeks: Day[][] = []
+  weeks: (Day & { cssClass: string; tooltip: string })[][] = []
   currentMonthText = ''
   currentMonth = 0
   currentYear = 0
+  budgetStart?: Date | null = null
+  budgetEnd?: Date | null = null
 
   private hasPrev = false
   private hasNext = true
@@ -53,6 +56,10 @@ export class CalendarComponent {
       if (event.resource !== 'budget') {
         return
       }
+      this.budgetStart = this.financeService.budget?.startDate
+      this.budgetEnd = this.budgetStart
+        ? addDays(this.budgetStart, numberOfDays)
+        : null
       this.setFirstMonth()
     })
   }
@@ -71,8 +78,8 @@ export class CalendarComponent {
         this.financeService.budget.days().length - 1
       ]
 
-    this.minMonth = getMonth(firstDay.date) + 1
-    this.maxMonth = getMonth(lastDay.date) + 1
+    this.minMonth = getMonth(firstDay.date)
+    this.maxMonth = getMonth(lastDay.date)
     this.currentMonth = this.minMonth
 
     this.minYear = getYear(firstDay.date)
@@ -119,15 +126,15 @@ export class CalendarComponent {
 
     const days = this.financeService.budget
       .days()
-      .filter((day) => day.year === year && day.month + 1 === month)
+      .filter((day) => day.year === year && day.month === month)
 
-    if (!days) {
+    if (!days || days.length == 0) {
       return
     }
 
     const firstDate = startOfWeek(startOfMonth(days[0].date))
     const lastDate = endOfWeek(endOfMonth(days[days.length - 1].date))
-    const numLoops = differenceInDays(lastDate, firstDate)
+    const numLoops = differenceInCalendarDays(lastDate, firstDate)
     let lastBalance = 0
 
     for (let i = 0; i <= numLoops; i++) {
@@ -142,13 +149,18 @@ export class CalendarComponent {
         this.weeks[weekIndex] = week
       }
 
+      let calendarDay: Day & { cssClass: string; tooltip: string }
+
       if (day) {
-        week.push(day)
+        calendarDay = {
+          ...day,
+          cssClass: this.getDayCssClass(day),
+          tooltip: this.getDayTooltip(day),
+        }
         lastBalance = day.balance
       } else {
-        const date = addDays(firstDate, i)
-        const emptyDate: Day = {
-          date,
+        calendarDay = {
+          date: addDays(firstDate, i),
           month: getMonth(firstDate),
           year: getYear(firstDate),
           balance: lastBalance,
@@ -164,9 +176,12 @@ export class CalendarComponent {
             expense: 0,
             savings: 0,
           },
+          cssClass: 'out-of-period',
+          tooltip: '',
         }
-        week.push(emptyDate)
       }
+
+      week.push(calendarDay)
     }
   }
 
@@ -219,5 +234,41 @@ export class CalendarComponent {
     } else {
       this.hasPrev = true
     }
+  }
+
+  private getDayCssClass(day: Day) {
+    if (isSameDay(day.date, this.today)) {
+      return 'today'
+    }
+
+    if (getMonth(day.date) !== this.currentMonth) {
+      return 'out-of-period'
+    }
+
+    if (this.budgetStart && isSameDay(day.date, this.budgetStart)) {
+      return 'budget-start'
+    }
+
+    if (this.budgetEnd && isSameDay(day.date, this.budgetEnd)) {
+      return 'budget-end'
+    }
+
+    return ''
+  }
+
+  private getDayTooltip(day: Day) {
+    if (isSameDay(day.date, this.today)) {
+      return 'Today'
+    }
+
+    if (this.budgetStart && isSameDay(day.date, this.budgetStart)) {
+      return 'Start of Budget'
+    }
+
+    if (this.budgetEnd && isSameDay(day.date, this.budgetEnd)) {
+      return 'End of Budget'
+    }
+
+    return ''
   }
 }

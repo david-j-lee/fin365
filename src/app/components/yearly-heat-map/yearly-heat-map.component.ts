@@ -5,7 +5,7 @@ import { Day } from '@interfaces/day.interface'
 import { RuleType } from '@interfaces/rule.interface'
 import { FinanceService } from '@services/finance.service'
 import {
-  differenceInDays,
+  differenceInCalendarDays,
   format,
   getDay,
   setDay,
@@ -91,7 +91,10 @@ export class YearlyHeatMapComponent implements OnInit {
 
       if (!data[weekCounter]) {
         const label =
-          differenceInDays(startOfWeek(day.date), startOfMonth(day.date)) < 7
+          differenceInCalendarDays(
+            startOfWeek(day.date),
+            startOfMonth(day.date),
+          ) < 7
             ? format(day.date, 'MMM')
             : ''
         data[weekCounter] = { label, items: [] }

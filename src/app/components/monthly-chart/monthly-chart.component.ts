@@ -6,7 +6,12 @@ import { ChartBalance } from '@interfaces/chart-balance.interface'
 import { RuleType } from '@interfaces/rule.interface'
 import { FinanceService } from '@services/finance.service'
 import { ChartDataset } from 'chart.js'
-import { addDays, addMonths, differenceInMonths, format } from 'date-fns'
+import {
+  addDays,
+  addMonths,
+  differenceInCalendarMonths,
+  format,
+} from 'date-fns'
 import { BaseChartDirective } from 'ng2-charts'
 
 @Component({
@@ -54,7 +59,7 @@ export class MonthlyChartComponent implements OnInit {
 
     const labels: string[] = []
     const endDate = addDays(this.financeService.budget.startDate, numberOfDays)
-    const numberOfMonths = differenceInMonths(
+    const numberOfMonths = differenceInCalendarMonths(
       endDate,
       this.financeService.budget.startDate,
     )
@@ -70,7 +75,7 @@ export class MonthlyChartComponent implements OnInit {
     const ruleDescriptionsById: Record<string, string> = {}
 
     for (const day of this.financeService.budget.days()) {
-      const monthIndex = differenceInMonths(
+      const monthIndex = differenceInCalendarMonths(
         day.date,
         this.financeService.budget.startDate,
       )
