@@ -1,4 +1,4 @@
-import { numberOfDays } from './constants'
+import { numberOfDays } from '@constants/budget.constants'
 import { Day } from '@interfaces/day.interface'
 import { RuleAdd } from '@interfaces/rule-add.interface'
 import { RuleEdit } from '@interfaces/rule-edit.interface'
@@ -80,7 +80,7 @@ export function getRuleRange(
   // If monthly get most recent month
   if (frequency === 'Monthly' && itemStart) {
     if (itemStart < budgetStart) {
-      const monthNeeded = differenceInCalendarMonths(budgetStart, itemStart)
+      const monthNeeded = differenceInCalendarMonths(budgetStart, itemStart) + 1
       start = addMonths(itemStart, monthNeeded)
     } else {
       start = new Date(itemStart)

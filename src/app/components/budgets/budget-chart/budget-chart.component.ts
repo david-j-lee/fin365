@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core'
+import { colorPalettes } from '@constants/color.constants'
 import { ChartBudget } from '@interfaces/chart-budget.interface'
 import { FinanceService } from '@services/finance.service'
-import { colorPalettes } from '@utilities/constants'
 import { format } from 'date-fns'
 import { BaseChartDirective } from 'ng2-charts'
 
@@ -17,7 +17,6 @@ export class BudgetChartComponent {
   chartBudget: ChartBudget = {
     chartType: 'line',
     options: {
-      animation: { duration: 0 },
       responsive: true,
       maintainAspectRatio: false,
       elements: { point: { radius: 0 } },
@@ -35,17 +34,17 @@ export class BudgetChartComponent {
         {
           label: 'Balance',
           data: [],
-          ...colorPalettes.balances,
+          ...colorPalettes.balance,
         },
         {
           label: 'Revenue',
           data: [],
-          ...colorPalettes.revenues,
+          ...colorPalettes.revenue,
         },
         {
           label: 'Expense',
           data: [],
-          ...colorPalettes.expenses,
+          ...colorPalettes.expense,
         },
       ],
     },

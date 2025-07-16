@@ -7,8 +7,8 @@ import { CalendarComponent } from '@components/calendar/calendar.component'
 import { ExpenseDashboardComponent } from '@components/expenses/expense-dashboard/expense-dashboard.component'
 import { RevenueDashboardComponent } from '@components/revenues/revenue-dashboard/revenue-dashboard.component'
 import { SidebarComponent } from '@components/sidebar/sidebar.component'
+import { tabs } from '@constants/budget.constants'
 import { FinanceService } from '@services/finance.service'
-import { tabs } from '@utilities/constants'
 import { Subscription } from 'rxjs'
 
 @Component({

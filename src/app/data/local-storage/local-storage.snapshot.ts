@@ -3,7 +3,7 @@ import { RuleEntity } from '@data/entities/rule.entity'
 import { SnapshotEntity } from '@data/entities/snapshots.entity'
 import { localStorageService } from '@data/local-storage/local-storage-utilities'
 import { SnapshotAddAll } from '@interfaces/snapshot-add-all.interface'
-import { getRansomStringFromObject } from '@utilities/string-utilities'
+import { getRansomStringFromObject } from '@utilities/string.utilities'
 
 export const LocalStorageSnapshotService = {
   async getAll(budgetId: string): Promise<SnapshotEntity[]> {

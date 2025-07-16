@@ -4,5 +4,5 @@ export interface ChartBalance {
   chartType: ChartType
   options: ChartOptions
   data: ChartData
-  total: number
+  total?: number
 }

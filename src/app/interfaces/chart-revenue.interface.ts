@@ -4,5 +4,5 @@ export interface ChartRevenue {
   chartType: ChartType
   options: ChartOptions
   data: ChartData
-  total: number
+  total?: number
 }

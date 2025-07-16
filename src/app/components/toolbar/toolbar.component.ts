@@ -6,11 +6,11 @@ import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu'
 import { MatToolbar } from '@angular/material/toolbar'
 import { RouterLink } from '@angular/router'
 import { ThemePickerComponent } from '@components/theme-picker/theme-picker.component'
+import { tabs } from '@constants/budget.constants'
 import { Tab } from '@interfaces/tab.interface'
 import { FilterPipe } from '@pipes/filter.pipe'
 import { SortByPipe } from '@pipes/sort.pipe'
 import { FinanceService } from '@services/finance.service'
-import { tabs } from '@utilities/constants'
 
 @Component({
   selector: 'app-toolbar',

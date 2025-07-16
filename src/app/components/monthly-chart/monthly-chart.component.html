@@ -1,0 +1,10 @@
+@if (chartBalance) {
+  <div class="budget-chart">
+    <canvas
+      baseChart
+      [type]="chartBalance.chartType"
+      [options]="chartBalance.options"
+      [data]="chartBalance.data"
+    ></canvas>
+  </div>
+}

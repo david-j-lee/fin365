@@ -1,0 +1,10 @@
+@if (chartExpense) {
+  <div class="budgets-chart h-100">
+    <canvas
+      baseChart
+      [type]="chartExpense.chartType"
+      [options]="chartExpense.options"
+      [data]="chartExpense.data"
+    ></canvas>
+  </div>
+}

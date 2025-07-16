@@ -1,33 +1,3 @@
-import { Tab } from '@interfaces/tab.interface'
-
-export const tabs: Tab[] = [
-  { key: 'summary', index: 0, label: 'Summary' },
-  { key: 'calendar', index: 1, label: 'Calendar' },
-  { key: 'balance', index: 2, label: 'Balances' },
-  { key: 'revenue', index: 3, label: 'Revenues' },
-  { key: 'expense', index: 4, label: 'Expenses' },
-]
-
-export const numberOfDays = 365
-
-export const frequencies = [
-  'Once',
-  'Daily',
-  'Weekly',
-  'Bi-Weekly',
-  'Monthly',
-  'Yearly',
-]
-
-export const pieOptions = {
-  animation: { duration: 0 },
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: { display: false },
-  },
-}
-
 export const balanceColors = {
   Lightest: 'rgba(54, 162, 235, 0.2)',
   Light: 'rgba(54, 162, 235, 0.8)',
@@ -47,7 +17,7 @@ export const expenseColors = {
 }
 
 export const colorPalettes = {
-  balances: {
+  balance: {
     // Balances
     color: balanceColors.Normal,
     backgroundColor: balanceColors.Lightest,
@@ -59,7 +29,7 @@ export const colorPalettes = {
     pointHoverBackgroundColor: '#fff',
     pointHoverBorderColor: balanceColors.Light,
   },
-  revenues: {
+  revenue: {
     // Revenues
     color: revenueColors.Normal,
     backgroundColor: revenueColors.Lightest,
@@ -71,7 +41,7 @@ export const colorPalettes = {
     pointHoverBackgroundColor: '#fff',
     pointHoverBorderColor: revenueColors.Light,
   },
-  expenses: {
+  expense: {
     // Expenses
     color: expenseColors.Normal,
     backgroundColor: expenseColors.Lightest,

@@ -1,22 +1,21 @@
-import { CurrencyPipe } from '@angular/common'
 import { Component, inject } from '@angular/core'
-import { pieOptions } from '@constants/chart.constants'
+import { barOptions } from '@constants/chart.constants'
 import { colorPalettes } from '@constants/color.constants'
 import { ChartBalance } from '@interfaces/chart-balance.interface'
 import { FinanceService } from '@services/finance.service'
 import { BaseChartDirective } from 'ng2-charts'
 
 @Component({
-  selector: 'app-balance-pie-chart',
-  templateUrl: 'balance-pie-chart.component.html',
-  imports: [BaseChartDirective, CurrencyPipe],
+  selector: 'app-balance-chart',
+  templateUrl: 'balance-chart.component.html',
+  imports: [BaseChartDirective],
 })
-export class BalancePieChartComponent {
+export class BalanceChartComponent {
   private financeService = inject(FinanceService)
 
   chartBalance: ChartBalance = {
-    chartType: 'doughnut',
-    options: pieOptions,
+    chartType: 'bar',
+    options: barOptions,
     data: {
       labels: [],
       datasets: [
@@ -26,7 +25,6 @@ export class BalancePieChartComponent {
         },
       ],
     },
-    total: 0,
   }
 
   constructor() {
@@ -46,21 +44,26 @@ export class BalancePieChartComponent {
     const data: number[] = []
     const labels: string[] = []
 
-    this.financeService.budget.balances().forEach((balance) => {
-      data.push(balance.amount)
-      labels.push(balance.description)
-      total += balance.amount
-    })
+    this.financeService.budget
+      .balances()
+      .toSorted((a, b) => b.yearlyAmount - a.yearlyAmount)
+      .forEach((balance) => {
+        data.push(balance.amount)
+        labels.push(balance.description)
+        total += balance.amount
+      })
+
     this.chartBalance.data = {
       ...this.chartBalance.data,
       labels,
       datasets: [
         {
           ...this.chartBalance.data.datasets[0],
-          data,
+          data: data,
         },
       ],
     }
+
     this.chartBalance.total = total
   }
 }

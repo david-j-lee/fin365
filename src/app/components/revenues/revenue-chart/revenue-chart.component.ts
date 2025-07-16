@@ -1,22 +1,21 @@
-import { CurrencyPipe } from '@angular/common'
 import { Component, inject } from '@angular/core'
-import { pieOptions } from '@constants/chart.constants'
+import { barOptions } from '@constants/chart.constants'
 import { colorPalettes } from '@constants/color.constants'
 import { ChartRevenue } from '@interfaces/chart-revenue.interface'
 import { FinanceService } from '@services/finance.service'
 import { BaseChartDirective } from 'ng2-charts'
 
 @Component({
-  selector: 'app-revenue-pie-chart',
-  templateUrl: 'revenue-pie-chart.component.html',
-  imports: [BaseChartDirective, CurrencyPipe],
+  selector: 'app-revenue-chart',
+  templateUrl: 'revenue-chart.component.html',
+  imports: [BaseChartDirective],
 })
-export class RevenuePieChartComponent {
+export class RevenueChartComponent {
   private financeService = inject(FinanceService)
 
   chartRevenue: ChartRevenue = {
-    chartType: 'doughnut',
-    options: pieOptions,
+    chartType: 'bar',
+    options: barOptions,
     data: {
       labels: [],
       datasets: [
@@ -26,7 +25,6 @@ export class RevenuePieChartComponent {
         },
       ],
     },
-    total: 0,
   }
 
   constructor() {
@@ -46,11 +44,15 @@ export class RevenuePieChartComponent {
     const data: number[] = []
     const labels: string[] = []
 
-    this.financeService.budget.revenues().forEach((revenue) => {
-      data.push(revenue.yearlyAmount)
-      labels.push(revenue.description)
-      total += revenue.yearlyAmount
-    })
+    this.financeService.budget
+      .revenues()
+      .toSorted((a, b) => b.yearlyAmount - a.yearlyAmount)
+      .forEach((revenue) => {
+        data.push(revenue.yearlyAmount)
+        labels.push(revenue.description)
+        total += revenue.yearlyAmount
+      })
+
     this.chartRevenue.data = {
       ...this.chartRevenue.data,
       labels,
@@ -61,6 +63,7 @@ export class RevenuePieChartComponent {
         },
       ],
     }
+
     this.chartRevenue.total = total
   }
 }

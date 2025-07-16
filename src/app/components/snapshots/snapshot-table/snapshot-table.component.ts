@@ -38,7 +38,7 @@ import { SpinnerComponent } from '@components/spinner/spinner.component'
 import { SnapshotAdd } from '@interfaces/snapshot-add.interface'
 import { SnapshotBalanceAdd } from '@interfaces/snapshot-balance-add.interface'
 import { FinanceService } from '@services/finance.service'
-import { getRansomStringFromObject } from '@utilities/string-utilities'
+import { getRansomStringFromObject } from '@utilities/string.utilities'
 
 @Component({
   selector: 'app-snapshot-table-dialog',

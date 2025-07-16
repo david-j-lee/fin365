@@ -1,0 +1,43 @@
+.calendar-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: auto;
+
+  .calendar {
+    display: flex;
+    flex-direction: row;
+    padding: 2px;
+
+    .week-row {
+      display: flex;
+      flex-direction: column;
+      margin: 1px;
+
+      div {
+        width: 14px;
+        height: 14px;
+        margin: 1px;
+      }
+
+      .row-label {
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        width: fit-content;
+      }
+
+      .col-label {
+        font-size: 14px;
+        width: 14px;
+        margin-bottom: 8px;
+      }
+
+      // TODO: Use theme colors
+      .day-item {
+        background-color: #333;
+        border-radius: 3px;
+      }
+    }
+  }
+}

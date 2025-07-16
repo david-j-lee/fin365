@@ -1,5 +1,5 @@
-import { numberOfDays } from './constants'
-import { getRuleRange, getRuleRepeatDays } from './rule-utilities'
+import { getRuleRange, getRuleRepeatDays } from './rule.utilities'
+import { numberOfDays } from '@constants/budget.constants'
 import { Budget } from '@interfaces/budget.interface'
 import { DailyItem } from '@interfaces/daily-item.interface'
 import { RuleRepeatable } from '@interfaces/rule-repeatable.interface'

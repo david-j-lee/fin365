@@ -5,7 +5,7 @@ import { SnapshotEntity } from '@data/entities/snapshots.entity'
 import { localStorageService } from '@data/local-storage/local-storage-utilities'
 import { BudgetAdd } from '@interfaces/budget-add.interface'
 import { BudgetEdit } from '@interfaces/budget-edit.interface'
-import { getRansomStringFromObject } from '@utilities/string-utilities'
+import { getRansomStringFromObject } from '@utilities/string.utilities'
 
 export const LocalStorageBudgetService = {
   async getAll(): Promise<BudgetEntity[]> {

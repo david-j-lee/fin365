@@ -38,10 +38,10 @@ import { MatSnackBar } from '@angular/material/snack-bar'
 import { ActivatedRoute, Router } from '@angular/router'
 import { ExpenseDeleteComponent } from '@components/expenses/expense-delete/expense-delete.component'
 import { SpinnerComponent } from '@components/spinner/spinner.component'
+import { frequencies } from '@constants/budget.constants'
 import { RuleRepeatableAdd } from '@interfaces/rule-repeatable-add.interface'
 import { RuleRepeatable } from '@interfaces/rule-repeatable.interface'
 import { FinanceService } from '@services/finance.service'
-import { frequencies } from '@utilities/constants'
 import { Subscription } from 'rxjs'
 
 @Component({

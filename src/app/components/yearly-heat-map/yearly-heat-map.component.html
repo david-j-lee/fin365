@@ -1,0 +1,34 @@
+@if (data()) {
+  <div class="calendar-wrapper">
+    <div class="calendar">
+      <div class="week-row">
+        <div class="col-label"></div>
+        @for (item of weekdayLabels; track item) {
+          <div class="row-label">{{ item }}</div>
+        }
+      </div>
+      @for (row of data(); track row) {
+        <div class="week-row">
+          <div class="col-label">{{ row.label }}</div>
+          @for (item of row.items; track item) {
+            <div matTooltip="{{ item.tooltip }}">
+              @if (item.intensity > 0) {
+                <div
+                  class="active-day-item"
+                  [class.day-item]="item.day"
+                  [style]="{
+                    backgroundColor: color,
+                    opacity: item.intensity,
+                  }"
+                ></div>
+              }
+              @if (item.intensity <= 0) {
+                <div [class.day-item]="item.day"></div>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+}
