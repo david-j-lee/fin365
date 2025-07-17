@@ -1,11 +1,14 @@
+import { WritableSignal } from '@angular/core'
 import { numberOfDays } from '@constants/budget.constants'
+import { colorsRgb } from '@constants/color.constants'
+import { Budget } from '@interfaces/budget.interface'
 import { Day } from '@interfaces/day.interface'
 import { RuleAdd } from '@interfaces/rule-add.interface'
 import { RuleEdit } from '@interfaces/rule-edit.interface'
 import { RuleRepeatableAdd } from '@interfaces/rule-repeatable-add.interface'
 import { RuleRepeatableEdit } from '@interfaces/rule-repeatable-edit.interface'
 import { RuleRepeatable } from '@interfaces/rule-repeatable.interface'
-import { Rule } from '@interfaces/rule.interface'
+import { Rule, RuleType, RulesMetadata } from '@interfaces/rule.interface'
 import {
   addDays,
   addMonths,
@@ -16,6 +19,8 @@ import {
   getYear,
   startOfWeek,
 } from 'date-fns'
+
+const baseOpacity = 0.5
 
 export function isRuleRepeatable(
   rule:
@@ -135,6 +140,26 @@ export function getDefaultDays(startDate: Date) {
   return days
 }
 
+export function getRulesSignalFromBudget(budget: Budget, ruleType: RuleType) {
+  return budget[RulesMetadata[ruleType].budgetFieldKey] as WritableSignal<
+    Rule[]
+  >
+}
+
 export function getAlpha(baseAlpha: number, factor: number) {
   return baseAlpha + (1 - baseAlpha) * factor
+}
+
+export function getRgba(
+  ruleType: RuleType | null,
+  total: number,
+  value: number,
+) {
+  if (!ruleType) {
+    return ''
+  }
+  const rgb = colorsRgb[ruleType as keyof typeof colorsRgb]
+  const intensity = 1 - value / (total - 1)
+  const alpha = getAlpha(baseOpacity, intensity)
+  return `rgba(${rgb}, ${alpha})`
 }

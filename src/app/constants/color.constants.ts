@@ -1,11 +1,9 @@
+import { getColorWithTransparency } from '@utilities/color.utilities'
+
 export const colorsRgb = {
   balance: '54, 162, 235',
   revenue: '75, 192, 192',
   expense: '255, 99, 132',
-}
-
-export function getColorWithTransparency(rgb: string, alpha: number) {
-  return `rgba(${rgb}, ${alpha})`
 }
 
 const balanceColors = {

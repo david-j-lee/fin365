@@ -1,16 +1,12 @@
 import { Component, Input, OnInit, inject } from '@angular/core'
 import { numberOfDays } from '@constants/budget.constants'
 import { barOptions } from '@constants/chart.constants'
-import {
-  colorPalettes,
-  colorsRgb,
-  getColorWithTransparency,
-} from '@constants/color.constants'
+import { colorPalettes } from '@constants/color.constants'
 import { Day } from '@interfaces/day.interface'
 import { MonthlyChart } from '@interfaces/monthly-chart.interface'
 import { RuleType } from '@interfaces/rule.interface'
 import { FinanceService } from '@services/finance.service'
-import { getAlpha } from '@utilities/rule.utilities'
+import { getRgba } from '@utilities/rule.utilities'
 import { ChartDataset } from 'chart.js'
 import {
   addDays,
@@ -19,8 +15,6 @@ import {
   format,
 } from 'date-fns'
 import { BaseChartDirective } from 'ng2-charts'
-
-const baseOpacity = 0.5
 
 @Component({
   selector: 'app-monthly-chart',
@@ -55,16 +49,17 @@ export class MonthlyChartComponent implements OnInit {
   ngOnInit() {
     this.financeService.events.subscribe((event) => {
       if (event.resource === 'budget' || event.resource === this.ruleType) {
-        this.setChartBalance()
+        this.setChart()
       }
     })
   }
 
-  private setChartBalance() {
+  private setChart() {
     if (!this.financeService.budget || !this.ruleType) {
       return
     }
 
+    // generate the labels
     const labels: string[] = []
     const endDate = addDays(this.financeService.budget.startDate, numberOfDays)
     const numberOfMonths = differenceInCalendarMonths(
@@ -78,6 +73,7 @@ export class MonthlyChartComponent implements OnInit {
       )
     }
 
+    // generate the chart data
     // rule id is the key with amounts as the value
     const data: Record<string, number[] | number[][]> = {}
     const ruleDescriptionsById: Record<string, string> = {}
@@ -111,6 +107,7 @@ export class MonthlyChartComponent implements OnInit {
       }
     }
 
+    const count = Object.keys(data).length
     const rankedRules =
       this.ruleType === 'balance'
         ? []
@@ -119,16 +116,10 @@ export class MonthlyChartComponent implements OnInit {
               id: ruleId,
               amount: ruleYearlyTotalsById[ruleId] ?? 0,
             }))
-            .sort()
+            .toSorted((a, b) => b.amount - a.amount)
             .map((item, index) => ({
               ...item,
-              rank: index + 1,
-              alpha: getAlpha(
-                baseOpacity,
-                Object.keys(data).length < 1
-                  ? 1
-                  : 1 - index / (Object.keys(data).length - 1),
-              ),
+              color: getRgba(this.ruleType, count, count < 1 ? 1 : index),
             }))
 
     const ruleRanksById = rankedRules.reduce(
@@ -139,22 +130,26 @@ export class MonthlyChartComponent implements OnInit {
       {} as Record<string, (typeof rankedRules)[0]>,
     )
 
-    const datasets: ChartDataset[] = Object.entries(data).map(
-      ([key, value]) => {
+    const datasets: ChartDataset[] = Object.entries(data)
+      .toSorted((a, b) => {
+        const ruleA = ruleYearlyTotalsById[a[0]] ?? 0
+        const ruleB = ruleYearlyTotalsById[b[0]] ?? 0
+        return ruleB - ruleA
+      })
+      .map(([key, value]) => {
+        const baseColorPalette =
+          colorPalettes[this.ruleType as keyof typeof colorPalettes]
         return {
-          // TODO: Use color palette based on total % of $s for each series.
-          //       Bright is for higher yearly amount and darker would be for
-          //       lower yearly amounts.
-          ...colorPalettes[this.ruleType as keyof typeof colorPalettes],
-          backgroundColor: getColorWithTransparency(
-            colorsRgb[this.ruleType as keyof typeof colorsRgb],
-            ruleRanksById[key] ? ruleRanksById[key].alpha : 1,
-          ),
+          ...baseColorPalette,
+          backgroundColor: ruleRanksById[key]
+            ? ruleRanksById[key].color
+            : baseColorPalette.color,
           label: ruleDescriptionsById[key],
           data: Object.values(value),
         }
-      },
-    )
+      })
+
+    console.log(datasets)
 
     this.chartBalance.data = {
       ...this.chartBalance.data,

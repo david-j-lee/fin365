@@ -19,7 +19,11 @@ import { SnapshotAdd } from '@interfaces/snapshot-add.interface'
 import { SnapshotBalanceAdd } from '@interfaces/snapshot-balance-add.interface'
 import { Tab } from '@interfaces/tab.interface'
 import { getDailyItemsForRule } from '@utilities/rule-daily.utilities'
-import { getDefaultDays, isRuleRepeatable } from '@utilities/rule.utilities'
+import {
+  getDefaultDays,
+  getRulesSignalFromBudget,
+  isRuleRepeatable,
+} from '@utilities/rule.utilities'
 import { formatISO, isSameDay } from 'date-fns'
 import { ReplaySubject } from 'rxjs'
 
@@ -202,9 +206,7 @@ export class FinanceService {
     rule.yearlyAmount =
       rule.daily.reduce((sum, item) => sum + item.amount, 0) ?? 0
 
-    const budgetField = this.budget[
-      RulesMetadata[ruleAdd.type].budgetFieldKey
-    ] as WritableSignal<Rule[]>
+    const budgetField = getRulesSignalFromBudget(this.budget, ruleAdd.type)
     budgetField.update((rules) => {
       rules.push(rule)
       return rules
@@ -242,13 +244,10 @@ export class FinanceService {
     rule.yearlyAmount =
       rule.daily.reduce((sum, item) => sum + item.amount, 0) ?? 0
 
-    const rulesArray = this.budget[
-      RulesMetadata[ruleOriginal.type].budgetFieldKey
-    ] as WritableSignal<Rule[]>
+    const rulesArray = getRulesSignalFromBudget(this.budget, ruleOriginal.type)
     rulesArray.update((currentItems) =>
       currentItems.map((item) => (item.id === rule.id ? rule : item)),
     )
-
     FinanceService.setBudgetDaysForRule(this.budget, rule, false)
 
     // Send out events for the rule update
@@ -274,9 +273,7 @@ export class FinanceService {
     }
 
     // Update service state
-    const rulesArray = this.budget[
-      RulesMetadata[rule.type].budgetFieldKey
-    ] as WritableSignal<Rule[]>
+    const rulesArray = getRulesSignalFromBudget(this.budget, rule.type)
     rulesArray.update((currentItems) =>
       currentItems.filter((item) => item.id !== rule.id),
     )

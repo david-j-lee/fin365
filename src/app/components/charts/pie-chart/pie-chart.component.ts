@@ -1,14 +1,12 @@
 import { CurrencyPipe } from '@angular/common'
-import { Component, Input, OnInit, WritableSignal, inject } from '@angular/core'
+import { Component, Input, OnInit, inject } from '@angular/core'
 import { pieOptions } from '@constants/chart.constants'
-import { colorPalettes, colorsRgb } from '@constants/color.constants'
+import { colorPalettes } from '@constants/color.constants'
 import { PieChart } from '@interfaces/pie-chart.interface'
-import { Rule, RuleType, RulesMetadata } from '@interfaces/rule.interface'
+import { RuleType } from '@interfaces/rule.interface'
 import { FinanceService } from '@services/finance.service'
-import { getAlpha } from '@utilities/rule.utilities'
+import { getRgba, getRulesSignalFromBudget } from '@utilities/rule.utilities'
 import { BaseChartDirective } from 'ng2-charts'
-
-const baseOpacity = 0.5
 
 @Component({
   selector: 'app-pie-chart',
@@ -37,7 +35,7 @@ export class PieChartComponent implements OnInit {
 
   ngOnInit() {
     this.financeService.events.subscribe((event) => {
-      if (event.resource === 'budget' || event.resource === 'balance') {
+      if (event.resource === 'budget' || event.resource === this.ruleType) {
         this.setChart()
       }
     })
@@ -48,31 +46,24 @@ export class PieChartComponent implements OnInit {
       return
     }
 
-    const records = this.financeService.budget[
-      RulesMetadata[this.ruleType].budgetFieldKey
-    ] as WritableSignal<Rule[]>
+    const records = getRulesSignalFromBudget(
+      this.financeService.budget,
+      this.ruleType,
+    )
     const count = records().length
-
-    let total = 0
     const data: number[] = []
     const labels: string[] = []
     const backgroundColors: string[] = []
+    let total = 0
 
     records()
       .sort((a, b) => b.yearlyAmount - a.yearlyAmount)
-      .forEach((balance, index) => {
-        data.push(balance.yearlyAmount)
-        labels.push(balance.description)
-
-        const rgb = colorsRgb[this.ruleType as keyof typeof colorsRgb]
-        const intensity = 1 - index / (count - 1)
-        const alpha = getAlpha(baseOpacity, intensity)
-
-        backgroundColors.push(`rgba(${rgb}, ${alpha})`)
-        total += balance.yearlyAmount
+      .forEach((rule, index) => {
+        data.push(rule.yearlyAmount)
+        labels.push(rule.description)
+        backgroundColors.push(getRgba(this.ruleType, count, index))
+        total += rule.yearlyAmount
       })
-
-    console.log(backgroundColors)
 
     this.chart.data = {
       ...this.chart.data,
