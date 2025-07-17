@@ -42,11 +42,13 @@
             track subItem
           ) {
             <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-              <mat-card class="listing-item" [routerLink]="['/', subItem.id]">
-                <mat-card-header>
-                  <mat-card-title>{{ subItem.name }}</mat-card-title>
-                </mat-card-header>
-              </mat-card>
+              <a
+                matButton="outlined"
+                class="listing-item"
+                [routerLink]="['/', subItem.id]"
+              >
+                {{ subItem.name }}
+              </a>
             </div>
           }
         }
