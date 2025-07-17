@@ -51,7 +51,7 @@ export class BudgetChartComponent {
   }
 
   constructor() {
-    this.financeService.events.subscribe((event) => {
+    this.financeService.events.subscribe(() => {
       this.setChartBudget()
     })
   }
