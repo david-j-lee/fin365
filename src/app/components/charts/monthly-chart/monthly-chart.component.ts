@@ -6,7 +6,7 @@ import { Day } from '@interfaces/day.interface'
 import { MonthlyChart } from '@interfaces/monthly-chart.interface'
 import { RuleType } from '@interfaces/rule.interface'
 import { FinanceService } from '@services/finance.service'
-import { getRgba } from '@utilities/rule.utilities'
+import { getRgbaForRule } from '@utilities/rule.utilities'
 import { ChartDataset } from 'chart.js'
 import {
   addDays,
@@ -119,7 +119,11 @@ export class MonthlyChartComponent implements OnInit {
             .toSorted((a, b) => b.amount - a.amount)
             .map((item, index) => ({
               ...item,
-              color: getRgba(this.ruleType, count, count < 1 ? 1 : index),
+              color: getRgbaForRule(
+                this.ruleType,
+                count,
+                count < 1 ? 1 : index,
+              ),
             }))
 
     const ruleRanksById = rankedRules.reduce(

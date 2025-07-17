@@ -5,7 +5,10 @@ import { colorPalettes } from '@constants/color.constants'
 import { PieChart } from '@interfaces/pie-chart.interface'
 import { RuleType } from '@interfaces/rule.interface'
 import { FinanceService } from '@services/finance.service'
-import { getRgba, getRulesSignalFromBudget } from '@utilities/rule.utilities'
+import {
+  getRgbaForRule,
+  getRulesSignalFromBudget,
+} from '@utilities/rule.utilities'
 import { BaseChartDirective } from 'ng2-charts'
 
 @Component({
@@ -61,7 +64,7 @@ export class PieChartComponent implements OnInit {
       .forEach((rule, index) => {
         data.push(rule.yearlyAmount)
         labels.push(rule.description)
-        backgroundColors.push(getRgba(this.ruleType, count, index))
+        backgroundColors.push(getRgbaForRule(this.ruleType, count, index))
         total += rule.yearlyAmount
       })
 

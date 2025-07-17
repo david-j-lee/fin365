@@ -1,4 +1,4 @@
-import { getColorWithTransparency } from '@utilities/color.utilities'
+import { getRgba } from '@utilities/color.utilities'
 
 export const colorsRgb = {
   balance: '54, 162, 235',
@@ -7,21 +7,21 @@ export const colorsRgb = {
 }
 
 const balanceColors = {
-  Lightest: getColorWithTransparency(colorsRgb.balance, 0.4),
-  Light: getColorWithTransparency(colorsRgb.balance, 0.8),
-  Normal: getColorWithTransparency(colorsRgb.balance, 1),
+  Lightest: getRgba(colorsRgb.balance, 0.4),
+  Light: getRgba(colorsRgb.balance, 0.8),
+  Normal: getRgba(colorsRgb.balance, 1),
 }
 
 const revenueColors = {
-  Lightest: getColorWithTransparency(colorsRgb.revenue, 0.4),
-  Light: getColorWithTransparency(colorsRgb.revenue, 0.8),
-  Normal: getColorWithTransparency(colorsRgb.revenue, 1),
+  Lightest: getRgba(colorsRgb.revenue, 0.4),
+  Light: getRgba(colorsRgb.revenue, 0.8),
+  Normal: getRgba(colorsRgb.revenue, 1),
 }
 
 const expenseColors = {
-  Lightest: getColorWithTransparency(colorsRgb.expense, 0.4),
-  Light: getColorWithTransparency(colorsRgb.expense, 0.8),
-  Normal: getColorWithTransparency(colorsRgb.expense, 1),
+  Lightest: getRgba(colorsRgb.expense, 0.4),
+  Light: getRgba(colorsRgb.expense, 0.8),
+  Normal: getRgba(colorsRgb.expense, 1),
 }
 
 export const colorPalettes = {

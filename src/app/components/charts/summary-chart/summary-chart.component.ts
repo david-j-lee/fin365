@@ -3,7 +3,10 @@ import { barOptions } from '@constants/chart.constants'
 import { RuleType } from '@interfaces/rule.interface'
 import { SummaryChart } from '@interfaces/summary-chart.interface'
 import { FinanceService } from '@services/finance.service'
-import { getRgba, getRulesSignalFromBudget } from '@utilities/rule.utilities'
+import {
+  getRgbaForRule,
+  getRulesSignalFromBudget,
+} from '@utilities/rule.utilities'
 import { BaseChartDirective } from 'ng2-charts'
 
 @Component({
@@ -56,7 +59,7 @@ export class SummaryChartComponent implements OnInit {
       .forEach((rule, index) => {
         data.push(rule.yearlyAmount)
         labels.push(rule.description)
-        backgroundColors.push(getRgba(this.ruleType, count, index))
+        backgroundColors.push(getRgbaForRule(this.ruleType, count, index))
       })
 
     this.chart.data = {
