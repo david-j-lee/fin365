@@ -52,9 +52,7 @@ export class BudgetChartComponent {
 
   constructor() {
     this.financeService.events.subscribe((event) => {
-      if (event.resource === 'budget') {
-        this.setChartBudget()
-      }
+      this.setChartBudget()
     })
   }
 
