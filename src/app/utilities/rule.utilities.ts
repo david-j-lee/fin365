@@ -134,3 +134,7 @@ export function getDefaultDays(startDate: Date) {
 
   return days
 }
+
+export function getAlpha(baseAlpha: number, factor: number) {
+  return baseAlpha + (1 - baseAlpha) * factor
+}

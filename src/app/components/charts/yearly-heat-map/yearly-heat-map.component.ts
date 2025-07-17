@@ -4,6 +4,7 @@ import { colorPalettes } from '@constants/color.constants'
 import { Day } from '@interfaces/day.interface'
 import { RuleType } from '@interfaces/rule.interface'
 import { FinanceService } from '@services/finance.service'
+import { getAlpha } from '@utilities/rule.utilities'
 import {
   differenceInCalendarDays,
   format,
@@ -105,10 +106,7 @@ export class YearlyHeatMapComponent implements OnInit {
 
       data[weekCounter].items.push({
         day,
-        intensity:
-          intensity === 0
-            ? 0
-            : baselineOpacity + (1 - baselineOpacity) * intensity,
+        intensity: intensity === 0 ? 0 : getAlpha(baselineOpacity, intensity),
         tooltip: `$${amount} on ${format(day.date, 'PP')}`,
       })
       dayCounter++

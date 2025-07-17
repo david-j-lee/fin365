@@ -1,19 +1,29 @@
-export const balanceColors = {
-  Lightest: 'rgba(54, 162, 235, 0.2)',
-  Light: 'rgba(54, 162, 235, 0.8)',
-  Normal: 'rgba(54, 162, 235, 1)',
+export const colorsRgb = {
+  balance: '54, 162, 235',
+  revenue: '75, 192, 192',
+  expense: '255, 99, 132',
 }
 
-export const revenueColors = {
-  Lightest: 'rgba(75, 192, 192, 0.2)',
-  Light: 'rgba(75, 192, 192, 0.8)',
-  Normal: 'rgba(75, 192, 192, 1)',
+export function getColorWithTransparency(rgb: string, alpha: number) {
+  return `rgba(${rgb}, ${alpha})`
 }
 
-export const expenseColors = {
-  Lightest: 'rgba(255, 99, 132, 0.2)',
-  Light: 'rgba(255, 99, 132, 0.8)',
-  Normal: 'rgba(255, 99, 132, 1)',
+const balanceColors = {
+  Lightest: getColorWithTransparency(colorsRgb.balance, 0.4),
+  Light: getColorWithTransparency(colorsRgb.balance, 0.8),
+  Normal: getColorWithTransparency(colorsRgb.balance, 1),
+}
+
+const revenueColors = {
+  Lightest: getColorWithTransparency(colorsRgb.revenue, 0.4),
+  Light: getColorWithTransparency(colorsRgb.revenue, 0.8),
+  Normal: getColorWithTransparency(colorsRgb.revenue, 1),
+}
+
+const expenseColors = {
+  Lightest: getColorWithTransparency(colorsRgb.expense, 0.4),
+  Light: getColorWithTransparency(colorsRgb.expense, 0.8),
+  Normal: getColorWithTransparency(colorsRgb.expense, 1),
 }
 
 export const colorPalettes = {

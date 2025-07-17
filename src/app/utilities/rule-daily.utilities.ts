@@ -12,12 +12,12 @@ import {
   isSameDay,
 } from 'date-fns'
 
-export function getCalculatedDataForRule(
+export function getDailyItemsForRule(
   budget: Budget,
   rule: Rule | RuleRepeatable,
-): Partial<Rule> {
+): DailyItem[] {
   if (!budget) {
-    return {}
+    return []
   }
 
   let daily: DailyItem[] | null = null
@@ -52,10 +52,7 @@ export function getCalculatedDataForRule(
   }
 
   // Add any meta data or calculated data to the rule
-  return {
-    yearlyAmount: daily?.reduce((sum, item) => sum + item.amount, 0) ?? 0,
-    daily: daily ?? [],
-  }
+  return daily ?? []
 }
 
 function generateRuleOnce(

@@ -18,7 +18,7 @@ import { Rule, RuleType, RulesMetadata } from '@interfaces/rule.interface'
 import { SnapshotAdd } from '@interfaces/snapshot-add.interface'
 import { SnapshotBalanceAdd } from '@interfaces/snapshot-balance-add.interface'
 import { Tab } from '@interfaces/tab.interface'
-import { getCalculatedDataForRule } from '@utilities/rule-daily.utilities'
+import { getDailyItemsForRule } from '@utilities/rule-daily.utilities'
 import { getDefaultDays, isRuleRepeatable } from '@utilities/rule.utilities'
 import { formatISO, isSameDay } from 'date-fns'
 import { ReplaySubject } from 'rxjs'
@@ -198,10 +198,10 @@ export class FinanceService {
     }
 
     // Update service state
-    rule = {
-      ...rule,
-      ...getCalculatedDataForRule(this.budget, rule),
-    }
+    rule.daily = getDailyItemsForRule(this.budget, rule)
+    rule.yearlyAmount =
+      rule.daily.reduce((sum, item) => sum + item.amount, 0) ?? 0
+
     const budgetField = this.budget[
       RulesMetadata[ruleAdd.type].budgetFieldKey
     ] as WritableSignal<Rule[]>
@@ -210,12 +210,7 @@ export class FinanceService {
       return rules
     })
 
-    FinanceService.setBudgetDaysForRule(
-      this.budget,
-      rule.type,
-      rule.id,
-      rule.daily,
-    )
+    FinanceService.setBudgetDaysForRule(this.budget, rule, false)
 
     // Send out event of the new rule
     this.events.next({ resource: rule.type, event: 'add', rule })
@@ -243,10 +238,10 @@ export class FinanceService {
     }
 
     // Update service state
-    rule = {
-      ...rule,
-      ...getCalculatedDataForRule(this.budget, rule),
-    }
+    rule.daily = getDailyItemsForRule(this.budget, rule)
+    rule.yearlyAmount =
+      rule.daily.reduce((sum, item) => sum + item.amount, 0) ?? 0
+
     const rulesArray = this.budget[
       RulesMetadata[ruleOriginal.type].budgetFieldKey
     ] as WritableSignal<Rule[]>
@@ -254,12 +249,7 @@ export class FinanceService {
       currentItems.map((item) => (item.id === rule.id ? rule : item)),
     )
 
-    FinanceService.setBudgetDaysForRule(
-      this.budget,
-      rule.type,
-      rule.id,
-      rule.daily,
-    )
+    FinanceService.setBudgetDaysForRule(this.budget, rule, false)
 
     // Send out events for the rule update
     this.events.next({ resource: rule.type, event: 'update', rule })
@@ -291,7 +281,7 @@ export class FinanceService {
       currentItems.filter((item) => item.id !== rule.id),
     )
 
-    FinanceService.setBudgetDaysForRule(this.budget, rule.type, rule.id)
+    FinanceService.setBudgetDaysForRule(this.budget, rule, true)
 
     // Send out delete event
     this.events.next({ resource: rule.type, event: 'delete', rule })
@@ -299,14 +289,13 @@ export class FinanceService {
 
   private static setBudgetDaysForRule(
     budget: Budget,
-    ruleType: RuleType,
-    ruleId: string,
-    dailyItems?: DailyItem[],
+    rule: Rule,
+    isDelete: boolean,
   ) {
     let lastBalance = 0
 
-    const dailyItemsByDay = dailyItems
-      ? dailyItems.reduce(
+    const dailyItemsByDay = rule.daily
+      ? rule.daily.reduce(
           (accumulator, item) => {
             const key = formatISO(item.day.date)
             if (!accumulator[key]) {
@@ -322,12 +311,12 @@ export class FinanceService {
     budget.days.update((days) =>
       days.map((day) => {
         // Remove the daily data for the rule
-        day.daily[ruleType] = day.daily[ruleType].filter(
-          (dailyRevenue) => dailyRevenue.rule.id !== ruleId,
+        day.daily[rule.type] = day.daily[rule.type].filter(
+          (dailyRevenue) => dailyRevenue.rule.id !== rule.id,
         )
 
         // Add the new daily data for the rule
-        if (dailyItems) {
+        if (!isDelete) {
           const dailyItemsForDay = dailyItemsByDay[formatISO(day.date)]
           if (dailyItemsForDay) {
             for (const dailyItem of dailyItemsForDay) {
@@ -338,7 +327,7 @@ export class FinanceService {
         }
 
         // Calculate the new total
-        day.total[ruleType] = day.daily[ruleType].reduce(
+        day.total[rule.type] = day.daily[rule.type].reduce(
           (sum, item) => sum + item.amount,
           0,
         )
@@ -364,11 +353,13 @@ export class FinanceService {
       return
     }
 
-    records?.update((rules) => {
-      return rules.map((rule) => ({
-        ...rule,
-        ...getCalculatedDataForRule(budget, rule),
-      }))
+    records.update((rules) => {
+      return rules.map((rule) => {
+        rule.daily = getDailyItemsForRule(budget, rule)
+        rule.yearlyAmount =
+          rule.daily.reduce((sum, item) => sum + item.amount, 0) ?? 0
+        return rule
+      })
     })
 
     const dailyDataByDay = records().reduce(
