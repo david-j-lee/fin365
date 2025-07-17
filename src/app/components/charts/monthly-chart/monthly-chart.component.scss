@@ -1,0 +1,5 @@
+@use '../../../../styles/spacing';
+
+.budget-chart {
+  height: spacing.get(64);
+}

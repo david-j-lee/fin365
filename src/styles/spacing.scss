@@ -1,0 +1,8 @@
+$spacing-base: 0.25rem; // 4px
+
+@function get($multiplier: '') {
+  @if ($multiplier == '') {
+    @return $spacing-base;
+  }
+  @return $spacing-base * $multiplier;
+}

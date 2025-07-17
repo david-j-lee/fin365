@@ -31,7 +31,6 @@ import { FinanceService } from '@services/finance.service'
 @Component({
   selector: 'app-snapshot-history-dialog',
   templateUrl: 'snapshot-history.component.html',
-  styleUrls: ['snapshot-history.component.scss'],
   imports: [
     CdkScrollable,
     DatePipe,
@@ -74,7 +73,9 @@ export class SnapshotHistoryDialogComponent implements OnInit {
 
     this.matDialogRef?.afterClosed().subscribe(() => {
       this.matDialogRef = null
-      this.router.navigate(['/', this.financeService.budget?.id])
+      this.router.navigate(['/', this.financeService.budget?.id], {
+        preserveFragment: true,
+      })
     })
   }
 }

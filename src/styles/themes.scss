@@ -1,36 +1,49 @@
-@use 'sass:map';
 @use '@angular/material' as mat;
 
-@include mat.elevation-classes();
-@include mat.app-background();
-
-$theme-light: mat.define-theme(
-  (
-    color: (
-      theme-type: light,
-      primary: mat.$azure-palette,
-      tertiary: mat.$violet-palette,
-    ),
-  )
-);
-
 html {
-  // Default
-  @include mat.all-component-themes($theme-light);
-  @include mat.color-variants-backwards-compatibility($theme-light);
+  color-scheme: light;
+
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$azure-palette,
+        tertiary: mat.$violet-palette,
+      ),
+      typography: Montserrat,
+    )
+  );
 }
 
-$theme-dark: mat.define-theme(
-  (
-    color: (
-      theme-type: dark,
-      primary: mat.$azure-palette,
-      tertiary: mat.$violet-palette,
-    ),
-  )
-);
-
 html.dark {
-  @include mat.all-component-colors($theme-dark);
-  @include mat.color-variants-backwards-compatibility($theme-dark);
+  color-scheme: dark;
+}
+
+// Theme based styles
+.mat-theme-red {
+  @include mat.theme(
+    (
+      color: mat.$red-palette,
+    )
+  );
+}
+
+.budget-start {
+  @include mat.theme(
+    (
+      color: mat.$spring-green-palette,
+    )
+  );
+
+  & .date-number {
+    background-color: var(--mat-sys-primary);
+    color: var(--mat-sys-on-primary);
+  }
+}
+
+.active-mat-button {
+  background: color-mix(
+    in srgb,
+    var(--mat-sys-primary) 30%,
+    transparent
+  ) !important;
 }

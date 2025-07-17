@@ -1,12 +1,13 @@
 import { NgClass } from '@angular/common'
 import { Component, inject } from '@angular/core'
 import { MatButton, MatIconButton } from '@angular/material/button'
-import { MatDialog } from '@angular/material/dialog'
 import { MatIcon } from '@angular/material/icon'
 import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu'
 import { MatToolbar } from '@angular/material/toolbar'
 import { RouterLink } from '@angular/router'
 import { ThemePickerComponent } from '@components/theme-picker/theme-picker.component'
+import { tabs } from '@constants/budget.constants'
+import { Tab } from '@interfaces/tab.interface'
 import { FilterPipe } from '@pipes/filter.pipe'
 import { SortByPipe } from '@pipes/sort.pipe'
 import { FinanceService } from '@services/finance.service'
@@ -30,8 +31,8 @@ import { FinanceService } from '@services/finance.service'
   ],
 })
 export class ToolbarComponent {
-  matDialog = inject(MatDialog)
   financeService = inject(FinanceService)
 
+  budgetNavOptions: Tab[] = tabs
   showArchivedBudgets = false
 }

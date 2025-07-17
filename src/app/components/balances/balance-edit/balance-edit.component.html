@@ -50,7 +50,7 @@
         <button
           type="button"
           mat-stroked-button
-          color="warn"
+          class="mat-theme-red"
           (click)="requestDelete()"
           [disabled]="form.invalid || isSubmitting"
         >
@@ -67,7 +67,6 @@
       <button
         type="submit"
         mat-flat-button
-        color="primary"
         [disabled]="form.invalid || isSubmitting"
       >
         <mat-icon>save</mat-icon>

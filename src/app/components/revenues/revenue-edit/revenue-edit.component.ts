@@ -38,10 +38,10 @@ import { MatSnackBar } from '@angular/material/snack-bar'
 import { ActivatedRoute, Router } from '@angular/router'
 import { RevenueDeleteComponent } from '@components/revenues/revenue-delete/revenue-delete.component'
 import { SpinnerComponent } from '@components/spinner/spinner.component'
+import { frequencies } from '@constants/budget.constants'
 import { RuleRepeatableAdd } from '@interfaces/rule-repeatable-add.interface'
 import { RuleRepeatable } from '@interfaces/rule-repeatable.interface'
 import { FinanceService } from '@services/finance.service'
-import { frequencies } from '@utilities/constants'
 import { Subscription } from 'rxjs'
 
 @Component({
@@ -128,15 +128,20 @@ export class RevenueEditDialogComponent implements OnInit {
     this.matDialogRef?.afterClosed().subscribe(() => {
       this.matDialogRef = null
       if (this.navigateToDelete) {
-        this.router.navigate([
-          './',
-          this.financeService.budget?.id,
-          'revenue',
-          this.oldRevenue?.id,
-          'delete',
-        ])
+        this.router.navigate(
+          [
+            './',
+            this.financeService.budget?.id,
+            'revenue',
+            this.oldRevenue?.id,
+            'delete',
+          ],
+          { preserveFragment: true },
+        )
       } else {
-        this.router.navigate(['/', this.financeService.budget?.id])
+        this.router.navigate(['/', this.financeService.budget?.id], {
+          preserveFragment: true,
+        })
       }
     })
   }

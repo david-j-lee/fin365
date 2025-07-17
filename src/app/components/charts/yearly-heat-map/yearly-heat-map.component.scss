@@ -1,0 +1,47 @@
+@use '../../../../styles/spacing';
+
+.calendar-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: auto;
+
+  .calendar {
+    display: flex;
+    flex-direction: row;
+    padding: spacing.get();
+
+    .week-row {
+      display: flex;
+      flex-direction: column;
+      margin: 1px;
+
+      div {
+        width: spacing.get(3);
+        height: spacing.get(3);
+        margin: 1px;
+      }
+
+      .row-label {
+        font: var(--mat-sys-label-small);
+        height: spacing.get(3);
+        display: flex;
+        align-items: center;
+        width: fit-content;
+        overflow: hidden;
+      }
+
+      .col-label {
+        font: var(--mat-sys-label-small);
+        width: spacing.get(3);
+        margin-bottom: spacing.get(2);
+      }
+
+      // TODO: Use theme colors
+      .day-item {
+        background-color: var(--mat-sys-surface-container-high);
+        border-radius: var(--mat-sys-corner-extra-small);
+      }
+    }
+  }
+}

@@ -1,21 +1,18 @@
-.mat-column-description {
-  margin-right: 15px;
-}
+@use '../../../../styles/spacing';
 
 .mat-column-amount {
-  flex: 0 0 150px;
-  margin-right: 15px;
+  flex: 0 0 spacing.get(48);
 }
 
 .mat-column-delete {
-  flex: 0 0 75px;
+  flex: 0 0 spacing.get(20);
 }
 
 .snapshot-date {
-  max-width: 200px;
+  max-width: spacing.get(42);
 }
 
 .snapshot-delete {
   align-self: flex-start;
-  margin-top: 8px;
+  margin-top: spacing.get(2);
 }

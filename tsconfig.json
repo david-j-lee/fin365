@@ -6,12 +6,13 @@
     "paths": {
       "@animations/*": ["src/app/animations/*"],
       "@components/*": ["src/app/components/*"],
+      "@constants/*": ["src/app/constants/*"],
+      "@data/*": ["src/app/data/*"],
       "@directives/*": ["src/app/directives/*"],
       "@imports/*": ["src/app/imports/*"],
       "@interfaces/*": ["src/app/interfaces/*"],
       "@pipes/*": ["src/app/pipes/*"],
       "@services/*": ["src/app/services/*"],
-      "@data/*": ["src/app/data/*"],
       "@utilities/*": ["src/app/utilities/*"]
     },
     "outDir": "./dist/out-tsc",

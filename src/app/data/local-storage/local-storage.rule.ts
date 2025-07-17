@@ -3,7 +3,7 @@ import { localStorageService } from '@data/local-storage/local-storage-utilities
 import { RuleAdd } from '@interfaces/rule-add.interface'
 import { RuleEdit } from '@interfaces/rule-edit.interface'
 import { RuleMetadata } from '@interfaces/rule.interface'
-import { getRansomStringFromObject } from '@utilities/string-utilities'
+import { getRansomStringFromObject } from '@utilities/string.utilities'
 
 export const LocalStorageRuleService = {
   async getAll(

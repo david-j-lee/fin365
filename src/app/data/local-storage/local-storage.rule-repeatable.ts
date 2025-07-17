@@ -3,7 +3,7 @@ import { localStorageService } from '@data/local-storage/local-storage-utilities
 import { RuleRepeatableAdd } from '@interfaces/rule-repeatable-add.interface'
 import { RuleRepeatableEdit } from '@interfaces/rule-repeatable-edit.interface'
 import { RuleMetadata } from '@interfaces/rule.interface'
-import { getRansomStringFromObject } from '@utilities/string-utilities'
+import { getRansomStringFromObject } from '@utilities/string.utilities'
 
 export const LocalStorageRuleRepeatableService = {
   async getAll(

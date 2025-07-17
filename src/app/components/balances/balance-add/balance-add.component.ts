@@ -68,7 +68,9 @@ export class BalanceAddDialogComponent implements OnInit {
   ngOnInit() {
     this.matDialogRef?.afterClosed().subscribe(() => {
       this.matDialogRef = null
-      this.router.navigate(['/', this.financeService.budget?.id])
+      this.router.navigate(['/', this.financeService.budget?.id], {
+        preserveFragment: true,
+      })
     })
   }
 

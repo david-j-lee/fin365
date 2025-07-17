@@ -1,4 +1,4 @@
-<mat-expansion-panel expanded="true" class="mb-3">
+<mat-expansion-panel class="mb-3">
   <mat-expansion-panel-header>
     <mat-panel-title> Snapshots </mat-panel-title>
   </mat-expansion-panel-header>
@@ -25,13 +25,17 @@
     <div class="me-3">
       <button
         mat-flat-button
-        color="primary"
         [routerLink]="['./snapshots/view']"
+        [preserveFragment]="true"
       >
         <mat-icon>table_view</mat-icon> View
       </button>
     </div>
-    <button mat-flat-button color="primary" [routerLink]="['./snapshots/add']">
+    <button
+      mat-flat-button
+      [routerLink]="['./snapshots/add']"
+      [preserveFragment]="true"
+    >
       <mat-icon>add_circle</mat-icon> Add
     </button>
   </div>
@@ -54,9 +58,9 @@
     <div class="d-flex justify-content-end">
       <button
         mat-flat-button
-        color="primary"
         class="mt-3"
         [routerLink]="['./balances', 'add']"
+        [preserveFragment]="true"
       >
         <mat-icon>add_circle</mat-icon> Add
       </button>
@@ -78,9 +82,9 @@
     <div class="d-flex justify-content-end">
       <button
         mat-flat-button
-        color="primary"
         class="mt-3"
         [routerLink]="['./revenues', 'add']"
+        [preserveFragment]="true"
       >
         <mat-icon>add_circle</mat-icon> Add
       </button>
@@ -105,9 +109,9 @@
     <div class="d-flex justify-content-end">
       <button
         mat-flat-button
-        color="primary"
         class="mt-3"
         [routerLink]="['./expenses', 'add']"
+        [preserveFragment]="true"
       >
         <mat-icon>add_circle</mat-icon> Add
       </button>

@@ -69,58 +69,34 @@
         myRevenue.frequency === 'Weekly' || myRevenue.frequency === 'Bi-Weekly'
       ) {
         <div class="d-flex flex-column my-2">
-          <mat-checkbox
-            [(ngModel)]="myRevenue.repeatSun"
-            name="repeatSun"
-            color="primary"
-            >Sun</mat-checkbox
-          >
-          <mat-checkbox
-            [(ngModel)]="myRevenue.repeatMon"
-            name="repeatMon"
-            color="primary"
-            >Mon</mat-checkbox
-          >
-          <mat-checkbox
-            [(ngModel)]="myRevenue.repeatTue"
-            name="repeatTue"
-            color="primary"
-            >Tue</mat-checkbox
-          >
-          <mat-checkbox
-            [(ngModel)]="myRevenue.repeatWed"
-            name="repeatWed"
-            color="primary"
-            >Wed</mat-checkbox
-          >
-          <mat-checkbox
-            [(ngModel)]="myRevenue.repeatThu"
-            name="repeatThu"
-            color="primary"
-            >Thu</mat-checkbox
-          >
-          <mat-checkbox
-            [(ngModel)]="myRevenue.repeatFri"
-            name="repeatFri"
-            color="primary"
-            >Fri</mat-checkbox
-          >
-          <mat-checkbox
-            [(ngModel)]="myRevenue.repeatSat"
-            name="repeatSat"
-            color="primary"
-            >Sat</mat-checkbox
-          >
+          <mat-checkbox [(ngModel)]="myRevenue.repeatSun" name="repeatSun">
+            Sun
+          </mat-checkbox>
+          <mat-checkbox [(ngModel)]="myRevenue.repeatMon" name="repeatMon">
+            Mon
+          </mat-checkbox>
+          <mat-checkbox [(ngModel)]="myRevenue.repeatTue" name="repeatTue">
+            Tue
+          </mat-checkbox>
+          <mat-checkbox [(ngModel)]="myRevenue.repeatWed" name="repeatWed">
+            Wed
+          </mat-checkbox>
+          <mat-checkbox [(ngModel)]="myRevenue.repeatThu" name="repeatThu">
+            Thu
+          </mat-checkbox>
+          <mat-checkbox [(ngModel)]="myRevenue.repeatFri" name="repeatFri">
+            Fri
+          </mat-checkbox>
+          <mat-checkbox [(ngModel)]="myRevenue.repeatSat" name="repeatSat">
+            Sat
+          </mat-checkbox>
         </div>
       }
       <h4 class="my-2">Time Span</h4>
       <div class="my-2">
-        <mat-checkbox
-          [(ngModel)]="myRevenue.isForever"
-          name="isForever"
-          color="primary"
-          >Is Forever</mat-checkbox
-        >
+        <mat-checkbox [(ngModel)]="myRevenue.isForever" name="isForever">
+          Is Forever
+        </mat-checkbox>
       </div>
       @if (
         !myRevenue.isForever ||
@@ -181,7 +157,6 @@
       <button
         type="submit"
         mat-flat-button
-        color="primary"
         [disabled]="form.invalid || isSubmitting"
       >
         <mat-icon>save</mat-icon> Save

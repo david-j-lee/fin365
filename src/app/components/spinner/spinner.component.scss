@@ -1,6 +1,8 @@
+@use '../../../styles/spacing.scss';
+
 .spinner {
-  width: 40px;
-  height: 40px;
+  width: spacing.get(16);
+  height: spacing.get(16);
   position: relative;
   margin: 30px auto;
 }

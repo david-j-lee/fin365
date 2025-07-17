@@ -10,10 +10,10 @@
         </div>
         <div class="fill-space text-ellipsis pe-1">
           <a
-            class="pointer"
             matLine
+            class="pointer me-2"
             [routerLink]="['./expense', expense.id, 'edit']"
-            class="me-2"
+            [preserveFragment]="true"
             >{{ expense.description }}</a
           >
         </div>

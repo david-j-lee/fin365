@@ -10,8 +10,10 @@
             class="pointer"
             matLine
             [routerLink]="['./balance', balance.id, 'edit']"
-            >{{ balance.description }}</a
+            [preserveFragment]="true"
           >
+            {{ balance.description }}
+          </a>
         </span>
         <div matListItemLine>$ {{ balance.amount | number: '1.0' }}</div>
       </div>

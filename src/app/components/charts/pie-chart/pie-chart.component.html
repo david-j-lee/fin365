@@ -1,0 +1,15 @@
+@if (chart) {
+  <div>
+    <div class="budgets-pie-chart">
+      <canvas
+        baseChart
+        [type]="chart.chartType"
+        [options]="chart.options"
+        [data]="chart.data"
+      ></canvas>
+    </div>
+    <h5 class="text-center mt-3">
+      {{ chart.total | currency: '' : 'symbol' : '1.0-0' }}{{ totalSuffix }}
+    </h5>
+  </div>
+}

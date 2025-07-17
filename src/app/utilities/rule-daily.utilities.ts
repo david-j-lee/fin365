@@ -1,5 +1,5 @@
-import { numberOfDays } from './constants'
-import { getRuleRange, getRuleRepeatDays } from './rule-utilities'
+import { getRuleRange, getRuleRepeatDays } from './rule.utilities'
+import { numberOfDays } from '@constants/budget.constants'
 import { Budget } from '@interfaces/budget.interface'
 import { DailyItem } from '@interfaces/daily-item.interface'
 import { RuleRepeatable } from '@interfaces/rule-repeatable.interface'
@@ -7,17 +7,17 @@ import { Rule } from '@interfaces/rule.interface'
 import {
   addDays,
   addMonths,
+  differenceInCalendarDays,
   differenceInCalendarMonths,
-  differenceInDays,
   isSameDay,
 } from 'date-fns'
 
-export function getCalculatedDataForRule(
+export function getDailyItemsForRule(
   budget: Budget,
   rule: Rule | RuleRepeatable,
-): Partial<Rule> {
+): DailyItem[] {
   if (!budget) {
-    return {}
+    return []
   }
 
   let daily: DailyItem[] | null = null
@@ -52,10 +52,7 @@ export function getCalculatedDataForRule(
   }
 
   // Add any meta data or calculated data to the rule
-  return {
-    yearlyAmount: daily?.reduce((sum, item) => sum + item.amount, 0) ?? 0,
-    daily: daily ?? [],
-  }
+  return daily ?? []
 }
 
 function generateRuleOnce(
@@ -110,7 +107,7 @@ function generateRuleDaily(
   }
 
   const minDayIndex = budget?.days().indexOf(minDay)
-  const numLoops = differenceInDays(endDate, startDate)
+  const numLoops = differenceInCalendarDays(endDate, startDate)
   const dailyItems: DailyItem[] = []
 
   for (let i = 0; i < numLoops; i++) {
@@ -157,7 +154,7 @@ function generateRuleWeeks(
     return null
   }
 
-  const numLoops = differenceInDays(endDate, startDate) / skipDays
+  const numLoops = differenceInCalendarDays(endDate, startDate) / skipDays
   const dailyItems: DailyItem[] = []
 
   for (let i = 0; i < numLoops; i++) {
@@ -213,7 +210,7 @@ function generateRuleMonths(
   for (let i = 0; i <= numLoops; i++) {
     const date = addMonths(firstDate, i * numMonths)
     const day =
-      budget?.days()[firstDateIndex + differenceInDays(date, firstDate)]
+      budget?.days()[firstDateIndex + differenceInCalendarDays(date, firstDate)]
 
     if (!day) {
       continue
@@ -241,7 +238,7 @@ function getFirstDayIndex(budget: Budget, date: Date) {
   const [firstDay] = budget.days()
 
   if (date < firstDay.date) {
-    return differenceInDays(date, firstDay.date)
+    return differenceInCalendarDays(date, firstDay.date)
   }
 
   const budgetFirstDay = budget?.days().find((day) => isSameDay(day.date, date))

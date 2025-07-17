@@ -10,12 +10,13 @@
         </div>
         <div class="fill-space text-ellipsis pe-1">
           <a
-            class="pointer"
             matLine
+            class="pointer me-2"
             [routerLink]="['./revenue', revenue.id, 'edit']"
-            class="me-2"
-            >{{ revenue.description }}</a
+            [preserveFragment]="true"
           >
+            {{ revenue.description }}
+          </a>
         </div>
         <div class="fill-space text-end">
           $ {{ revenue.amount | number: '1.0' }}

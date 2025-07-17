@@ -29,9 +29,9 @@ import { MatSelect } from '@angular/material/select'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { Router } from '@angular/router'
 import { SpinnerComponent } from '@components/spinner/spinner.component'
+import { frequencies } from '@constants/budget.constants'
 import { RuleRepeatableAdd } from '@interfaces/rule-repeatable-add.interface'
 import { FinanceService } from '@services/finance.service'
-import { frequencies } from '@utilities/constants'
 
 @Component({
   selector: 'app-revenue-add-dialog',
@@ -99,7 +99,9 @@ export class RevenueAddDialogComponent implements OnInit {
   ngOnInit() {
     this.matDialogRef?.afterClosed().subscribe(() => {
       this.matDialogRef = null
-      this.router.navigate(['/', this.financeService.budget?.id])
+      this.router.navigate(['/', this.financeService.budget?.id], {
+        preserveFragment: true,
+      })
     })
   }
 

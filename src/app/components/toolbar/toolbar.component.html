@@ -1,4 +1,4 @@
-<mat-toolbar color="primary">
+<mat-toolbar>
   @if (financeService.budget) {
     <button mat-icon-button [routerLink]="['/']">
       <mat-icon>arrow_back</mat-icon>
@@ -19,17 +19,29 @@
       }
       <mat-icon>arrow_drop_down</mat-icon>
     </button>
+    @for (item of budgetNavOptions; track item) {
+      <a
+        mat-button
+        [routerLink]="[]"
+        [fragment]="item.key"
+        [class.active-mat-button]="financeService.tab.key === item.key"
+      >
+        {{ item.label }}
+      </a>
+    }
     <div class="fill-space"></div>
     <button
       mat-icon-button
       class="primary"
       [routerLink]="['/', financeService.budget.id, 'edit']"
+      [preserveFragment]="true"
     >
       <mat-icon>mode_edit</mat-icon>
     </button>
     <button
       mat-icon-button
       [routerLink]="['/', financeService.budget.id, 'add']"
+      [preserveFragment]="true"
     >
       <mat-icon>add</mat-icon>
     </button>

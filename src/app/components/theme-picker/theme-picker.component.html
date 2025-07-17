@@ -1,8 +1,8 @@
 <button mat-icon-button (click)="toggleTheme()">
-  @if (themeService.selectedTheme === 'dark') {
+  @if (themeService.selectedMode === 'dark') {
     <mat-icon>light_mode</mat-icon>
   }
-  @if (themeService.selectedTheme === 'light') {
+  @if (themeService.selectedMode === 'light') {
     <mat-icon>dark_mode</mat-icon>
   }
 </button>
