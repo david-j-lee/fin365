@@ -1,3 +1,4 @@
+import { getRgba } from './color.utilities'
 import { WritableSignal } from '@angular/core'
 import { numberOfDays } from '@constants/budget.constants'
 import { colorsRgb } from '@constants/color.constants'
@@ -150,16 +151,16 @@ export function getAlpha(baseAlpha: number, factor: number) {
   return baseAlpha + (1 - baseAlpha) * factor
 }
 
-export function getRgba(
+export function getRgbaForRule(
   ruleType: RuleType | null,
-  total: number,
-  value: number,
+  count: number,
+  index: number,
 ) {
   if (!ruleType) {
     return ''
   }
   const rgb = colorsRgb[ruleType as keyof typeof colorsRgb]
-  const intensity = 1 - value / (total - 1)
+  const intensity = Math.round(((count - index) / count) * 100) / 100
   const alpha = getAlpha(baseOpacity, intensity)
-  return `rgba(${rgb}, ${alpha})`
+  return getRgba(rgb, alpha)
 }
